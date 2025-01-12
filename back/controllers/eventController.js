@@ -12,8 +12,14 @@ exports.createEvent = async (req, res) => {
             location,
             organizedBy,
             ticketPrice,
-            Quantity
+            Quantity,
+            tickets
         } = req.body;
+
+        // Ensure tickets are provided
+        if (!tickets || tickets.length === 0) {
+            return res.status(400).json({ message: 'At least one ticket type is required' });
+        }
 
         // Ensure at least one image is uploaded
         if (!req.files || req.files.length === 0) {
@@ -27,6 +33,7 @@ exports.createEvent = async (req, res) => {
 
         // Save image paths
         const images = req.files.map(file => `/uploads/events/${file.filename}`);
+        const ticketDetails = JSON.parse(tickets);
 
         const newEvent = new Event({
             title,
@@ -39,7 +46,9 @@ exports.createEvent = async (req, res) => {
             organizer: req.user._id, // Use the logged-in user ID as the organizer
             ticketPrice: Number(ticketPrice),
             Quantity: Number(Quantity),
-            image: images // Save array of image paths
+            image: images ,// Save array of image paths
+          tickets: ticketDetails, // Array of ticket details
+
         });
 
         const savedEvent = await newEvent.save();

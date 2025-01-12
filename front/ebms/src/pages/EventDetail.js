@@ -1,69 +1,5 @@
-// import React from 'react';
-// import { useParams, Link } from 'react-router-dom';
-// import { useGetEventDetailsQuery } from '../features/api/eventApi';
-
-// const EventDetailPage = () => {
-//     const { id } = useParams();
-//     const { data: event, isLoading, isError } = useGetEventDetailsQuery(id);
-
-//     if (isLoading) {
-//         return <div>Loading event details...</div>;
-//     }
-
-//     if (isError || !event) {
-//         return <div>Error fetching event details or event not found.</div>;
-//     }
-
-//     return (
-//         <div>
-//             <div>
-//                 <h2>Event Images</h2>
-//                 <div className="grid grid-cols-3 gap-4">
-//                     {event.image.map((imgUrl, index) => (
-//                         <img
-//                             key={index}
-//                             src={`http://localhost:5000${imgUrl}`} // Ensure your backend serves images correctly
-//                             alt={`${event.title}`}
-//                             className="w-full h-40 object-cover"
-//                         />
-//                     ))}
-//                 </div>
-//             </div>
-
-//             <h1>{event.title}</h1>
-//             <p>{event.description}</p>
-//             <p>
-//                 <strong>Date:</strong> {new Date(event.eventDate).toLocaleDateString()}
-//             </p>
-//             <p>
-//                 <strong>Time:</strong> {event.eventTime}
-//             </p>
-//             <p>
-//                 <strong>Location:</strong> {event.location}
-//             </p>
-//             <p>
-//                 <strong>Organized By:</strong> {event.organizedBy}
-//             </p>
-//             <p>
-//                 <strong>Ticket Price:</strong> ${event.ticketPrice}
-//             </p>
-//             <p>
-//                 <strong>Likes:</strong> {event.likes}
-//             </p>
-           
-//             <Link to="/events">
-//                 <button>Back to Events</button>
-//             </Link>
-//         </div>
-//     );
-// };
-
-// export default EventDetailPage;
-
-
 
 import axios from "axios";
-// import BookmarkButton from "../components/BookMark";
 import { BsArrowRightShort } from "react-icons/bs";
 import {  useEffect, useState } from "react";
 import { Link, useParams ,useNavigate} from "react-router-dom"
@@ -71,18 +7,18 @@ import { AiFillCalendar } from "react-icons/ai";
 import { MdLocationPin } from "react-icons/md";
 import { FaCopy, FaWhatsappSquare, FaFacebook } from "react-icons/fa";
 import BookmarkButton from "../UserPage/BookMarkEvent";
-// import { UserContext } from "../UserContext";
 import SkeletonLoader from "../layout/SkeletonLoader";
 import { useSelector } from "react-redux";
 export default function EventPage() {
     const { id } = useParams();
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [selectedTicket, setSelectedTicket] = useState(null); // Track selected ticket
+
     const navigate = useNavigate();
 
     const user = useSelector((state) => state.auth.user);
 
-    // const { user } = useContext(UserContext)//fetch login user
     //! Fetching the event data from server by ID ------------------------------------------
     useEffect(() => {
         if (!id) {
@@ -91,6 +27,8 @@ export default function EventPage() {
             return;
         }
         axios.get(`http://localhost:5000/api/events/${id}`).then(response => {
+            console.log('responses from api',response.data); // Debug the data
+
             setEvent(response.data)
             setLoading(false)
         }).catch((error) => {
@@ -117,6 +55,19 @@ export default function EventPage() {
         const linkToShare = window.location.href;
         const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(linkToShare)}`;
         window.open(facebookShareUrl);
+    };
+
+    const handleTicketSelection = (ticket) => {
+        setSelectedTicket(ticket);
+    };
+
+    const handleCheckout = () => {
+        if (!selectedTicket) {
+            alert("Please select a ticket type.");
+            return;
+        }
+        // Redirect to checkout page with the selected ticket
+        navigate(`/checkout`, { state: { ticket: selectedTicket, event } });
     };
 
     // Show a loading skeleton while fetching event data
@@ -252,6 +203,54 @@ export default function EventPage() {
                     </button>
                     
 
+                </div>
+            </div>
+            {/* Ticket selection */}
+            <div className="mt-10 flex justify-start ">
+                <div className="p-8 bg-white shadow-md rounded-lg mx-4 max-w-xl border-solid border-4 border-gray-300">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                        Choose  Ticket Type
+                    </h2>
+                    <div className="space-y-4">
+                        {event.tickets &&
+                            event.tickets.map((ticket, index) => (
+                                <div
+                                    key={index}
+                                    className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 ${selectedTicket?.type === ticket.type
+                                            ? "border-blue-500 bg-blue-50"
+                                            : "border-gray-300"
+                                        }`}
+                                    onClick={() => handleTicketSelection(ticket)}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="radio"
+                                            id={`ticket-${index}`}
+                                            name="ticket"
+                                            value={ticket.type}
+                                            onChange={() => handleTicketSelection(ticket)}
+                                            checked={selectedTicket?.type === ticket.type}
+                                            className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                        />
+                                        <label
+                                            htmlFor={`ticket-${index}`}
+                                            className="text-lg font-medium text-gray-700"
+                                        >
+                                            {ticket.type}
+                                        </label>
+                                    </div>
+                                    <span className="text-lg font-semibold text-gray-800">
+                                        {ticket.price === 0 ? "Free" : `ETB ${ticket.price}`}
+                                    </span>
+                                </div>
+                            ))}
+                    </div>
+                    <button
+                        onClick={handleCheckout}
+                        className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-300"
+                    >
+                        Proceed to Checkout
+                    </button>
                 </div>
             </div>
 

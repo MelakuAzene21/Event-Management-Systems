@@ -14,9 +14,13 @@ const CreateEvent = () => {
         ticketPrice: "",
         Quantity: "",
         images: [], // Holds the actual file objects
+        tickets: [], // Holds the ticket information
+
     });
 
     const [imagePreviews, setImagePreviews] = useState([]); // Previews of the images
+    const [newTicket, setNewTicket] = useState({ type: "", price: "" });
+
     const [createEvent] = useCreateEventMutation();
 
     // Handle input changes for text fields
@@ -24,6 +28,41 @@ const CreateEvent = () => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
+
+
+
+
+    const handleTicketChange = (e) => {
+        const { name, value } = e.target;
+        setNewTicket({ ...newTicket, [name]: value });
+    };
+
+    const addTicket = () => {
+        if (!newTicket.type || !newTicket.price) {
+            toast.error("Please provide both ticket type and price.");
+            return;
+        }
+
+        setFormData((prev) => ({
+            ...prev,
+            tickets: [...prev.tickets, newTicket],
+        }));
+        setNewTicket({ type: "", price: "" });
+    };
+
+    const removeTicket = (indexToRemove) => {
+        setFormData((prev) => ({
+            ...prev,
+            tickets: prev.tickets.filter((_, index) => index !== indexToRemove),
+        }));
+    };
+
+
+
+
+
+
+
 
     // Handle image selection
     const handleImageChange = (e) => {
@@ -59,7 +98,10 @@ const CreateEvent = () => {
             toast.error("Please upload at least one image.");
             return;
         }
-
+        if (formData.tickets.length === 0) {
+            toast.error("Please add at least one ticket type.");
+            return;
+        }
         const data = new FormData();
 
         Object.keys(formData).forEach((key) => {
@@ -67,7 +109,10 @@ const CreateEvent = () => {
                 formData.images.forEach((image) => {
                     data.append("images", image);
                 });
-            } else {
+            } else if (key === "tickets") {
+                data.append("tickets", JSON.stringify(formData.tickets));
+            } 
+            else {
                 data.append(key, formData[key]);
             }
         });
@@ -88,6 +133,8 @@ const CreateEvent = () => {
                 ticketPrice: "",
                 Quantity: "",
                 images: [],
+                tickets: [],
+
             });
             setImagePreviews([]);
         } catch (error) {
@@ -203,19 +250,49 @@ const CreateEvent = () => {
                     />
                 </div>
 
-                {/* Ticket Price */}
+
+                {/* Tickets */}
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                        Ticket Price
-                    </label>
-                    <input
-                        type="number"
-                        name="ticketPrice"
-                        value={formData.ticketPrice}
-                        onChange={handleInputChange}
-                        required
-                        className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
+                    <label className="block text-sm font-medium text-gray-700">Tickets</label>
+                    <div className="flex gap-4">
+                        <input
+                            type="text"
+                            name="type"
+                            value={newTicket.type}
+                            onChange={handleTicketChange}
+                            placeholder="Ticket Type (e.g., VIP)"
+                            className="block w-full p-2 border rounded-md"
+                        />
+                        <input
+                            type="number"
+                            name="price"
+                            value={newTicket.price}
+                            onChange={handleTicketChange}
+                            placeholder="Price"
+                            className="block w-full p-2 border rounded-md"
+                        />
+                        <button
+                            type="button"
+                            onClick={addTicket}
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                        >
+                            Add
+                        </button>
+                    </div>
+                    <ul className="mt-4">
+                        {formData.tickets.map((ticket, index) => (
+                            <li key={index} className="flex justify-between items-center">
+                                <span>{ticket.type} - ${ticket.price}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => removeTicket(index)}
+                                    className="text-red-500"
+                                >
+                                    Remove
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
 
                 {/* Quantity */}

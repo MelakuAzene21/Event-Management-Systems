@@ -17,7 +17,13 @@ const eventSchema = new mongoose.Schema(
         Participants: { type: Number }, // Total number of participants
         Count: { type: Number }, // Count of something, needs clarification
         Income: { type: Number }, // Event-related income
-        ticketPrice: { type: Number }, // Price per ticket
+        // ticketPrice: { type: Number }, // Price per ticket
+        tickets: [
+            {
+                type: { type: String, required: true }, // e.g., "VIP", "Regular", "Student"
+                price: { type: Number, required: true } // price of the ticket
+            }
+        ],
         Quantity: { type: Number }, // Number of tickets or items available
         image: { type: [String], required: true }, // URL or path to an event image
         likes: { type: Number, default: 0 }, // Number of likes
