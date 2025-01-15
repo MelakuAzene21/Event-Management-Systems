@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 import UserProfile from './UserPage/Getprofiles';
 import MyEventsPage from './Origanizer/MyEvent'
 import UpdateEventPage from './Origanizer/UpdateEvent';
+import OriganizerDashboard from './Origanizer/Dashboard';
 function App() {
   const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
@@ -43,9 +44,10 @@ function App() {
           <Route path="*" element={<NotFound />} />
           <Route path="/create-event" element={<CreateEvent />} />
           <Route path="/events" element={<EventPage />} />
+            <Route path="/Origanizer-dashboard" element={<OriganizerDashboard />} />
            <Route path="/myEvent" element={<MyEventsPage />} />
            <Route path="/updateEvent/:id" element={<UpdateEventPage />} />
-
+ 
           <Route path="/events/:id" element={<EventDetailPage />} />
           <Route path='/calendar' element={<CalendarView/>}/>
           </Route>

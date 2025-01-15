@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import { BsArrowRightShort } from "react-icons/bs";
 import {  useEffect, useState } from "react";
@@ -187,24 +186,7 @@ export default function EventPage() {
                 </div>
 
             </div>
-            <div className="mx-2 mt-5 text-md md:text-xl font-extrabold">
-                Share with friends
-                <div className="mt-10 flex gap-5 mx-10 md:mx-32 ">
-                    <button onClick={handleCopyLink}>
-                        <FaCopy className="w-auto h-6" />
-                    </button>
-
-                    <button onClick={handleWhatsAppShare}>
-                        <FaWhatsappSquare className="w-auto h-6" />
-                    </button>
-
-                    <button onClick={handleFacebookShare}>
-                        <FaFacebook className="w-auto h-6" />
-                    </button>
-                    
-
-                </div>
-            </div>
+            
             {/* Ticket selection */}
             <div className="mt-10 flex justify-start ">
                 <div className="p-8 bg-white shadow-md rounded-lg mx-4 max-w-xl border-solid border-4 border-gray-300">
@@ -254,6 +236,26 @@ export default function EventPage() {
                 </div>
             </div>
 
+
+
+            <div className="mx-2 mt-5 text-md md:text-xl font-extrabold">
+                Share with friends
+                <div className="mt-10 flex gap-5 mx-10 md:mx-32 ">
+                    <button onClick={handleCopyLink}>
+                        <FaCopy className="w-auto h-6" />
+                    </button>
+
+                    <button onClick={handleWhatsAppShare}>
+                        <FaWhatsappSquare className="w-auto h-6" />
+                    </button>
+
+                    <button onClick={handleFacebookShare}>
+                        <FaFacebook className="w-auto h-6" />
+                    </button>
+
+
+                </div>
+            </div>
         </div>
     )
 }
