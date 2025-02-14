@@ -49,7 +49,8 @@ export default function MyEventsPage() {
                         myEvents.map((event) => (
                             <div key={event._id} className="bg-white rounded-lg shadow-lg overflow-hidden">
                                 <img
-                                    src={`http://localhost:5000${event.image[0]}`}
+                                    // src={`http://localhost:5000${event.image[0]}`}
+                                    src={event.image[0]}
                                     alt={event.title}
                                     className="w-full h-48 object-cover"
                                 />
