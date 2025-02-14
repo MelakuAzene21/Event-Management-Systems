@@ -1,5 +1,7 @@
 const Event = require('../models/Event');
 const User = require('../models/User')
+const { cloudinary } = require('../utils/cloudinaryConfig');
+
 // Event creation handler with multiple image uploads
 exports.createEvent = async (req, res) => {
     try {
@@ -31,8 +33,13 @@ exports.createEvent = async (req, res) => {
             return res.status(400).json({ message: 'You can upload up to 5 images only' });
         }
 
-        // Save image paths
-        const images = req.files.map(file => `/uploads/events/${file.filename}`);
+        // // Save image paths
+        // const images = req.files.map(file => `/uploads/events/${file.filename}`);
+       
+       
+        // Cloudinary image URLs
+        const images = req.files.map(file => file.path);
+        
         const ticketDetails = JSON.parse(tickets);
 
         const newEvent = new Event({
