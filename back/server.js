@@ -1,6 +1,11 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const path=require('path')
+const passport = require("passport");
+const session = require('express-session');
+require("./config/passport");
+
+
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db'); // Import the database connection
 const authRoutes = require('./routes/authRoutes');
@@ -20,6 +25,19 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 app.use(cookieParser()); 
+
+
+// Session middleware (for Passport)
+app.use(
+    session({
+        secret: process.env.JWT_SECRET,
+        resave: false,
+        saveUninitialized: false,
+    })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB

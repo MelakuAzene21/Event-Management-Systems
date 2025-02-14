@@ -3,12 +3,59 @@ const { register, login,logout, getProfile, updateProfile, getAllUsers ,uploadAv
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
+const passport = require("passport");
 
+require("../config/passport");
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout',verifyToken, logout);
 router.get('/profile',verifyToken, getProfile);
 // router.post('/upload-avatar', uploadAvatar);
+
+
+
+
+// Google OAuth Login
+router.get("/google", passport.authenticate("google",
+
+    { scope: ["profile", "email"] ,
+    prompt: 'select_account'  // Forces Google to show account selection
+  }));
+
+// Google OAuth Callback
+router.get(
+    "/google/callback",
+    passport.authenticate("google", { failureRedirect: "http://localhost:3000/login" }),
+    (req, res) => {
+
+        console.log("Google response",req.query);
+const{code}=req.query;
+console.log("Authorization code",code);
+        const token = req.user.token;
+        console.log("Token from google authenticated",token);
+        // Store token in a cookie
+        res.cookie("token", req.user.token, {
+            httpOnly: true,
+            secure: false, // Change to true in production (for HTTPS)
+            sameSite: "strict",
+        });
+        res.redirect("http://localhost:3000");
+    }
+);
+
+
+
+// Logout Route
+router.get("/logout", (req, res) => {
+    req.logout((err) => {
+        if (err) return res.status(500).send("Error logging out.");
+        res.clearCookie("token");
+        res.redirect("http://localhost:3000");
+    });
+});
+
+
+
 
 router.put('/updateProfile/:id',verifyToken, updateProfile);
 router.get('/getAllUser',verifyToken,checkRole('admin'), getAllUsers);

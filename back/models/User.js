@@ -4,12 +4,12 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: false },
     role: { type: String, enum: ['admin', 'organizer', 'user'], default: 'user' },
     avatar: { type: String }, // Add this field to store the avatar file path or URL
 
 }, { timestamps: true });
-
+  
 // Hash password before saving
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();

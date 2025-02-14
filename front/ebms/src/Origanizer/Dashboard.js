@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-
+import {useNavigate} from "react-router-dom";
 const OrganizerDashboard = () => {
     const [activeTab, setActiveTab] = useState("events");
-
+const navigate=useNavigate();
     const renderContent = () => {
         switch (activeTab) {
             case "events":
-                return <div className="p-4">Here are all the events you created.</div>;
-            case "attendees":
+                navigate('/myEvent')    
+            break; 
+ case "attendees":
                 return <div className="p-4">View attendees for each event.</div>;
             case "tickets":
                 return <div className="p-4">Manage ticketing for your events.</div>;

@@ -47,7 +47,7 @@ import { useDispatch } from 'react-redux';
 import { setUser } from '../features/slices/authSlice';
 import { Link } from 'react-router-dom';
 import Title from '../layout/Title';
-
+import { FaGoogle } from 'react-icons/fa';
 const Login = () => {
     const [login, { isLoading }] = useLoginMutation();
     const dispatch = useDispatch();
@@ -59,6 +59,14 @@ const Login = () => {
     });
 
     const [errorMessage, setErrorMessage] = useState('');
+
+
+
+    
+        const googleLogin = () => {
+            window.open("http://localhost:5000/api/auth/google", "_self");
+        };
+
 
     const handleChange = (e) => {
         setFormData({
@@ -119,6 +127,14 @@ const Login = () => {
                 >
                     {isLoading ? 'Logging in...' : 'Login'}
                 </button>
+                <button
+                    onClick={googleLogin}
+                    className="flex items-center justify-center w-full py-3 text-white bg-red-500 rounded-lg shadow-md hover:bg-red-600 transition duration-300"
+                >
+                    <FaGoogle className="text-xl mr-2" /> {/* Google Icon */}
+                    Login with Google
+                </button>
+
                 <div className="text-center mt-4">
                     <p>Don't have an account? <Link to="/register" className="text-blue-600 hover:underline">Sign Up</Link></p>
                     <p className="mt-2"><Link to="/forgot-password" className="text-blue-600 hover:underline">Forgot Password?</Link></p>
