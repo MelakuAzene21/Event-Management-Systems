@@ -19,8 +19,9 @@ router.get('/profile',verifyToken, getProfile);
 router.get("/google", passport.authenticate("google",
 
     { scope: ["profile", "email"] ,
-    prompt: 'select_account'  // Forces Google to show account selection
-  }));
+    prompt: 'select_account consent' , // Forces Google to show account selection and persmission dialog
+    accessType: 'offline' ,// Enables refresh token
+    authtype:'reauthenticate'  }));
 
 // Google OAuth Callback
 router.get(
