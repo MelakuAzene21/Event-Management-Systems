@@ -83,7 +83,7 @@ export default function Header() {
 
     return (
         <div>
-            <header className='flex py-2 px-6 sm:px-6 justify-between place-items-center bg-gray-300'>
+            <header className="fixed top-0 left-0 w-full flex py-2 px-6 sm:px-6 justify-between items-center bg-gray-300 z-50 shadow-md">
 
                 <Link to={'/'} className="flex item-center ">
                     {/* <img src="/assets/events.jpg" alt="" className='w-30 h-10 font-bold' /> */}
