@@ -124,7 +124,7 @@ export default function EventPage() {
                                             //  src={`http://localhost:5000${imgUrl}`} // Ensure your backend serves images correctly
                                             src= {event.image[0]}
                                             alt={`${event.title}`}
-                                             className="w-full h-40 object-cover"
+                                             className="w-full h-40 object-cover hover:scale-105 transition-transform duration-300 ease-in-out"
                                          />
                                     ))}
                                 </div>

@@ -299,7 +299,8 @@ export default function IndexPage() {
                                                 alt={event.title}
                                                 width="300"
                                                 height="200"
-                                                className="w-full h-full"
+                                                    className="w-full h-full hover:scale-105 transition-transform duration-300 ease-in-out"
+
                                             />
                                             </Link>
                                         )}
@@ -373,6 +374,7 @@ export default function IndexPage() {
                                            src={event.image[0]} alt={event.title}
                                             width="300"
                                             height="200"
+                                            className="hover:scale-105 transition-transform duration-300 ease-in-out"
                                         />
                                     )}
                                 </div>
@@ -416,6 +418,7 @@ export default function IndexPage() {
                                            alt={event.title}
                                             width="300"
                                             height="200"
+                                            className="hover:scale-105 transition-transform duration-300 ease-in-out"
                                         />
                                     )}
                                 </div>
@@ -457,6 +460,8 @@ export default function IndexPage() {
                                             alt={event.title}
                                             width="300"
                                             height="200"
+                                            className="hover:scale-105 transition-transform duration-300 ease-in-out"
+                                            
                                         />
                                     )}
                                 </div>
