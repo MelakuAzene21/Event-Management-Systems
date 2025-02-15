@@ -118,11 +118,11 @@ export default function EventPage() {
         <div className="flex flex-col mx-5 xl:mx-32 md:mx-10 mt-5 flex-grow">
             <div >
                 <div className="grid grid-cols-3 gap-4">
-                                     {event.image.map((imgUrl, index) => (
+                                     {event.images.map((imgUrl, index) => (
                                          <img
                                              key={index}
-                                            //  src={`http://localhost:5000${imgUrl}`} // Ensure your backend serves images correctly
-                                            src= {event.image[0]}
+                                             src={`http://localhost:5000${imgUrl}`} // Ensure your backend serves images correctly
+                                            // src= {event.image[0]}
                                             alt={`${event.title}`}
                                              className="w-full h-40 object-cover hover:scale-105 transition-transform duration-300 ease-in-out"
                                          />
@@ -188,7 +188,40 @@ export default function EventPage() {
 
             </div>
             
-            {/* Ticket selection */}
+            {/* Ticket Selection */}
+            <div className="mt-10 p-8 bg-white shadow-md rounded-lg mx-4 max-w-xl border-4 border-gray-300">
+                <h2 className="text-2xl font-bold mb-6">Choose a Ticket</h2>
+                <div className="space-y-4">
+                    {event.ticketTypes.map((ticket, index) => (
+                        <div
+                            key={index}
+                            className={`flex justify-between p-4 border rounded-lg cursor-pointer hover:scale-105 transition-transform ${selectedTicket?.name === ticket.name ? "border-blue-500 bg-blue-50" : "border-gray-300"
+                                }`}
+                            onClick={() => handleTicketSelection(ticket)}
+                        >
+                            <div className="flex gap-3">
+                                <input
+                                    type="radio"
+                                    name="ticket"
+                                    value={ticket.name}
+                                    checked={selectedTicket?.name === ticket.name}
+                                    onChange={() => handleTicketSelection(ticket)}
+                                    className="w-5 h-5 text-blue-600"
+                                />
+                                <label className="text-lg font-medium">{ticket.name}</label>
+                            </div>
+                            <span className="text-lg font-semibold">
+                                {ticket.price === 0 ? "Free" : `ETB ${ticket.price}`} ({ticket.limit} left)
+                            </span>
+                        </div>
+                    ))}
+                </div>
+                <button onClick={handleCheckout} className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg">
+                    Proceed to Checkout
+                </button>
+            </div>
+
+            {/* Ticket selection
             <div className="mt-10 flex justify-start ">
                 <div className="p-8 bg-white shadow-md rounded-lg mx-4 max-w-xl border-solid border-4 border-gray-300">
                     <h2 className="text-2xl font-bold text-gray-800 mb-6">
@@ -235,7 +268,7 @@ export default function EventPage() {
                         Proceed to Checkout
                     </button>
                 </div>
-            </div>
+            </div> */}
 
 
 

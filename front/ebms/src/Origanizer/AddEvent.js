@@ -10,16 +10,14 @@ const CreateEvent = () => {
         eventDate: "",
         eventTime: "",
         location: "",
-        organizedBy: "",
-        ticketPrice: "",
-        Quantity: "",
+        organizedBy: "",        
         images: [], // Holds the actual file objects
         tickets: [], // Holds the ticket information
 
     });
 
     const [imagePreviews, setImagePreviews] = useState([]); // Previews of the images
-    const [newTicket, setNewTicket] = useState({ type: "", price: "" });
+    const [newTicket, setNewTicket] = useState({ name: "", price: "" ,limit:""}); // Holds the new ticket information});
 
     const [createEvent] = useCreateEventMutation();
 
@@ -30,15 +28,13 @@ const CreateEvent = () => {
     };
 
 
-
-
     const handleTicketChange = (e) => {
         const { name, value } = e.target;
         setNewTicket({ ...newTicket, [name]: value });
     };
 
     const addTicket = () => {
-        if (!newTicket.type || !newTicket.price) {
+        if (!newTicket.name || !newTicket.price|| !newTicket.limit) {
             toast.error("Please provide both ticket type and price.");
             return;
         }
@@ -47,7 +43,7 @@ const CreateEvent = () => {
             ...prev,
             tickets: [...prev.tickets, newTicket],
         }));
-        setNewTicket({ type: "", price: "" });
+        setNewTicket({ name: "", price: "" , limit: ""});
     };
 
     const removeTicket = (indexToRemove) => {
@@ -56,12 +52,6 @@ const CreateEvent = () => {
             tickets: prev.tickets.filter((_, index) => index !== indexToRemove),
         }));
     };
-
-
-
-
-
-
 
 
     // Handle image selection
@@ -129,9 +119,7 @@ const CreateEvent = () => {
                 eventDate: "",
                 eventTime: "",
                 location: "",
-                organizedBy: "",
-                ticketPrice: "",
-                Quantity: "",
+                organizedBy: "",                
                 images: [],
                 tickets: [],
 
@@ -251,14 +239,15 @@ const CreateEvent = () => {
                 </div>
 
 
+
                 {/* Tickets */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Tickets</label>
                     <div className="flex gap-4">
                         <input
                             type="text"
-                            name="type"
-                            value={newTicket.type}
+                            name="name"
+                            value={newTicket.name}
                             onChange={handleTicketChange}
                             placeholder="Ticket Type (e.g., VIP)"
                             className="block w-full p-2 border rounded-md"
@@ -269,6 +258,14 @@ const CreateEvent = () => {
                             value={newTicket.price}
                             onChange={handleTicketChange}
                             placeholder="Price"
+                            className="block w-full p-2 border rounded-md"
+                        />
+                        <input
+                            type="number"
+                            name="limit"
+                            value={newTicket.limit}
+                            onChange={handleTicketChange}
+                            placeholder="Quantity"
                             className="block w-full p-2 border rounded-md"
                         />
                         <button
@@ -282,7 +279,7 @@ const CreateEvent = () => {
                     <ul className="mt-4">
                         {formData.tickets.map((ticket, index) => (
                             <li key={index} className="flex justify-between items-center">
-                                <span>{ticket.type} - ${ticket.price}</span>
+                                <span>{ticket.name} - ${ticket.price} - {ticket.limit} available</span>
                                 <button
                                     type="button"
                                     onClick={() => removeTicket(index)}
@@ -295,21 +292,8 @@ const CreateEvent = () => {
                     </ul>
                 </div>
 
-                {/* Quantity */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                        Quantity
-                    </label>
-                    <input
-                        type="number"
-                        name="Quantity"
-                        value={formData.Quantity}
-                        onChange={handleInputChange}
-                        required
-                        className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
 
+                
 
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Images</label>
