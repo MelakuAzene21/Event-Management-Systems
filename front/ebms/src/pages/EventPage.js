@@ -290,12 +290,12 @@ export default function IndexPage() {
                             return (
                                 <div className="bg-white rounded-xl relative" key={event._id}>
                                     <div className='rounded-tl-[0.75rem] rounded-tr-[0.75rem] rounded-br-[0] rounded-bl-[0] object-fill aspect-16:9'>
-                                        {event.image && (
+                                        {event.images && (
                                             <Link to={`/events/${event._id}`}>
                                             <img
 
-                                                // src={`http://localhost:5000${event.image[0]}`}
-                                                src={event.image[0]}
+                                                src={`http://localhost:5000${event.images[0]}`}
+                                                // src={event.image[0]}
                                                 alt={event.title}
                                                 width="300"
                                                 height="200"
@@ -370,8 +370,8 @@ export default function IndexPage() {
                                 <div className="rounded-tl-[0.75rem] rounded-tr-[0.75rem] object-fill aspect-16:9">
                                     {event.image && (
                                         <img
-                                            // src={`http://localhost:5000${event.image[0]}`}                                            alt={event.title}
-                                           src={event.image[0]} alt={event.title}
+                                            src={`http://localhost:5000${event.image[0]}`}                                            alt={event.title}
+                                        //    src={event.image[0]} alt={event.title}
                                             width="300"
                                             height="200"
                                             className="hover:scale-105 transition-transform duration-300 ease-in-out"
@@ -413,9 +413,9 @@ export default function IndexPage() {
                                 <div className="rounded-tl-[0.75rem] rounded-tr-[0.75rem] object-fill aspect-16:9">
                                     {event.image && (
                                         <img
-                                            // src={`http://localhost:5000${event.image[0]}`}                                            alt={event.title}
-                                           src={event.image[0]} 
-                                           alt={event.title}
+                                            src={`http://localhost:5000${event.image[0]}`}                                            alt={event.title}
+                                        //    src={event.image[0]} 
+                                        //    alt={event.title}
                                             width="300"
                                             height="200"
                                             className="hover:scale-105 transition-transform duration-300 ease-in-out"
@@ -455,9 +455,9 @@ export default function IndexPage() {
                                 <div className="rounded-tl-[0.75rem] rounded-tr-[0.75rem] object-fill aspect-16:9">
                                     {event.image && (
                                         <img
-                                            // src={`http://localhost:5000${event.image[0]}`}                                            alt={event.title}
-                                            src={event.image[0]}
-                                            alt={event.title}
+                                            src={`http://localhost:5000${event.image[0]}`}                                            alt={event.title}
+                                            // src={event.image[0]}
+                                            // alt={event.title}
                                             width="300"
                                             height="200"
                                             className="hover:scale-105 transition-transform duration-300 ease-in-out"
