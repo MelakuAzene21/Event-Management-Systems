@@ -1,5 +1,73 @@
+// const Event = require('../models/Event');
+// const User = require('../models/User')
+// const { cloudinary } = require('../utils/cloudinaryConfig');
+
+// // Event creation handler with multiple image uploads
+// exports.createEvent = async (req, res) => {
+//     try {
+//         const {
+//             title,
+//             description,
+//             category,
+//             eventDate,
+//             eventTime,
+//             location,
+//             organizedBy,
+//             ticketPrice,
+//             Quantity,
+//             tickets
+//         } = req.body;
+
+//         // Ensure tickets are provided
+//         if (!tickets || tickets.length === 0) {
+//             return res.status(400).json({ message: 'At least one ticket type is required' });
+//         }
+
+//         // Ensure at least one image is uploaded
+//         if (!req.files || req.files.length === 0) {
+//             return res.status(400).json({ message: 'At least one event image is required' });
+//         }
+
+//         // Ensure no more than 5 images are uploaded
+//         if (req.files.length > 5) {
+//             return res.status(400).json({ message: 'You can upload up to 5 images only' });
+//         }
+
+//         // Save image paths
+//         const images = req.files.map(file => `/uploads/events/${file.filename}`);
+       
+       
+//         // Cloudinary image URLs
+//         // const images = req.files.map(file => file.path);
+        
+//         const ticketDetails = JSON.parse(tickets);
+
+//         const newEvent = new Event({
+//             title,
+//             description,
+//             category,
+//             eventDate,
+//             eventTime,
+//             location,
+//             organizedBy,
+//             organizer: req.user._id, // Use the logged-in user ID as the organizer
+//             ticketPrice: Number(ticketPrice),
+//             Quantity: Number(Quantity),
+//             image: images ,// Save array of image paths
+//           tickets: ticketDetails, // Array of ticket details
+
+//         });
+
+//         const savedEvent = await newEvent.save();
+//         res.status(201).json(savedEvent);
+//     } catch (error) {
+//         console.error('Error creating event:', error);
+//         res.status(500).json({ message: 'Error creating event', error: error.message });
+//     }
+// };
+
 const Event = require('../models/Event');
-const User = require('../models/User')
+const User = require('../models/User');
 const { cloudinary } = require('../utils/cloudinaryConfig');
 
 // Event creation handler with multiple image uploads
@@ -13,10 +81,11 @@ exports.createEvent = async (req, res) => {
             eventTime,
             location,
             organizedBy,
-            ticketPrice,
-            Quantity,
-            tickets
+            tickets // Expecting an array of { name, price, limit }
         } = req.body;
+
+
+       
 
         // Ensure tickets are provided
         if (!tickets || tickets.length === 0) {
@@ -33,15 +102,26 @@ exports.createEvent = async (req, res) => {
             return res.status(400).json({ message: 'You can upload up to 5 images only' });
         }
 
-        // // Save image paths
-        // const images = req.files.map(file => `/uploads/events/${file.filename}`);
-       
-       
-        // Cloudinary image URLs
-        const images = req.files.map(file => file.path);
-        
-        const ticketDetails = JSON.parse(tickets);
+        // Save images (Cloudinary or local storage)
+        const images = req.files.map(file => `/uploads/events/${file.filename}`);
 
+        // Ensure tickets are parsed correctly (handle both JSON and array cases)
+        const parsedTickets = typeof tickets === "string" ? JSON.parse(tickets) : tickets;
+
+        // Validate ticket details and ensure name exists
+        const formattedTickets = parsedTickets.map(ticket => ({
+            name: ticket.name?.trim(), // Ensure name is not empty
+            price: Number(ticket.price),
+            limit: Number(ticket.limit),
+        }));
+
+        // Check for missing ticket names before proceeding
+        if (formattedTickets.some(ticket => !ticket.name)) {
+            return res.status(400).json({ message: "Each ticket type must have a name." });
+        }
+
+
+        // Create new event
         const newEvent = new Event({
             title,
             description,
@@ -50,14 +130,12 @@ exports.createEvent = async (req, res) => {
             eventTime,
             location,
             organizedBy,
-            organizer: req.user._id, // Use the logged-in user ID as the organizer
-            ticketPrice: Number(ticketPrice),
-            Quantity: Number(Quantity),
-            image: images ,// Save array of image paths
-          tickets: ticketDetails, // Array of ticket details
-
+            organizer: req.user._id, // Use the logged-in user ID
+            ticketTypes: formattedTickets, // Store ticket details
+            images, // Save array of image paths
         });
 
+        // Save to DB
         const savedEvent = await newEvent.save();
         res.status(201).json(savedEvent);
     } catch (error) {
@@ -65,6 +143,7 @@ exports.createEvent = async (req, res) => {
         res.status(500).json({ message: 'Error creating event', error: error.message });
     }
 };
+
 exports.getMostNearUpcomingEvent = async (req, res) => {
     try {
         const now = new Date();
