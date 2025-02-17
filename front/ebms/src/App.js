@@ -17,6 +17,7 @@ import UserProfile from './UserPage/Getprofiles';
 import MyEventsPage from './Origanizer/MyEvent'
 import UpdateEventPage from './Origanizer/UpdateEvent';
 import OriganizerDashboard from './Origanizer/Dashboard';
+import PaymentPage from './Private/Payment';
 function App() {
   const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
@@ -50,6 +51,8 @@ function App() {
  
           <Route path="/events/:id" element={<EventDetailPage />} />
           <Route path='/calendar' element={<CalendarView/>}/>
+            <Route path='/payment' element={<PaymentPage />} />
+
           </Route>
         </Routes>
       </div>

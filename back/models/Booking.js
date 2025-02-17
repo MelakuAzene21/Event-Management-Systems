@@ -12,7 +12,7 @@ const BookingSchema = new mongoose.Schema(
          required: true }, // e.g., "VIP", "Regular", "Student"
         ticketCount: { type: Number, 
         required: true }, // Number of tickets
-       ticktAmount: { type: Number, 
+       totalAmount: { type: Number,
         required: true }, // Total amount of the tickets
        paymentId: { type: String, required: true }, // Payment ID from the payment gateway
        status: { type: String, default:'booked'}, // Booking status, e.g., "Pending", "Confirmed", "Cancelled"

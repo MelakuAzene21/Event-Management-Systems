@@ -8,14 +8,24 @@ import { FaCopy, FaWhatsappSquare, FaFacebook } from "react-icons/fa";
 import BookmarkButton from "../UserPage/BookMarkEvent";
 import SkeletonLoader from "../layout/SkeletonLoader";
 import { useSelector } from "react-redux";
+import { useCreateBookingMutation } from "../features/api/bookingApi";
+import { useDispatch } from "react-redux";
+import { setCurrentBooking } from "../features/slices/bookingSlice";
+import { v4 as uuidv4 } from 'uuid';
+
 export default function EventPage() {
     const { id } = useParams();
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedTicket, setSelectedTicket] = useState(null); // Track selected ticket
-
+    const [ticketCounts, setTicketCounts] = useState({}); // Track ticket counts
+    const [message, setMessage] = useState("");//show  booking status
     const navigate = useNavigate();
 
+    const [createBooking,{isLoading}]=useCreateBookingMutation();
+    const transactionRef = uuidv4();
+
+    const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
 
     //! Fetching the event data from server by ID ------------------------------------------
@@ -58,15 +68,74 @@ export default function EventPage() {
 
     const handleTicketSelection = (ticket) => {
         setSelectedTicket(ticket);
+        setTicketCounts((prev) => ({
+            ...prev,
+            [ticket.name]: prev[ticket.name] || 1, // Default to 1 if not set
+        }));
     };
 
-    const handleCheckout = () => {
+    const handleIncrease = (ticket) => {
+        setTicketCounts((prev) => ({
+            ...prev,
+            [ticket.name]: Math.min((prev[ticket.name] || 1) + 1, ticket.limit),
+        }));
+    };
+
+    const handleDecrease = (ticket) => {
+        setTicketCounts((prev) => ({
+            ...prev,
+            [ticket.name]: Math.max((prev[ticket.name] || 1) - 1, 1),
+        }));
+    };
+
+    const handleBooking = async () => {
+        if (!user) {
+            alert("Please log in to book tickets.");
+            navigate("/login");
+            return;
+        }
+
         if (!selectedTicket) {
             alert("Please select a ticket type.");
             return;
         }
-        // Redirect to checkout page with the selected ticket
-        navigate(`/checkout`, { state: { ticket: selectedTicket, event } });
+
+        // try {
+        //     const response = await axios.post(
+        //         "http://localhost:5000/api/bookings/create-booking",
+        //         {   user: user._id,
+        //             event: event._id,
+        //             ticketType: selectedTicket.name,
+        //             ticketCount: ticketCounts[selectedTicket.name] || 1,
+        //             totalAmount:ticketCounts[selectedTicket.name] * selectedTicket.price,
+        //         },
+        //         {
+        //            withCredentials: true
+        //         }
+        //     );
+        //     setMessage(response.data.message);
+        //     console.log("Bookin in respones now to test paylod", response.data);
+        // } catch (error) {
+        //     setMessage(error.response?.data?.message || "Booking failed");
+        // }
+
+        const bookingData = {
+            user: user._id,
+            event: event._id,
+            ticketType: selectedTicket.name,
+            ticketCount: ticketCounts[selectedTicket.name] || 1,
+            totalAmount: ticketCounts[selectedTicket.name] * selectedTicket.price,
+            paymentId: transactionRef,
+        };
+
+        try {
+            const response = await createBooking(bookingData).unwrap();
+            dispatch(setCurrentBooking(response.booking)); // Store booking in Redux
+            navigate("/payment"); // Redirect to payment page
+        } catch (error) {
+            console.error("Booking error:", error);
+            alert("Booking failed");
+        }
     };
 
     // Show a loading skeleton while fetching event data
@@ -188,90 +257,48 @@ export default function EventPage() {
 
             </div>
             
+           
             {/* Ticket Selection */}
             <div className="mt-10 p-8 bg-white shadow-md rounded-lg mx-4 max-w-xl border-4 border-gray-300">
                 <h2 className="text-2xl font-bold mb-6">Choose a Ticket</h2>
+                {message && <p className="text-green-600">{message}</p>}
                 <div className="space-y-4">
                     {event.ticketTypes.map((ticket, index) => (
                         <div
                             key={index}
-                            className={`flex justify-between p-4 border rounded-lg cursor-pointer hover:scale-105 transition-transform ${selectedTicket?.name === ticket.name ? "border-blue-500 bg-blue-50" : "border-gray-300"
+                            className={`flex justify-between items-center p-4 border rounded-lg cursor-pointer hover:scale-105 transition-transform ${selectedTicket?.name === ticket.name ? "border-blue-500 bg-blue-50" : "border-gray-300"
                                 }`}
                             onClick={() => handleTicketSelection(ticket)}
                         >
-                            <div className="flex gap-3">
-                                <input
-                                    type="radio"
-                                    name="ticket"
-                                    value={ticket.name}
-                                    checked={selectedTicket?.name === ticket.name}
-                                    onChange={() => handleTicketSelection(ticket)}
-                                    className="w-5 h-5 text-blue-600"
-                                />
-                                <label className="text-lg font-medium">{ticket.name}</label>
+                            <div className="flex flex-col">
+                                <span className="text-lg font-medium">{ticket.name}</span>
+                                <span className="text-sm text-gray-600">{ticket.limit} left</span>
+                                <span className="text-sm text-gray-600">
+                                {ticket.price === 0 ? <span className="text-blue-500 font-bold italic">Free</span> : `${ticket.price} ETB`}
+                                </span>
                             </div>
-                            <span className="text-lg font-semibold">
-                                {ticket.price === 0 ? "Free" : `ETB ${ticket.price}`} ({ticket.limit} left)
-                            </span>
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    className="px-2 py-1 bg-gray-300 rounded"
+                                    onClick={(e) => { e.stopPropagation(); handleDecrease(ticket); }}>
+                                    -
+                                </button>
+                                <span className="px-3 py-1 border">{ticketCounts[ticket.name] || 1}</span>
+                                <button
+                                    className="px-2 py-1 bg-gray-300 rounded"
+                                    onClick={(e) => { e.stopPropagation(); handleIncrease(ticket); }}>
+                                    +
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
-                <button onClick={handleCheckout} className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg">
-                    Proceed to Checkout
+                <button onClick={handleBooking} className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg">
+                    Confirm Booking
                 </button>
             </div>
 
-            {/* Ticket selection
-            <div className="mt-10 flex justify-start ">
-                <div className="p-8 bg-white shadow-md rounded-lg mx-4 max-w-xl border-solid border-4 border-gray-300">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                        Choose  Ticket Type
-                    </h2>
-                    <div className="space-y-4">
-                        {event.tickets &&
-                            event.tickets.map((ticket, index) => (
-                                <div
-                                    key={index}
-                                    className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-transform transform hover:scale-105 ${selectedTicket?.type === ticket.type
-                                            ? "border-blue-500 bg-blue-50"
-                                            : "border-gray-300"
-                                        }`}
-                                    onClick={() => handleTicketSelection(ticket)}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <input
-                                            type="radio"
-                                            id={`ticket-${index}`}
-                                            name="ticket"
-                                            value={ticket.type}
-                                            onChange={() => handleTicketSelection(ticket)}
-                                            checked={selectedTicket?.type === ticket.type}
-                                            className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                        />
-                                        <label
-                                            htmlFor={`ticket-${index}`}
-                                            className="text-lg font-medium text-gray-700"
-                                        >
-                                            {ticket.type}
-                                        </label>
-                                    </div>
-                                    <span className="text-lg font-semibold text-gray-800">
-                                        {ticket.price === 0 ? "Free" : `ETB ${ticket.price}`}
-                                    </span>
-                                </div>
-                            ))}
-                    </div>
-                    <button
-                        onClick={handleCheckout}
-                        className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition-all duration-300"
-                    >
-                        Proceed to Checkout
-                    </button>
-                </div>
-            </div> */}
-
-
-
+            {/* Share with friends */}
             <div className="mx-2 mt-5 text-md md:text-xl font-extrabold">
                 Share with friends
                 <div className="mt-10 flex gap-5 mx-10 md:mx-32 ">
