@@ -54,7 +54,9 @@ const eventSchema = new mongoose.Schema(
             {
                 name: { type: String, required: true }, // e.g., "VIP", "Regular", "Student"
                 price: { type: Number, required: true }, // price of the ticket
-                limit: { type: Number, required: true ,min:0} // Number of tickets available
+                limit: { type: Number, required: true, min: 0 },// Number of tickets available
+                booked: { type: Number, default: 0 }, // Number of tickets booked
+                available: { type: Number, default: function () { return this.limit; } } // Number of tickets available
             }
         ],
         images: { type: [String], required: true }, // URL or path to an event image
