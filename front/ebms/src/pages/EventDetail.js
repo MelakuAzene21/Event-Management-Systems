@@ -77,7 +77,7 @@ export default function EventPage() {
     const handleIncrease = (ticket) => {
         setTicketCounts((prev) => ({
             ...prev,
-            [ticket.name]: Math.min((prev[ticket.name] || 1) + 1, ticket.limit),
+            [ticket.name]: Math.min((prev[ticket.name] || 1) + 1, ticket.available),
         }));
     };
 
@@ -272,7 +272,7 @@ export default function EventPage() {
                         >
                             <div className="flex flex-col">
                                 <span className="text-lg font-medium">{ticket.name}</span>
-                                <span className="text-sm text-gray-600">{ticket.limit} left</span>
+                                <span className="text-sm text-gray-600">{ticket.available ??ticket.limit} left</span>
                                 <span className="text-sm text-gray-600">
                                 {ticket.price === 0 ? <span className="text-blue-500 font-bold italic">Free</span> : `${ticket.price} ETB`}
                                 </span>
