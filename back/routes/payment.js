@@ -1,8 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const dotenv = require('dotenv');
-// const Order = require('../models/orderModel');
-// Load environment variables
+
 dotenv.config();
 // Determine the base URL based on the environment
 const baseUrl = process.env.NODE_ENV === 'production'
@@ -103,73 +102,71 @@ router.post('/initialize', async (req, res) => {
 
 
 
+// Verify transaction and update order status
+router.get('/verify-transaction/:tx_ref', async (req, res) => {
+    try {
+        const txRef = req.params.tx_ref; // Get tx_ref from the route parameter
+        const url = `https://api.chapa.co/v1/transaction/verify/${txRef}`;
 
-// // Verify transaction and update order status
-// router.get('/verify-transaction/:tx_ref', async (req, res) => {
-//     try {
-//         const txRef = req.params.tx_ref; // Get tx_ref from the route parameter
-//         const url = `https://api.chapa.co/v1/transaction/verify/${txRef}`;
+        // Make a request to verify the transaction with Chapa API
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`
+            }
+        });
+        if (response.status === 200 && response.data.status === 'success') {
+            const { tx_ref, status } = response.data.data;  // Extracting transaction details from Chapa response
 
-//         // Make a request to verify the transaction with Chapa API
-//         const response = await axios.get(url, {
-//             headers: {
-//                 Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`
-//             }
-//         });
-//         if (response.status === 200 && response.data.status === 'success') {
-//             const { tx_ref, status } = response.data.data;  // Extracting transaction details from Chapa response
+            // Check if the payment status is "success"
+            if (status === 'success' && tx_ref) {
+                // Find  the order in the database using the tx_ref
+                const order = await Order.findOne({ tx_ref: tx_ref });
 
-//             // Check if the payment status is "success"
-//             if (status === 'success' && tx_ref) {
-//                 // Find  the order in the database using the tx_ref
-//                 const order = await Order.findOne({ tx_ref: tx_ref });
+                // Check if the order exists and its payment status is "pending"
+                if (order && order.paymentResult && order.paymentResult.status === 'pending') {
+                    // Update the paymentResult status to "completed"
+                    order.paymentResult.status = 'completed';
+                    order.isPaid = true; // Optionally update the isPaid field if needed
+                    order.paymentResult.updatedAt = new Date(); // Update the timestamp for paymentResult
 
-//                 // Check if the order exists and its payment status is "pending"
-//                 if (order && order.paymentResult && order.paymentResult.status === 'pending') {
-//                     // Update the paymentResult status to "completed"
-//                     order.paymentResult.status = 'completed';
-//                     order.isPaid = true; // Optionally update the isPaid field if needed
-//                     order.paymentResult.updatedAt = new Date(); // Update the timestamp for paymentResult
+                    await order.save();  // Save the updated order status
 
-//                     await order.save();  // Save the updated order status
+                    // Send a response indicating the order was successfully updated
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Transaction verified and order payment status updated successfully.',
+                        order
+                    });
+                } else if (!order) {
+                    // If order doesn't exist, return an error response
+                    return res.status(404).json({
+                        success: false,
+                        message: 'Order not found'
+                    });
+                } else if (order.paymentResult.status !== 'pending') {
+                    // If the order payment status is already updated, return an acknowledgment
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Payment already processed for this order.'
+                    });
+                }
+            }
+        }
 
-//                     // Send a response indicating the order was successfully updated
-//                     return res.status(200).json({
-//                         success: true,
-//                         message: 'Transaction verified and order payment status updated successfully.',
-//                         order
-//                     });
-//                 } else if (!order) {
-//                     // If order doesn't exist, return an error response
-//                     return res.status(404).json({
-//                         success: false,
-//                         message: 'Order not found'
-//                     });
-//                 } else if (order.paymentResult.status !== 'pending') {
-//                     // If the order payment status is already updated, return an acknowledgment
-//                     return res.status(200).json({
-//                         success: true,
-//                         message: 'Payment already processed for this order.'
-//                     });
-//                 }
-//             }
-//         }
-
-//         // If the transaction verification failed, return an error
-//         res.status(400).json({
-//             success: false,
-//             message: 'Transaction verification failed or invalid transaction reference.'
-//         });
-//     } catch (error) {
-//         console.error('Error verifying transaction:', error);
-//         res.status(500).json({
-//             success: false,
-//             message: 'Error verifying transaction',
-//             error: error.response ? error.response.data : error.message
-//         });
-//     }
-// });
-
+        // If the transaction verification failed, return an error
+        res.status(400).json({
+            success: false,
+            message: 'Transaction verification failed or invalid transaction reference.'
+        });
+    } catch (error) {
+        console.error('Error verifying transaction:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error verifying transaction',
+            error: error.response ? error.response.data : error.message
+        });
+    }
+});
 
 
 
