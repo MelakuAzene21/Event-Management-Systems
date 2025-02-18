@@ -44,7 +44,7 @@ const EventCarousel = () => {
   }
 
   return (
-    <div className="relative w-full overflow-hidden h-80 rounded-lg py-3 ">
+    <div className="relative w-full overflow-hidden h-80  py-3 ">
       <div className="flex transition-transform duration-500 ease-in-out">
         <div className="carousel-item w-full flex flex-col items-center justify-center h-full">
           <img
