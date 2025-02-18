@@ -1,64 +1,3 @@
-// import React from 'react';
-// import { useGetAllEventsQuery } from '../features/api/eventApi';
-// import { Link } from 'react-router-dom';
-// import Title from '../layout/Title';
-// import EventCarousel from '../layout/Carousel';
-// const EventPage = () => {
-//     const { data: events, isLoading, isError } = useGetAllEventsQuery();
-
-//     if (isLoading) {
-//         return <div className="flex justify-center items-center h-screen text-lg font-semibold">Loading...</div>;
-//     }
-
-//     if (isError) {
-//         return <div className="flex justify-center items-center h-screen text-lg font-semibold text-red-500">Error fetching events.</div>;
-//     }
-
-//     return (
-//         <div className=" mx-auto  py-8">
-//             <EventCarousel/>
-//             <Title title={'Event page'}/>
-//             {events && events.length > 0 ? (
-//                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-//                     {events.map((event) => (
-//                         <div
-//                             key={event._id}
-//                             className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200"
-//                         >
-                            
-//                                 <img
-//                                     src={`http://localhost:5000${event.image[0]}`} // Display the first image
-//                                     alt={event.title}
-//                                     className="w-full h-40 object-cover"
-//                                 />
-                           
-//                             <div className="p-4">
-//                                 <h2 className="text-xl font-semibold mb-2">{event.title}</h2>
-//                                 <p className="text-gray-600 mb-4 line-clamp-3">{event.description}</p>
-//                                 <p className="text-sm text-gray-500 mb-2">
-//                                     <strong>Date:</strong> {new Date(event.eventDate).toLocaleDateString()}
-//                                 </p>
-//                                 <p className="text-sm text-gray-500 mb-4">
-//                                     <strong>Location:</strong> {event.location}
-//                                 </p>
-//                                 <Link to={}>
-//                                     <button className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition">
-//                                         View Details
-//                                     </button>
-//                                 </Link>
-//                             </div>
-//                         </div>
-//                     ))}
-//                 </div>
-//             ) : (
-//                 <p className="text-center text-gray-600">No events found.</p>
-//             )}
-//         </div>
-//     );
-// };
-
-// export default EventPage;
-
 
 
 import axios from "axios";
@@ -193,39 +132,12 @@ export default function IndexPage() {
 
     return (
         <>
-            <EventCarousel className='py-6' />
+            <EventCarousel  />
 
-            {/* Filter by Category Dropdown */}
-            {/* <div className="mx-10 ">
-                <label className="font-bold text-lg">Filter by Category: </label>
-                <select
-                    value={selectedCategory}
-                    onChange={handleCategoryChange}
-                    className="ml-2 p-2 rounded border-2 border-gray-300"
-                >
-                    <option value="All">All</option>
-                    <option value="music">Music</option>
-                    <option value="comedy">Comedy</option>
-                    <option value="workshop">Workshop event</option>
-                    <option value="sport">Sport Event</option>
-                    
-
-                   
-                </select>
-                <label className="font-bold text-lg ml-4">Filter by Time: </label>
-                <select
-                    value={timeFilter}
-                    onChange={handleTimeFilterChange}
-                    className="ml-2 p-2 rounded border-2 border-gray-300"
-                >
-                    <option value="Upcoming">Upcoming Events</option>
-                    <option value="Past">Past Events</option>
-                    <option value="Today">Today</option>
-                </select>
-            </div> */}
+            
 
             {/* Filters */}
-            <div className="mx-10 mt-5">
+            <div className="mx-10 mt-5 z-50">
                 <div className="flex flex-wrap gap-4">
                     <div className="flex gap-2">
                         {categories.map((category) => (
