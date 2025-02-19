@@ -8,11 +8,11 @@ import { FaCopy, FaWhatsappSquare, FaFacebook } from "react-icons/fa";
 import BookmarkButton from "../UserPage/BookMarkEvent";
 import SkeletonLoader from "../layout/SkeletonLoader";
 import { useSelector } from "react-redux";
-import { useCreateBookingMutation } from "../features/api/bookingApi";
+// import { useCreateBookingMutation } from "../features/api/bookingApi";
 import { useDispatch } from "react-redux";
 import { setCurrentBooking } from "../features/slices/bookingSlice";
 import { v4 as uuidv4 } from 'uuid';
-
+import { setPendingBooking } from "../features/slices/bookingSlice";
 export default function EventPage() {
     const { id } = useParams();
     const [event, setEvent] = useState(null);
@@ -22,7 +22,7 @@ export default function EventPage() {
     const [message, setMessage] = useState("");//show  booking status
     const navigate = useNavigate();
 
-    const [createBooking,{isLoading}]=useCreateBookingMutation();
+    // const [createBooking,{isLoading}]=useCreateBookingMutation();
     const transactionRef = uuidv4();
 
     const dispatch = useDispatch();
@@ -36,7 +36,7 @@ export default function EventPage() {
             return;
         }
         axios.get(`http://localhost:5000/api/events/${id}`).then(response => {
-            console.log('responses from api',response.data); // Debug the data
+          
 
             setEvent(response.data)
             setLoading(false)
@@ -90,7 +90,6 @@ export default function EventPage() {
 
     const handleBooking = async () => {
         if (!user) {
-            alert("Please log in to book tickets.");
             navigate("/login");
             return;
         }
@@ -126,16 +125,21 @@ export default function EventPage() {
             ticketCount: ticketCounts[selectedTicket.name] || 1,
             totalAmount: ticketCounts[selectedTicket.name] * selectedTicket.price,
             paymentId: transactionRef,
+            tx_ref: transactionRef,
         };
 
-        try {
-            const response = await createBooking(bookingData).unwrap();
-            dispatch(setCurrentBooking(response.booking)); // Store booking in Redux
-            navigate("/payment"); // Redirect to payment page
-        } catch (error) {
-            console.error("Booking error:", error);
-            alert("Booking failed");
-        }
+        dispatch(setPendingBooking(bookingData)); // Store booking info temporarily
+        navigate(`/${id}/booking-summary`);
+
+        // try {
+        //     const response = await createBooking(bookingData).unwrap();
+        //     dispatch(setCurrentBooking(response.booking)); // Store booking in Redux
+        //     navigate(`/${id}/booking-summary`);
+
+        // } catch (error) {
+        //     console.error("Booking error:", error);
+        //     alert("Booking failed");
+        // }
     };
 
     // Show a loading skeleton while fetching event data
