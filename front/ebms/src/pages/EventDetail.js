@@ -125,7 +125,6 @@ export default function EventPage() {
             ticketCount: ticketCounts[selectedTicket.name] || 1,
             totalAmount: ticketCounts[selectedTicket.name] * selectedTicket.price,
             paymentId: transactionRef,
-            tx_ref: transactionRef,
         };
 
         dispatch(setPendingBooking(bookingData)); // Store booking info temporarily
