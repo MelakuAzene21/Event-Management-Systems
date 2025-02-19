@@ -1,7 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const dotenv = require('dotenv');
-
+const booking = require('../models/Booking');
 dotenv.config();
 // Determine the base URL based on the environment
 const baseUrl = process.env.NODE_ENV === 'production'
@@ -26,8 +26,7 @@ router.post('/initialize', async (req, res) => {
             tx_ref,
             // callback_url: 'http://localhost:5000/payment/callback',
             callback_url: `https://3508-213-55-102-49.ngrok-free.app/payment/callback?tx_ref=${tx_ref}`,
-            // return_url: `${baseUrl}/thank-you?tx_ref=${tx_ref}`, // Dynamically set return_url
-            return_url: 'http://localhost:3000',
+            return_url: `${baseUrl}/success?tx_ref=${tx_ref}`, // Dynamically set return_url
             customization: {
                 "title": "Ticket Booking"
 
@@ -57,6 +56,82 @@ router.post('/initialize', async (req, res) => {
 
 
 
+
+
+
+
+
+// Verify transaction and update booking status
+
+
+router.get('/verify-transaction/:tx_ref', async (req, res) => {
+    try {
+        const txRef = req.params.tx_ref; // Get tx_ref from the route parameter
+        const url = `https://api.chapa.co/v1/transaction/verify/${txRef}`;
+        console.log("Verifying transaction for ref:", txRef);
+
+        // Make a request to verify the transaction with Chapa API
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`
+            }
+        });
+        if (response.status === 200 && response.data.status === 'success') {
+            const { tx_ref, status } = response.data.data;  // Extracting transaction details from Chapa response
+
+            // Check if the payment status is "success"
+            if (status === 'success' && tx_ref) {
+                // Find  the order in the database using the tx_ref
+                const book = await booking.findOne({ tx_ref: tx_ref });
+                console.log('Booking data by tx refs from verifying', book)
+                // Check if the order exists and its payment status is "pending"
+                if (book && book.status && book.status === 'pending') {
+                    // Update the status status to "booked"
+                    book.status = 'booked';
+
+                    await book.save();  // Save the updated book status
+
+                    // Send a response indicating the book was successfully updated
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Transaction verified and book payment status updated successfully.',
+                        book
+                    });
+                } else if (!book) {
+                    console.error('booking', book)
+                    // If book doesn't exist, return an error response
+                    return res.status(404).json({
+                        success: false,
+                        message: 'book not found'
+                    });
+                } else if (book.status !== 'pending') {
+                    // If the book payment status is already updated, return an acknowledgment
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Payment already processed for this Booking.'
+                    });
+                }
+            }
+        }
+
+        // If the transaction verification failed, return an error
+        res.status(400).json({
+            success: false,
+            message: 'Transaction verification failed or invalid transaction reference.'
+        });
+    } catch (error) {
+        console.error('Error verifying transaction:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error verifying transaction',
+            error: error.response ? error.response.data : error.message
+        });
+    }
+});
+
+
+//handle Payment callback from chapa
+
 // router.post('/callback', async (req, res) => {
 //     try {
 //         const chapaData = req.body;
@@ -71,7 +146,7 @@ router.post('/initialize', async (req, res) => {
 //                 // Update payment details
 //                 order.isPaid = true; // Mark the order as paid
 //                 order.paidAt = Date.now(); // Set the paid time
-//                 order.paymentResult = {
+//                 order.status = {
 //                     id: chapaData.paymentId,  // Assuming chapaData has the paymentId
 //                     status: chapaData.status,
 //                     update_time: chapaData.updateTime, // Assuming chapaData has the updateTime
@@ -96,80 +171,6 @@ router.post('/initialize', async (req, res) => {
 //         return res.status(500).json({ message: 'Error processing callback', error });
 //     }
 // });
-
-
-
-
-
-
-// Verify transaction and update order status
-router.get('/verify-transaction/:tx_ref', async (req, res) => {
-    try {
-        const txRef = req.params.tx_ref; // Get tx_ref from the route parameter
-        const url = `https://api.chapa.co/v1/transaction/verify/${txRef}`;
-
-        // Make a request to verify the transaction with Chapa API
-        const response = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${process.env.CHAPA_SECRET_KEY}`
-            }
-        });
-        if (response.status === 200 && response.data.status === 'success') {
-            const { tx_ref, status } = response.data.data;  // Extracting transaction details from Chapa response
-
-            // Check if the payment status is "success"
-            if (status === 'success' && tx_ref) {
-                // Find  the order in the database using the tx_ref
-                const order = await Order.findOne({ tx_ref: tx_ref });
-
-                // Check if the order exists and its payment status is "pending"
-                if (order && order.paymentResult && order.paymentResult.status === 'pending') {
-                    // Update the paymentResult status to "completed"
-                    order.paymentResult.status = 'completed';
-                    order.isPaid = true; // Optionally update the isPaid field if needed
-                    order.paymentResult.updatedAt = new Date(); // Update the timestamp for paymentResult
-
-                    await order.save();  // Save the updated order status
-
-                    // Send a response indicating the order was successfully updated
-                    return res.status(200).json({
-                        success: true,
-                        message: 'Transaction verified and order payment status updated successfully.',
-                        order
-                    });
-                } else if (!order) {
-                    // If order doesn't exist, return an error response
-                    return res.status(404).json({
-                        success: false,
-                        message: 'Order not found'
-                    });
-                } else if (order.paymentResult.status !== 'pending') {
-                    // If the order payment status is already updated, return an acknowledgment
-                    return res.status(200).json({
-                        success: true,
-                        message: 'Payment already processed for this order.'
-                    });
-                }
-            }
-        }
-
-        // If the transaction verification failed, return an error
-        res.status(400).json({
-            success: false,
-            message: 'Transaction verification failed or invalid transaction reference.'
-        });
-    } catch (error) {
-        console.error('Error verifying transaction:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error verifying transaction',
-            error: error.response ? error.response.data : error.message
-        });
-    }
-});
-
-
-
 
 
 module.exports = router;
