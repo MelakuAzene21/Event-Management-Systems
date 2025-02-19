@@ -14,8 +14,12 @@ const BookingSchema = new mongoose.Schema(
         required: true }, // Number of tickets
        totalAmount: { type: Number,
         required: true }, // Total amount of the tickets
-       paymentId: { type: String, required: true }, // Payment ID from the payment gateway
-       status: { type: String, default:'booked'}, // Booking status, e.g., "Pending", "Confirmed", "Cancelled"
+      paymentId: { type: String, required: true }, // Payment ID from the payment gateway
+      tx_ref: { // Add tx_ref to track the transaction reference
+         type: String,
+         required: true,
+      },
+       status: { type: String, default:'pending'}, // Booking status, e.g., "Pending", "Confirmed","booked", "Cancelled"
 
 }
 
