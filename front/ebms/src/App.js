@@ -20,6 +20,8 @@ import OriganizerDashboard from './Origanizer/Dashboard';
 import PaymentPage from './Private/Payment';
 import BookingSummary from './pages/BookingSummary';
 import SuccessPage from './Private/SuccessPage'
+import BookingQR from './Booking/BookingQR';
+import ScanQR from './Booking/ScanQR';
 function App() {
   const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
@@ -57,7 +59,8 @@ function App() {
             <Route path='/:id/booking-summary' element={<BookingSummary />} />
             <Route path='/:id/booking-summary' element={<BookingSummary />} />
             <Route path='/success' element={<SuccessPage />} />
-
+            <Route path="/qrcode-generate/:bookingId" element={<BookingQR />} />
+            <Route path='/scanQR' element={<ScanQR />} />
 
           </Route>
         </Routes>

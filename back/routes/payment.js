@@ -68,7 +68,6 @@ router.get('/verify-transaction/:tx_ref', async (req, res) => {
     try {
         const txRef = req.params.tx_ref; // Get tx_ref from the route parameter
         const url = `https://api.chapa.co/v1/transaction/verify/${txRef}`;
-        console.log("Verifying transaction for ref:", txRef);
 
         // Make a request to verify the transaction with Chapa API
         const response = await axios.get(url, {
@@ -90,11 +89,14 @@ router.get('/verify-transaction/:tx_ref', async (req, res) => {
                     book.status = 'booked';
 
                     await book.save();  // Save the updated book status
+                    console.log("booking ID want for QR code", book._id)
 
                     // Send a response indicating the book was successfully updated
                     return res.status(200).json({
                         success: true,
                         message: 'Transaction verified and book payment status updated successfully.',
+                        bookingId: book._id, //  Send bookingId in the response
+
                         book
                     });
                 } else if (!book) {
@@ -108,7 +110,9 @@ router.get('/verify-transaction/:tx_ref', async (req, res) => {
                     // If the book payment status is already updated, return an acknowledgment
                     return res.status(200).json({
                         success: true,
-                        message: 'Payment already processed for this Booking.'
+                        message: 'Payment already processed for this Booking.',
+                        bookingId: book._id, // ✅ Send bookingId in the response
+                        book
                     });
                 }
             }

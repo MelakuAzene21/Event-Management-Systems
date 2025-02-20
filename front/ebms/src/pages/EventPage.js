@@ -238,7 +238,6 @@ export default function IndexPage() {
 
                                         <div className="flex text-sm flex-nowrap justify-between text-primarydark font-bold mr-4">
                                             <div>{event.eventDate.split("T")[0]}, {event.eventTime}</div>
-                                            <div>{event.ticketPrice === 0 ? 'Free' : 'ETB. ' + event.ticketPrice}</div>
                                         </div>
 
                                         <div className="text-xs flex flex-col flex-wrap truncate-text">
