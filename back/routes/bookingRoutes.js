@@ -42,12 +42,17 @@ router.post("/create-booking", verifyToken, async (req, res) => {
         console.log("Event saved after update:", updatedEvent); // Debugging the saved event
 
  // Generate QR code
-        const qrData = `${booking._id}-${req.user._id}-${req.body.event}`;
-        const qrCode = await QRCode.toDataURL(qrData);
+        // const qrData = `${booking._id}-${req.user._id}-${req.body.event}`;
+        // const qrCode = await QRCode.toDataURL(qrData);
 
-        // Update booking with QR code
-        booking.qrCode = qrCode;
+        // // Update booking with QR code
+        // booking.qrCode = qrCode;
+
+
+        const qrData = `${booking._id}-${req.user._id}-${req.body.event}`;  // Store only raw data
+        booking.qrCode = qrData;
         await booking.save();
+
         return res.status(201).json({ message: "Booking Successfully Created", booking });
 
     } catch (error) {
@@ -70,6 +75,9 @@ router.get("/booking/:id", verifyToken, async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+
+
 
 // Fetch all bookings
 router.get("/bookings", verifyToken, async (req, res) => {
