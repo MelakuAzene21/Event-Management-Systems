@@ -4,7 +4,7 @@ const router = express.Router();
 const verifyToken = require('../middlewares/verifyToken');
 const Booking = require('../models/Booking');
 const Event = require('../models/Event');
-const QRCode = require('qrcode');
+const Ticket=require('../models/Ticket');
 // Create a booking
 router.post("/create-booking", verifyToken, async (req, res) => {
     try {
@@ -38,20 +38,53 @@ router.post("/create-booking", verifyToken, async (req, res) => {
 
         // Save the updated event
         event.ticketTypes = updatedTicketsTypes;
-        const updatedEvent = await event.save();  // Save the event with updated ticketTypes
-        console.log("Event saved after update:", updatedEvent); // Debugging the saved event
+         await event.save();  // Save the event with updated ticketTypes
 
- // Generate QR code
-        // const qrData = `${booking._id}-${req.user._id}-${req.body.event}`;
-        // const qrCode = await QRCode.toDataURL(qrData);
+        
+        
+        
 
-        // // Update booking with QR code
-        // booking.qrCode = qrCode;
+        
+        const tickets = [];
+
+        for (let i = 0; i < booking.ticketCount; i++) {
+            // Generate a unique ticket number
+            const ticketNumber = `TCK-${Date.now()}-${i}`;
+
+            // Generate a QR Code (encoding event, user, and ticket info)
+            // const qrData = JSON.stringify({ ticketNumber, eventId, userId });
+            // const qrCode = await QRCode.toDataURL(qrData); // Converts data to a QR image
 
 
-        const qrData = `${booking._id}-${req.user._id}-${req.body.event}`;  // Store only raw data
-        booking.qrCode = qrData;
-        await booking.save();
+            // Generate QR code
+            const qrData = `${ticketNumber}-${req.user._id}-${req.body.event}`;  // Store only raw data
+            // Create ticket entry
+            const ticket = await Ticket.create({
+                booking: booking._id,
+                event: booking.event,
+                user: booking.user,
+                ticketNumber: ticketNumber,
+                qrCode: qrData, // Store raw Qr code in tickets
+                isUsed: false
+            });
+
+            tickets.push(ticket);
+        }
+
+        // await ticket.save();
+
+
+
+
+
+
+
+
+        
+        // // Generate QR code
+        // const qrData = `${booking._id}-${req.user._id}-${req.body.event}`;  // Store only raw data
+        // booking.qrCode = qrData;
+        // await booking.save();
 
         return res.status(201).json({ message: "Booking Successfully Created", booking });
 
@@ -63,14 +96,14 @@ router.post("/create-booking", verifyToken, async (req, res) => {
 
 
 
-// Fetch booking and QR code
+// Fetch booking and QR code from ticket
 router.get("/booking/:id", verifyToken, async (req, res) => {
     try {
-        const booking = await Booking.findById(req.params.id);
-        if (!booking) {
-            return res.status(404).json({ message: "Booking not found" });
+        const tickets = await Ticket.find({booking:req.params.id});   // Find the booking
+        if(!tickets||tickets.length===0){
+            return res.status(404).json({ message: "Ticket not found for this Booking" });
         }
-        res.json(booking);
+        res.json(tickets);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
