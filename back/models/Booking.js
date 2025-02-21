@@ -20,7 +20,6 @@ const BookingSchema = new mongoose.Schema(
          required: true,
       },
       status: { type: String, enum: ['pending', 'booked', 'canceled'], default: 'pending' },
-      qrCode: { type: String }, // Store the QR code as a base64 or URL
       createdAt: { type: Date, default: Date.now }, // Booking date
       updatedAt: { type: Date, default: Date.now }, // Last update date
 
