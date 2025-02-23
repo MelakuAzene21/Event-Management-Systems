@@ -63,7 +63,6 @@ const eventSchema = new mongoose.Schema(
         likes: { type: Number, default: 0 }, // Number of likes
         usersLiked: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Users who liked the event
         bookmarkedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Users who bookmarked the event
-        Comment: [{ type: String }], // Comments on the event
     },
     { timestamps: true } // Automatically add createdAt and updatedAt fields
 );
