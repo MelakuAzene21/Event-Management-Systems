@@ -46,12 +46,13 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/useraccount" element={<UserProfile />} />
           <Route path="*" element={<NotFound />} />
-          <Route path="/create-event" element={<CreateEvent />} />
+            <Route path="/create-event" element={<CreateEvent />} />
+            <Route path="/myEvent" element={<MyEventsPage />} />
+
           <Route path="/events" element={<EventPage />} />
-            <Route path="/Origanizer-dashboard" element={<OriganizerDashboard />} />
-           <Route path="/myEvent" element={<MyEventsPage />} />
+          <Route path="/organizer-dashboard" element={<OriganizerDashboard />} />
            <Route path="/updateEvent/:id" element={<UpdateEventPage />} />
- 
+
           <Route path="/events/:id" element={<EventDetailPage />} />
           <Route path='/calendar' element={<CalendarView/>}/>
             <Route path='/payment' element={<PaymentPage />} />

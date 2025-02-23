@@ -6,7 +6,8 @@ const navigate=useNavigate();
     const renderContent = () => {
         switch (activeTab) {
             case "events":
-                navigate('/myEvent')    
+                // navigate('/myEvent')    
+                return <div className="p-4">View and manage your events.</div>;
             break; 
  case "attendees":
                 return <div className="p-4">View attendees for each event.</div>;

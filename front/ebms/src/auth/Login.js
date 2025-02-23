@@ -82,20 +82,26 @@ const Login = () => {
             dispatch(setUser(userData.user));
             console.log('Login user data:', userData.user);
 
-            // // Navigate based on the user's role
-            // if (userData.role === 'admin' || userData.role === 'subAdmin') {
-            //     navigate('/admin', { replace: true });
-            // } else if (userData.role === 'user') {
-            //     navigate('/', { replace: true });
-            // } else {
-            //     setErrorMessage('Unknown role. Please contact support.');
-            // }
-            navigate('/')
+            // Debugging the role-based navigation
+            console.log('User role:', userData.user.role);
+
+            // Navigate based on the user's role
+            if (userData.user.role === 'organizer') {
+                console.log('Navigating to organizer-dashboard');
+                navigate('/organizer-dashboard', { replace: true });
+            } else if (userData.user.role === 'user') {
+                console.log('Navigating to home');
+                navigate('/', { replace: true });
+            } else {
+                setErrorMessage('Unknown role. Please contact support.');
+            }
+
             setErrorMessage('');
         } catch (error) {
             setErrorMessage('Login failed: Invalid email or password.');
         }
     };
+
 
     return (
         <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-500 to-green-500">
