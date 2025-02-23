@@ -31,9 +31,10 @@ import { bookingApi } from '../features/api/bookingApi';
 import authReducer from '../features/slices/authSlice';
 import eventReducer from '../features/slices/eventSlice';
 import bookingReducer from '../features/slices/bookingSlice';
+import reviewReducer from '../features/slices/reviewSlice';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // Default: localStorage for web
-
+import { reviewApi } from '../features/api/reviewApi';
 //  Create persist configs for the slices you want to persist
 const bookingPersistConfig = {
     key: 'booking',
@@ -48,9 +49,12 @@ export const store = configureStore({
         auth: authReducer,               // Authentication state
         event: eventReducer,             // Event state
         booking: persistedBookingReducer, // Persisted booking state
+        review: reviewReducer,
         [authApi.reducerPath]: authApi.reducer, // Auth API
         [eventApi.reducerPath]: eventApi.reducer, // Event API
         [bookingApi.reducerPath]: bookingApi.reducer, // Booking API
+        [reviewApi.reducerPath]: reviewApi.reducer,
+
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
@@ -58,7 +62,8 @@ export const store = configureStore({
         })
             .concat(authApi.middleware)
             .concat(eventApi.middleware)
-            .concat(bookingApi.middleware),
+            .concat(bookingApi.middleware)
+            .concat(reviewApi.middleware),
 });
 
 // Create persistor for your store
