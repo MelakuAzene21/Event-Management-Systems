@@ -10,9 +10,9 @@ import SkeletonLoader from "../layout/SkeletonLoader";
 import { useSelector } from "react-redux";
 // import { useCreateBookingMutation } from "../features/api/bookingApi";
 import { useDispatch } from "react-redux";
-import { setCurrentBooking } from "../features/slices/bookingSlice";
 import { v4 as uuidv4 } from 'uuid';
 import { setPendingBooking } from "../features/slices/bookingSlice";
+import ReviewComponent from "../components/Reviews";
 export default function EventPage() {
     const { id } = useParams();
     const [event, setEvent] = useState(null);
@@ -204,9 +204,7 @@ export default function EventPage() {
 
             <div className="flex justify-between mt-8 mx-2">
                 <h1 className="text-3xl md:text-5xl font-extrabold">{event.title.toUpperCase()}</h1>
-                <Link to={'/event/' + event._id + '/ordersummary'}>
-                    <button className="primary flex items-center gap-2">{event.ticketPrice === 0 ? 'Get Ticket' : 'Buy Ticket'}< BsArrowRightShort className="w-6 h-6" /></button>
-                </Link>
+               
                 {/* <BookmarkButton
                     eventId={event._id}
                     isBookmarkedInitial={event.bookmarkedBy.includes(user._id)} // Adjust according to user's bookmarks
@@ -260,7 +258,7 @@ export default function EventPage() {
 
             </div>
             
-           
+            <ReviewComponent eventId={event?._id } attendeeId={ user?._id} />
             {/* Ticket Selection */}
             <div className="mt-10 p-8 bg-white shadow-md rounded-lg mx-4 max-w-xl border-4 border-gray-300">
                 <h2 className="text-2xl font-bold mb-6">Choose a Ticket</h2>
