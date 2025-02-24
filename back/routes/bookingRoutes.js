@@ -112,15 +112,20 @@ router.get("/booking/:id", verifyToken, async (req, res) => {
 
 
 
-// Fetch all bookings
-router.get("/bookings", verifyToken, async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
     try {
-        const bookings = await Booking.find({ user: req.user._id });
+        const bookings = await Booking.find()
+            .populate("user", "name") // Only fetch the 'name' field from the User model
+            .populate("event", "title eventDate"); // Fetch 'title' and 'eventDate' from Event model
+
         res.json(bookings);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
+
+
+
 //delete booking
 router.delete("/booking/:id", verifyToken, async (req, res) => {
     try {

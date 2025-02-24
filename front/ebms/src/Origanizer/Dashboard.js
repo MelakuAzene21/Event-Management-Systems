@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MyEventsPage from "./MyEvent"; // Import your MyEventsPage component
 import Logout from "../auth/Logout";
-
+import BookingDetail from "./BookingDetail"; // Import your BookingDetail component 
 const OrganizerDashboard = () => {
     const [activeTab, setActiveTab] = useState("events");
 
@@ -15,11 +15,13 @@ const OrganizerDashboard = () => {
             case "tickets":
                 return <div className="p-4">Manage ticketing for your events.</div>;
             case "booking":
-                return <div className="p-4">Manage booking for your events.</div>;
+                return <BookingDetail />; // Display BookingDetail when "booking" tab is clicked
             case "reports":
                 return <div className="p-4">View reports and analytics.</div>;
             case "settings":
                 return <div className="p-4">Adjust your settings here.</div>;
+            case "chatting":
+                return <div className="p-4">Adjust your Chatting here.</div>;
             default:
                 return <div className="p-4">Select a tab from the sidebar.</div>;
         }
@@ -72,6 +74,13 @@ const OrganizerDashboard = () => {
                             className={`p-3 cursor-pointer ${activeTab === "settings" ? "bg-gray-500" : "hover:bg-gray-500"}`}
                         >
                             Settings
+                        </li>
+
+                        <li
+                            onClick={() => setActiveTab("chatting")}
+                            className={`p-3 cursor-pointer ${activeTab === "chatting" ? "bg-gray-500" : "hover:bg-gray-500"}`}
+                        >
+                            Chattings
                         </li>
                     </ul>
                 </div>
