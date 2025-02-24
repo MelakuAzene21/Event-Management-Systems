@@ -217,9 +217,9 @@ export default function EventPage() {
 
                />
             </div>
-            <div className="mx-2">
+            {/* <div className="mx-2">
                 <h2 className="text-md md:text-xl font-bold mt-3 text-primarydark">{event.ticketPrice === 0 ? 'Free' : 'ETB. ' + event.ticketPrice}</h2>
-            </div>
+            </div> */}
             <div className="mx-2 mt-5 text-md md:text-lg ">
                 {event.description}
             </div>
@@ -260,33 +260,33 @@ export default function EventPage() {
             
             <ReviewComponent eventId={event?._id } attendeeId={ user?._id} />
             {/* Ticket Selection */}
-            <div className="mt-10 p-8 bg-white shadow-md rounded-lg mx-4 max-w-xl border-4 border-gray-300">
-                <h2 className="text-2xl font-bold mb-6">Choose a Ticket</h2>
-                {message && <p className="text-green-600">{message}</p>}
-                <div className="space-y-4">
+            <div className="mt-5 p-4 bg-white shadow-md rounded-lg mx-2 max-w-md border-2 border-gray-300">
+                <h2 className="text-lg font-bold mb-1 text-center">Choose a Ticket</h2>
+                {message && <p className="text-green-600 text-sm">{message}</p>}
+                <div >
                     {event.ticketTypes.map((ticket, index) => (
                         <div
                             key={index}
-                            className={`flex justify-between items-center p-4 border rounded-lg cursor-pointer hover:scale-105 transition-transform ${selectedTicket?.name === ticket.name ? "border-blue-500 bg-blue-50" : "border-gray-300"
+                            className={`flex justify-between items-center p-3 border rounded-md cursor-pointer  ${selectedTicket?.name === ticket.name ? "border-blue-500 bg-blue-50" : "border-gray-300"
                                 }`}
                             onClick={() => handleTicketSelection(ticket)}
                         >
                             <div className="flex flex-col">
-                                <span className="text-lg font-medium">{ticket.name}</span>
-                                <span className="text-sm text-gray-600">{ticket.available ??ticket.limit} left</span>
-                                <span className="text-sm text-gray-600">
-                                {ticket.price === 0 ? <span className="text-blue-500 font-bold italic">Free</span> : `${ticket.price} ETB`}
+                                <span className="text-base font-medium">{ticket.name}</span>
+                                <span className="text-xs text-gray-600">{ticket.available ?? ticket.limit} left</span>
+                                <span className="text-xs text-gray-600">
+                                    {ticket.price === 0 ? <span className="text-blue-500 font-bold italic">Free</span> : `${ticket.price} ETB`}
                                 </span>
                             </div>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-1">
                                 <button
-                                    className="px-2 py-1 bg-gray-300 rounded"
+                                    className="px-1 py-0.5 bg-gray-300 rounded text-sm"
                                     onClick={(e) => { e.stopPropagation(); handleDecrease(ticket); }}>
                                     -
                                 </button>
-                                <span className="px-3 py-1 border">{ticketCounts[ticket.name] || 1}</span>
+                                <span className="px-2 py-0.5 border text-sm">{ticketCounts[ticket.name] || 1}</span>
                                 <button
-                                    className="px-2 py-1 bg-gray-300 rounded"
+                                    className="px-1 py-0.5 bg-gray-300 rounded text-sm"
                                     onClick={(e) => { e.stopPropagation(); handleIncrease(ticket); }}>
                                     +
                                 </button>
@@ -294,7 +294,7 @@ export default function EventPage() {
                         </div>
                     ))}
                 </div>
-                <button onClick={handleBooking} className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg">
+                <button onClick={handleBooking} className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md text-sm">
                     Confirm Booking
                 </button>
             </div>

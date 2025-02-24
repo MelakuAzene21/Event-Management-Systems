@@ -126,16 +126,7 @@ export default function Header() {
                 )}
 
 
-                <Link to={'/create-event'}> {/*TODO:Route create event page after creating it */}
-                    <div className='hidden md:flex flex-col place-items-center py-1 px-2 rounded text-primary cursor-pointer hover:text-primarydark hover:bg-white hover:shadow-sm shadow-gray-200 hover:transition-shadow duration-1500'>
-                        <button>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 stroke-3 py-1">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                            </svg>
-                        </button>
-                        <div className='font-bold color-primary text-sm'>Create Event</div>
-                    </div>
-                </Link>
+                
 
                 <div className='hidden lg:flex gap-5 text-sm'>
                     <Link to={'/wallet'}> {/*TODO:Route wallet page after creating it */}
@@ -148,14 +139,7 @@ export default function Header() {
                     </Link>
 
 
-                    <Link to={'/myEvent'}> {/*TODO:Route wallet page after creating it */}
-                        <div className='flex flex-col place-items-center py-1 px-3 rounded cursor-pointer hover:text-primarydark hover:bg-white hover:shadow-sm shadow-gray-200 hover:transition-shadow duration-1500'>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 py-1">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
-                            </svg>
-                            <div>My Event</div>
-                        </div >
-                    </Link>
+                   
 
                     <Link to={'/calendar'}> {/*TODO:Route calendar page after creating it */}
                         <div className='flex flex-col place-items-center py-1 px-3 rounded cursor-pointer hover:text-primarydark hover:bg-white hover:shadow-sm shadow-gray-200 hover:transition-shadow duration-1500'>
@@ -169,20 +153,33 @@ export default function Header() {
                 </div>
 
 
-                {/* <Link to={'/show-not'}> <div>
-                    <div className='flex flex-col place-items-center py-1 px-3 rounded cursor-pointer hover:text-primarydark hover:bg-white hover:shadow-sm shadow-gray-200 hover:transition-shadow duration-1500'>
+                <Link to={'/show-not'}>
+                    <div>
+                       <div className='flex flex-col place-items-center py-1 px-3 rounded cursor-pointer hover:text-primarydark hover:bg-white hover:shadow-sm shadow-gray-200 hover:transition-shadow duration-1500'>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 py-1">
                             <path fillRule="evenodd" d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9zm4.502 8.9a2.25 2.25 0 104.496 0 25.057 25.057 0 01-4.496 0z" clipRule="evenodd" />
                         </svg>
-notification
+                              notification
+                      </div>
+                   </div>
+                </Link>
+
+                <Link to={'/booked'}>
+                    <div>
+                        <div className='flex flex-col place-items-center py-1 px-3 rounded cursor-pointer hover:text-primarydark hover:bg-white hover:shadow-sm shadow-gray-200 hover:transition-shadow duration-1500'>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 py-1">
+                                <path fillRule="evenodd" d="M3 5a2 2 0 012-2h14a2 2 0 012 2v4.5a1.5 1.5 0 01-1.5 1.5 1.5 1.5 0 011.5 1.5V19a2 2 0 01-2 2H5a2 2 0 01-2-2v-6.5A1.5 1.5 0 014.5 11 1.5 1.5 0 013 9.5V5zm4 2a1 1 0 011-1h8a1 1 0 110 2H8a1 1 0 01-1-1zm0 4a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clipRule="evenodd" />
+                            </svg>
+
+                            Booked
+                        </div>
                     </div>
-                </div></Link> */}
+                </Link>
 
 
-
-                {/* Notifications Icon with Badge */}
                 <div className="relative">
-                    <Link to="/show-not" className="text-gray-700 hover:text-black">
+                   
+                    {/* <Link to="/show-not" className="text-gray-700 hover:text-black">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -197,7 +194,9 @@ notification
                                 d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11.5a6.5 6.5 0 10-13 0v2.657c0 .597-.237 1.167-.656 1.586L3 17h5m7 0a3.001 3.001 0 01-6 0m6 0H9"
                             />
                         </svg>
-                    </Link>
+
+                    </Link> */}
+
                     {/* {unreadCount > 0 && (
                         <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                             {unreadCount}
@@ -246,20 +245,11 @@ notification
                         {/* TODO: */}
                         <nav className={`block ${isMenuOpen ? 'block' : 'hidden'} `}>
                             <div className="flex flex-col font-semibold text-[16px]">
-                                <Link className="flex hover:bg-background hover:shadow py-2 pt-3 pl-6 pr-8 rounded-lg" to={'/create-event'} >
-                                    Create Event
-                                </Link>
-
+                               
                                 <Link className="flex hover:bg-background hover:shadow py-2 pl-6 pr-8 rounded-lg" to={'/wallet'}>
                                     <div>Ticket</div>
                                 </Link>
-
-                                <Link className="flex hover:bg-background hover:shadow py-2 pl-6 pr-8 rounded-lg" to={'/myEvent'}>
-                                    <div>My Event</div>
-                                </Link>
-
-
-
+                            
                                 <Link className="flex hover:bg-background hover:shadow py-2 pl-6 pr-8 rounded-lg" to={'/calendar'}>
                                     <div>Calendar</div>
                                 </Link>
