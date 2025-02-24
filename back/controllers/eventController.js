@@ -69,6 +69,7 @@
 const Event = require('../models/Event');
 const User = require('../models/User');
 const { cloudinary } = require('../utils/cloudinaryConfig');
+const Booking = require('../models/Booking');
 
 // Event creation handler with multiple image uploads
 exports.createEvent = async (req, res) => {
@@ -326,3 +327,20 @@ exports.GetBookMarkEvents = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch bookmarked events" });
     }
 };
+
+
+
+exports. getEventAttendeeCount = async (req, res) => {
+    try {
+        const { eventId } = req.params;
+
+        // Count the number of bookings where status is 'booked' for the specific event
+        const attendeeCount = await Booking.countDocuments({ event: eventId, status: 'booked' });
+
+        res.status(200).json({ attendeeCount });
+    } catch (error) {
+        console.error('Error fetching attendee count:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+

@@ -4,7 +4,7 @@ const User=require('../models/User')
 const { createEvent, getEvents, eventDetails, 
     getMyEvent, UpdateEvent, deleteEvent, 
     getMostNearUpcomingEvent, UserLike,
-    AddToBookMark,RemoveBookMark,GetBookMarkEvents} = require('../controllers/eventController');
+    AddToBookMark,RemoveBookMark,GetBookMarkEvents,getEventAttendeeCount} = require('../controllers/eventController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
@@ -23,6 +23,7 @@ router.delete('/delete/:id', verifyToken, checkRole('organizer','admin'), delete
 router.get("/bookmarkedEvents", verifyToken, GetBookMarkEvents);
 
 
+router.get('/:eventId/attendeeCount', getEventAttendeeCount);
 
 
 // exports.UserLike=async(req,res)=>{
