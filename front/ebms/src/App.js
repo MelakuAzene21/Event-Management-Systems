@@ -21,6 +21,7 @@ import PaymentPage from './Private/Payment';
 import BookingSummary from './pages/BookingSummary';
 import SuccessPage from './Private/SuccessPage'
 import ScanQR from './Booking/ScanQR';
+import BookingsTable from './UserPage/Boooked';
 function App() {
   const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
@@ -56,6 +57,8 @@ function App() {
           <Route path="/events/:id" element={<EventDetailPage />} />
           <Route path='/calendar' element={<CalendarView/>}/>
             <Route path='/payment' element={<PaymentPage />} />
+            <Route path='/booked' element={<BookingsTable />} />
+
             <Route path='/:id/booking-summary' element={<BookingSummary />} />
             <Route path='/:id/booking-summary' element={<BookingSummary />} />
             <Route path='/success' element={<SuccessPage />} />
