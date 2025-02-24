@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: false },
     role: { type: String, enum: ['admin', 'organizer', 'user'], default: 'user' },
     avatar: { type: String }, // Add this field to store the avatar file path or URL
-
+   status:{type:String,enum:['active','blocked'],default:'active'}
 }, { timestamps: true });
   
 // Hash password before saving
