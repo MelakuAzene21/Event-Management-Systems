@@ -245,7 +245,7 @@ const ReviewComponent = ({ eventId, attendeeId }) => {
             </Modal>
 
             {/* Display Reviews */}
-            <h2 className="text-2xl font-semibold mb-4">Reviews</h2>
+            {/* {reviews.length === 0 ? (<p className="text-xl ">No reviews yet</p>) : (<h2 className="text-2xl font-semibold mb-4">Reviews</h2>)} */}
             {isLoading ? (
                 <p>Loading reviews...</p>
             ) : error ? (
