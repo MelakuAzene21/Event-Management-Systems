@@ -4,6 +4,7 @@ import Logout from "../auth/Logout";
 import BookingDetail from "./BookingDetail"; // Import your BookingDetail component 
 import Reports from "./Reports";
 import OriganizerTicketPage from "./OrgTickets";
+import OrganizerEventReviews from "./OriganizerReview";
 import axios from "axios";
 const OrganizerDashboard = () => {
     const [activeTab, setActiveTab] = useState("events");
@@ -30,8 +31,7 @@ const OrganizerDashboard = () => {
         switch (activeTab) {
             case "events":
                 return <MyEventsPage />; // Display MyEventsPage when "events" tab is clicked
-            case "attendees":
-                return <div className="p-4">View attendees for each event.</div>;
+          
             case "tickets":
                 return <OriganizerTicketPage/>; // Display OriganizerTicketPage when "tickets" tab is clicked
             case "booking":
@@ -39,7 +39,7 @@ const OrganizerDashboard = () => {
             case "reports":
                 return <Reports events={myEvents} />; // Display Reports when "reports" tab is clicked
             case "reviews":
-                return <div className="p-4">View reviews for each event.</div>;
+                return <OrganizerEventReviews />; // Display OrganizerEventReviews when "reviews" tab is clicked
             case "settings":
                 return <div className="p-4">Adjust your settings here.</div>;
             case "chatting":
@@ -67,12 +67,7 @@ const OrganizerDashboard = () => {
                         >
                             Events
                         </li>
-                        <li
-                            onClick={() => setActiveTab("attendees")}
-                            className={`p-3 cursor-pointer ${activeTab === "attendees" ? "bg-gray-500" : "hover:bg-gray-500"}`}
-                        >
-                            Attendees
-                        </li>
+                      
                         <li
                             onClick={() => setActiveTab("tickets")}
                             className={`p-3 cursor-pointer ${activeTab === "tickets" ? "bg-gray-500" : "hover:bg-gray-500"}`}

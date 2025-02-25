@@ -23,6 +23,7 @@ import SuccessPage from './Private/SuccessPage'
 import ScanQR from './Booking/ScanQR';
 import BookingsTable from './UserPage/Boooked';
 import UserTickets from './UserPage/UserTickets';
+import ReviewsDetailPage from './Origanizer/ReviewsDetailPage';
 function App() {
   const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
@@ -50,7 +51,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
             <Route path="/create-event" element={<CreateEvent />} />
             <Route path="/myEvent" element={<MyEventsPage />} />
-
+          <Route path="/reviews/:eventId" element={<ReviewsDetailPage />} />
           <Route path="/events" element={<EventPage />} />
           <Route path="/organizer-dashboard" element={<OriganizerDashboard />} />
            <Route path="/updateEvent/:id" element={<UpdateEventPage />} />

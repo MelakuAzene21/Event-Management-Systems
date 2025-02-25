@@ -22,6 +22,17 @@ exports.getReviewsByEvent = async (req, res) => {
     }
 };
 
+exports.getAllReviewEvent= async (req, res) => {
+    try {
+        const reviews = await Review.find({ eventId: req.params.eventId })
+            .populate("attendeeId", "name avatar");
+        res.json(reviews);
+    } catch (error) {
+        res.status(500).json({ error: "Error fetching reviews" });
+    }
+};
+
+
 // Update a review
 exports.updateReview = async (req, res) => {
     try {
