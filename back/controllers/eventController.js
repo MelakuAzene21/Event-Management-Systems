@@ -225,8 +225,9 @@ exports.deleteEvent = async (req, res) => {
             return res.status(404).json({ message: "Event not found" });
         }
 
+       
         // Allow admin to delete any event or the organizer to delete their own event
-        if (req.user.role !== 'admin' && event.organizer.toString() !== req.user._id) {
+        if (req.user.role !== 'admin' && event.organizer.toString() !== req.user._id.toString()) {
             return res.status(403).json({ message: "You are not authorized to delete this event" });
         }
 
