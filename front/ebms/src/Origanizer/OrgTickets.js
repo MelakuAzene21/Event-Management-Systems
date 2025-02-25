@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useGetMyEventsQuery} from "../features/api/myEventApi";
 
 export default function OriganizerTicketPage() {
-    const { data: myEvents = [], isLoading, error } = useGetMyEventsQuery();
+    const { data, isLoading, error } = useGetMyEventsQuery();
+    const myEvents = Array.isArray(data) ? data : [];
 
     return (
         <div className="flex flex-col mx-5 xl:mx-32 md:mx-10 mt-5">

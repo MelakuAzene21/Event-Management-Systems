@@ -37,7 +37,9 @@ const OrganizerDashboard = () => {
             case "booking":
                 return <BookingDetail />; // Display BookingDetail when "booking" tab is clicked
             case "reports":
-                return <Reports  events={myEvents} />; // Display Reports when "reports" tab is clicked
+                return <Reports events={myEvents} />; // Display Reports when "reports" tab is clicked
+            case "reviews":
+                return <div className="p-4">View reviews for each event.</div>;
             case "settings":
                 return <div className="p-4">Adjust your settings here.</div>;
             case "chatting":
@@ -89,6 +91,14 @@ const OrganizerDashboard = () => {
                         >
                             Reports
                         </li>
+                        <li
+                            onClick={() => setActiveTab("reviews")}
+                            className={`p-3 cursor-pointer ${activeTab === "reviews" ? "bg-gray-500" : "hover:bg-gray-500"}`}
+                        >
+                            Reviews
+                        </li>
+
+
                         <li
                             onClick={() => setActiveTab("settings")}
                             className={`p-3 cursor-pointer ${activeTab === "settings" ? "bg-gray-500" : "hover:bg-gray-500"}`}
