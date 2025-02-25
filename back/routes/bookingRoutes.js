@@ -110,15 +110,38 @@ router.get("/booking/:id", verifyToken, async (req, res) => {
 });
 
 
-
-
-router.get("/", verifyToken, async (req, res) => {
+//fetch all booking for all admin
+router.get("/all-booking", verifyToken, async (req, res) => {
     try {
         const bookings = await Booking.find()
             .populate("user", "name") // Only fetch the 'name' field from the User model
             .populate("event", "title eventDate"); // Fetch 'title' and 'eventDate' from Event model
 
         res.json(bookings);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+//fetch booking for a specific organizer event
+router.get("/", verifyToken, async (req, res) => {
+    try {
+        const organizerId = req.user.id; // Assuming the logged-in user is an organizer
+
+        // Find bookings where the event's organizer matches the logged-in user's ID
+        const bookings = await Booking.find()
+            .populate({
+                path: "event",
+                match: { organizer: organizerId }, // Filter events by the organizer
+                select: "title eventDate" // Only select title and eventDate
+            })
+            .populate("user", "name") // Fetch the user's name
+            .exec();
+
+        // Remove bookings where the event is null (i.e., does not belong to the organizer)
+        const filteredBookings = bookings.filter(booking => booking.event !== null);
+
+        res.json(filteredBookings);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
