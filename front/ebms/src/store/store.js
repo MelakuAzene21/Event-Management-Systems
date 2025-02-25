@@ -27,6 +27,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { authApi } from '../features/api/authApi';
 import { eventApi } from '../features/api/eventApi';
+import{reportApi} from '../features/api/reportApi';
 import { bookingApi } from '../features/api/bookingApi';
 import authReducer from '../features/slices/authSlice';
 import eventReducer from '../features/slices/eventSlice';
@@ -54,6 +55,7 @@ export const store = configureStore({
         [eventApi.reducerPath]: eventApi.reducer, // Event API
         [bookingApi.reducerPath]: bookingApi.reducer, // Booking API
         [reviewApi.reducerPath]: reviewApi.reducer,
+        [reportApi.reducerPath]: reportApi.reducer,
 
     },
     middleware: (getDefaultMiddleware) =>
@@ -63,7 +65,8 @@ export const store = configureStore({
             .concat(authApi.middleware)
             .concat(eventApi.middleware)
             .concat(bookingApi.middleware)
-            .concat(reviewApi.middleware),
+            .concat(reviewApi.middleware)
+            .concat(reportApi.middleware),
 });
 
 // Create persistor for your store

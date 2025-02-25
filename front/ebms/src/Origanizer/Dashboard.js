@@ -1,9 +1,28 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import MyEventsPage from "./MyEvent"; // Import your MyEventsPage component
 import Logout from "../auth/Logout";
 import BookingDetail from "./BookingDetail"; // Import your BookingDetail component 
+import Reports from "./Reports";
+import axios from "axios";
 const OrganizerDashboard = () => {
     const [activeTab, setActiveTab] = useState("events");
+
+
+    const [myEvents, setMyEvents] = useState([]); // Store events here
+
+    useEffect(() => {
+        axios.get('http://localhost:5000/api/events/myEvent', { withCredentials: true })
+            .then((response) => {
+                const events = Array.isArray(response.data) ? response.data : [];
+                setMyEvents(events);
+            })
+            .catch((error) => {
+                console.error("Error fetching my events:", error);
+                setMyEvents([]); // Ensure it doesn't stay undefined
+            });
+    }, []);
+
+
 
     // Render content based on active tab
     const renderContent = () => {
@@ -17,7 +36,7 @@ const OrganizerDashboard = () => {
             case "booking":
                 return <BookingDetail />; // Display BookingDetail when "booking" tab is clicked
             case "reports":
-                return <div className="p-4">View reports and analytics.</div>;
+                return <Reports  events={myEvents} />; // Display Reports when "reports" tab is clicked
             case "settings":
                 return <div className="p-4">Adjust your settings here.</div>;
             case "chatting":

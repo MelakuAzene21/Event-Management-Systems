@@ -13,6 +13,7 @@ const eventRoutes = require('./routes/eventRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const paymentRoute = require('./routes/payment');
 const reviewRoutes = require('./routes/reviewRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 // Load environment variables
 dotenv.config();
 
@@ -51,6 +52,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payment', paymentRoute); 
 app.use("/api/reviews", reviewRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 5000;
