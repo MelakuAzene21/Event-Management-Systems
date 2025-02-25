@@ -3,6 +3,7 @@ import MyEventsPage from "./MyEvent"; // Import your MyEventsPage component
 import Logout from "../auth/Logout";
 import BookingDetail from "./BookingDetail"; // Import your BookingDetail component 
 import Reports from "./Reports";
+import OriganizerTicketPage from "./OrgTickets";
 import axios from "axios";
 const OrganizerDashboard = () => {
     const [activeTab, setActiveTab] = useState("events");
@@ -32,7 +33,7 @@ const OrganizerDashboard = () => {
             case "attendees":
                 return <div className="p-4">View attendees for each event.</div>;
             case "tickets":
-                return <div className="p-4">Manage ticketing for your events.</div>;
+                return <OriganizerTicketPage/>; // Display OriganizerTicketPage when "tickets" tab is clicked
             case "booking":
                 return <BookingDetail />; // Display BookingDetail when "booking" tab is clicked
             case "reports":
