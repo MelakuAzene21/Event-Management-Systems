@@ -48,6 +48,8 @@ import { setUser } from '../features/slices/authSlice';
 import { Link } from 'react-router-dom';
 import Title from '../layout/Title';
 import { FaGoogle } from 'react-icons/fa';
+import { toast } from "react-toastify";
+
 const Login = () => {
     const [login, { isLoading }] = useLoginMutation();
     const dispatch = useDispatch();
@@ -87,11 +89,12 @@ const Login = () => {
 
             // Navigate based on the user's role
             if (userData.user.role === 'organizer') {
-                console.log('Navigating to organizer-dashboard');
                 navigate('/organizer-dashboard', { replace: true });
+                toast.success("Login Successfully")
             } else if (userData.user.role === 'user') {
-                console.log('Navigating to home');
                 navigate('/', { replace: true });
+                toast.success("Login Successfully")
+
             } else {
                 setErrorMessage('Unknown role. Please contact support.');
             }

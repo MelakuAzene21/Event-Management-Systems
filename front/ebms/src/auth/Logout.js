@@ -5,8 +5,8 @@ import { logout as logoutAction } from '../features/slices/authSlice';
 import { RxExit } from 'react-icons/rx';
 import { BsFillCaretDownFill } from 'react-icons/bs';
 import { useSelector } from "react-redux";
-import toast from 'react-hot-toast';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 export default function Logout() {
     const dispatch = useDispatch(); // Initialize useDispatch
        const [isMenuOpen, setisMenuOpen] = useState(false);

@@ -24,6 +24,8 @@ import ScanQR from './Booking/ScanQR';
 import BookingsTable from './UserPage/Boooked';
 import UserTickets from './UserPage/UserTickets';
 import ReviewsDetailPage from './Origanizer/ReviewsDetailPage';
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 function App() {
   const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
@@ -40,6 +42,8 @@ function App() {
 
   return (
     <Router>
+      <ToastContainer position="top-center" />
+
        <div>
          <Routes>
           <Route path="/" element={<Layout />}>
