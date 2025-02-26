@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-
+const sendEmail=require('../helpers/Send-Email')
 exports.register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -24,7 +24,9 @@ exports.register = async (req, res) => {
 
         // Create new user
         const user = await User.create({ name, email, password });
-
+        // Send Welcome Email
+        await sendEmail(email, "Welcome to EMS!", "welcomeEmail", { name });
+        
         // Exclude password from the response
         const { password: _, ...userWithoutPassword } = user._doc;
 
