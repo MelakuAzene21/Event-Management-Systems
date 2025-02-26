@@ -81,10 +81,10 @@ const UserTickets = () => {
                                 className="bg-gray-50 p-6 rounded-lg shadow-lg flex flex-col items-center border border-gray-200"
                             >
                                 <h2 className="text-xl font-semibold text-blue-600 mb-4">Ticket Details</h2>
-                                <p className="text-gray-600">Event Name: <span className="font-bold">{ticket.event.title}</span></p>
+                                <p className="text-gray-600">Event Name: <span className="font-bold">{ticket.event?.title}</span></p>
 
-                                <p className="text-gray-600">Amount Paid: <span className="font-bold">{ticket.booking.totalAmount}ETB</span></p>
-                                <p className="text-gray-600">Ticket Type: <span className="font-bold">{ticket.booking.ticketType}</span></p>
+                                <p className="text-gray-600">Amount Paid: <span className="font-bold">{ticket.booking?.totalAmount}ETB</span></p>
+                                <p className="text-gray-600">Ticket Type: <span className="font-bold">{ticket.booking?.ticketType}</span></p>
 
                                 <p className="text-gray-600 mb-4 italic">
                                     Ticket ID: <span className="font-bold">{ticket.ticketNumber}</span>
