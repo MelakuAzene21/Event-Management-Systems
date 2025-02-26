@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function UpdateEventPage() {
     const [event, setEvent] = useState(null);
@@ -41,10 +42,12 @@ export default function UpdateEventPage() {
 
         axios.put(`http://localhost:5000/api/events/update/${id}`, updatedEvent,{withCredentials:true})
             .then(() => {
+                toast.success('Event Updated Successfully');
                 navigate('/myEvent'); // Redirect to "My Events" page after successful update
             })
             .catch((error) => {
                 console.error("Error updating event:", error);
+                toast.error('Error Updating Event')
             });
     };
 

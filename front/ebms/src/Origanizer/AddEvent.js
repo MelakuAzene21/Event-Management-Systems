@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useCreateEventMutation } from "../features/api/eventApi";
-import toast from "react-hot-toast";
-
+import { toast } from "react-toastify";
 const CreateEvent = () => {
     const [formData, setFormData] = useState({
         title: "",

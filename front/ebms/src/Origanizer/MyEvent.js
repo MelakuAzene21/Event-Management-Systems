@@ -357,6 +357,7 @@ import {
     useGetAttendeeCountQuery,
 } from "../features/api/myEventApi";
 import * as Dialog from "@radix-ui/react-dialog";
+import { toast } from "react-toastify";
 
 export default function MyEventsPage() {
     const { data, isLoading, error } = useGetMyEventsQuery();
@@ -375,8 +376,10 @@ export default function MyEventsPage() {
         if (eventToDelete) {
             try {
                 await deleteEvent(eventToDelete).unwrap();
+                toast.success("Event Deleted Successfully")
             } catch (err) {
                 console.error("Error deleting event:", err);
+                toast.error("error deleting Event")
             } finally {
                 setIsOpen(false);
             }

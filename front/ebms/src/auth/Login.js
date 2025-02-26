@@ -102,6 +102,7 @@ const Login = () => {
             setErrorMessage('');
         } catch (error) {
             setErrorMessage('Login failed: Invalid email or password.');
+            toast.error('Login error')
         }
     };
 

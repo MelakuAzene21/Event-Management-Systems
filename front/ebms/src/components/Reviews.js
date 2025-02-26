@@ -133,6 +133,7 @@ import { setSelectedReview, clearSelectedReview } from "../features/slices/revie
 import Rating from "react-rating-stars-component";
 import Modal from "react-modal";
 import { FiEdit, FiTrash2 } from "react-icons/fi"; // Edit and Trash icons
+import { toast } from "react-toastify";
 
 Modal.setAppElement("#root");
 
@@ -165,8 +166,11 @@ const ReviewComponent = ({ eventId, attendeeId }) => {
                 updatedReview: { rating, comment },
             });
             dispatch(clearSelectedReview());
+            toast.success("Review Updated Successfully")
+
         } else {
             await createReview({ eventId, attendeeId, rating, comment });
+            toast.success("Review Created Successfully")
         }
         setRating(0);
         setComment("");
@@ -185,6 +189,7 @@ const ReviewComponent = ({ eventId, attendeeId }) => {
     const handleDelete = async () => {
         if (confirmDelete) {
             await deleteReview(confirmDelete);
+            toast.success("Reviews Deleted Succesfully")
             setConfirmDelete(null); // Reset confirmation
         }
     };

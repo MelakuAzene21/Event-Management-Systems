@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const BookmarkButton = ({ eventId, isBookmarkedInitial, onBookmark }) => {
     const [isBookmarked, setIsBookmarked] = useState(isBookmarkedInitial);
@@ -9,11 +10,14 @@ const BookmarkButton = ({ eventId, isBookmarkedInitial, onBookmark }) => {
             // Call the `onBookmark` prop and pass the event ID and current state
             if (onBookmark) {
                 await onBookmark(eventId, isBookmarked);
+                toast.success('Bookamrked Successfully')
             }
             // Toggle the local bookmark state
             setIsBookmarked(!isBookmarked);
         } catch (error) {
             console.error("Error handling bookmark action:", error);
+            toast.success('Error handling bookmark action')
+
         }
     };
 

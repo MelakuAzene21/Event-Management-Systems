@@ -47,6 +47,7 @@ import { useSignupMutation } from '../features/api/authApi';
 import { useNavigate, Link } from 'react-router-dom';
 import '../index.css';
 import Title from '../layout/Title';
+import { toast } from 'react-toastify';
 
 const Signup = () => {
     const [signup] = useSignupMutation();
@@ -98,6 +99,7 @@ const Signup = () => {
 
         try {
             await signup(formData).unwrap();
+            toast.success("Registereed Successfully")
             navigate('/login');
         } catch (error) {
             if (error.data && error.data.message === 'User already exists') {

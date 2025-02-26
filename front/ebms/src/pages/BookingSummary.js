@@ -251,7 +251,7 @@ import { Link, useParams } from 'react-router-dom';
 import SkeletonLoader from '../layout/SkeletonLoader';
 import { v4 as uuidv4 } from 'uuid';
 import { useSelector } from 'react-redux';
-import toast from 'react-hot-toast';
+import { toast } from 'react-toastify';
 import { useCreateBookingMutation } from "../features/api/bookingApi";
 import { useGetCurrentUserQuery } from "../features/api/authApi";
 import '../Overlay.css';
@@ -316,6 +316,8 @@ export default function BookingSummary() {
     const handlePayment = async () => {
         if (!booking) {
             console.error('No booking found. Please select a ticket first.');
+            toast.error('No booking found. Please select a ticket first');
+
             return;
         }
 
@@ -336,7 +338,7 @@ export default function BookingSummary() {
  //go to payment if only booking is successful
             if (bookingResponse) {
                 console.log('Booking successfully created:', bookingResponse.data);
-
+                toast.success('Booking successfully created')
                 // Step 2: Proceed to payment initialization if booking is successful
                 const paymentData = {
                     amount: booking.totalAmount,
@@ -353,6 +355,7 @@ export default function BookingSummary() {
 
                 if (paymentResponse.data && paymentResponse.data.payment_url) {
                     console.log('Redirecting to payment URL:', paymentResponse.data.payment_url);
+                    toast.success('Redirecting to Chapa Payment')
                     window.location.href = paymentResponse.data.payment_url;
                 } else {
                     throw new Error('Payment URL not received');

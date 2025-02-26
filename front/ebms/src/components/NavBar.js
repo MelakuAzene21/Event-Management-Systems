@@ -6,7 +6,7 @@ import { logout as logoutAction } from '../features/slices/authSlice';
 import { RxExit } from 'react-icons/rx';
 import { BsFillCaretDownFill } from 'react-icons/bs';
 import { useSelector } from "react-redux";
-
+import { toast } from "react-toastify";
 export default function Header() {
     const dispatch = useDispatch(); // Initialize useDispatch
     const [isMenuOpen, setisMenuOpen] = useState(false);
@@ -68,12 +68,13 @@ export default function Header() {
 
             // Dispatch the logout action to update Redux state
             dispatch(logoutAction());
-
+toast.success('Logout Successfully')
             console.log('User logged out successfully');
             // Optionally, redirect the user to the login page or homepage
             // e.g., navigate('/login');
         } catch (err) {
             console.error('Failed to log out:', err);
+            toast.error('logout error',err)
         }
     };
     //! Search input ----------------------------------------------------------------
