@@ -162,13 +162,14 @@ router.get("/attendee", verifyToken, async (req, res) => {
 
 
 //delete booking
-router.delete("/booking/:id", verifyToken, async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
     try {
         const booking = await Booking.findById(req.params.id);
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
         }
-        await booking.remove();
+
+        await booking.deleteOne();
         res.json({ message: "Booking deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -177,7 +178,7 @@ router.delete("/booking/:id", verifyToken, async (req, res) => {
 
 //update booking
 router.put("/booking/:id", verifyToken, async (req, res) => {
-    try {
+    try { 
         let booking = await Booking.findById(req.params.id);
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
