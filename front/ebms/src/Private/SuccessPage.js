@@ -199,6 +199,7 @@ import { useLocation, Link } from "react-router-dom";
 import { QRCodeCanvas } from "qrcode.react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 
 const SuccessPage = () => {
     const location = useLocation();
@@ -224,6 +225,7 @@ const SuccessPage = () => {
                 const data = await response.json();
 
                 if (response.ok && data.success && data.bookingId) {
+                    toast.success('Payment Successfully Completed')
                     setTransactionData({
                         status: "success",
                         message: data.message,
@@ -242,6 +244,7 @@ const SuccessPage = () => {
                 }
             } catch (error) {
                 console.error("Error processing transaction:", error);
+                toast.error("Error processing transaction")
                 setTransactionData({ message: "Error processing the transaction." });
             } finally {
                 setIsLoading(false);
@@ -265,6 +268,7 @@ const SuccessPage = () => {
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
+        toast.success("QR-code Downloaded Successfully")
     };
 
     return (

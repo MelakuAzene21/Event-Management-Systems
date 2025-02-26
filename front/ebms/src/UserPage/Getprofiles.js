@@ -188,6 +188,7 @@ import React, { useState, useEffect } from "react";
 import { useGetCurrentUserQuery, useUpdateProfileMutation } from "../features/api/authApi";
 import { AiOutlineEdit } from "react-icons/ai";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const UserProfile = () => {
     const { data: user, isLoading, isError, error } = useGetCurrentUserQuery();
@@ -237,10 +238,11 @@ const UserProfile = () => {
                 userId: user._id,
                 updatedData: { ...editedData, avatar: avatarUrl },
             }).unwrap();
-
+            toast.success('Your Profile Updated Successfully');
             setIsEditing(false);
         } catch (err) {
             console.error("Error updating profile:", err);
+            toast.error("Error Updating Profile")
         }
     };
 
