@@ -13,7 +13,7 @@ const eventSchema = new mongoose.Schema(
         user: { // Ensure this field exists
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true
+            required: false
         },        ticketTypes: [
             {
                 name: { type: String, required: true }, // e.g., "VIP", "Regular", "Student"

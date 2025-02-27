@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom";
 import { BsArrowRightShort } from "react-icons/bs";
 import { BiLike } from "react-icons/bi";
+import BookmarkButton from "../UserPage/BookMarkEvent";
 // import { useGetAllEventsQuery } from "../features/api/eventApi";
 
 
@@ -216,6 +217,18 @@ export default function IndexPage() {
                                             />
                                             </Link>
                                         )}
+
+                                       
+
+                                        <div className=" flex gap-4 bottom-[240px] right-8 md:bottom-[20px] md:right-3 lg:bottom-[250px] lg:right-4 sm:bottom-[260px] sm:right-3">
+                                            <BookmarkButton
+                                                eventId={event._id}
+                                                isBookmarkedInitial={event.isBookmarked} // ✅ Pass the correct initial state
+                                            />
+                                        </div>
+                                        
+
+
                                         <div className="absolute flex gap-4 bottom-[240px] right-8 md:bottom-[20px] md:right-3 lg:bottom-[250px] lg:right-4 sm:bottom-[260px] sm:right-3">
                                             <button onClick={() => handleLike(event._id)}>
                                                 <BiLike className="w-auto h-12 lg:h-10 sm:h-12 md:h-10 bg-white p-2 rounded-full shadow-md transition-all hover:text-primary" />

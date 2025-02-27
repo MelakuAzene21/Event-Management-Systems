@@ -27,7 +27,7 @@ router.get('/:eventId/attendeeCount', getEventAttendeeCount);
 
 
 // exports.UserLike=async(req,res)=>{
-router.post("/userLike/:eventId", (req, res) => {
+router.post("/userLike/:eventId",verifyToken, (req, res) => {
     const eventId = req.params.eventId;
     const userId = req.body.userId; // Assume userId is passed from the frontend
     console.log("User ID:", userId);
