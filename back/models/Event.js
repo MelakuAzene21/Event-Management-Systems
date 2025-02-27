@@ -10,8 +10,11 @@ const eventSchema = new mongoose.Schema(
         location: { type: String, required: true },
         organizedBy: { type: String }, // Could represent the organization name or similar
         organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user organizing the event
-        attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Users attending the event
-        ticketTypes: [
+        user: { // Ensure this field exists
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+        },        ticketTypes: [
             {
                 name: { type: String, required: true }, // e.g., "VIP", "Regular", "Student"
                 price: { type: Number, required: true }, // price of the ticket

@@ -67,10 +67,11 @@
 // };
 
 const Event = require('../models/Event');
+const mongoose = require("mongoose");
 const User = require('../models/User');
 const { cloudinary } = require('../utils/cloudinaryConfig');
 const Booking = require('../models/Booking');
-
+const BookMark=require('../models/Bookmark')
 // Event creation handler with multiple image uploads
 exports.createEvent = async (req, res) => {
     try {
@@ -170,15 +171,34 @@ exports.getEvents = async (req, res) => {
     }
 };
 
+
+
+
 exports.eventDetails = async (req, res) => {
     const { id } = req.params;
     try {
-        const event = await Event.findOne({ _id: id }); // Filter by event ID and owner
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({ error: "Invalid event ID format" });
+        }
+
+        const event = await Event.findById(id);
         if (!event) {
             return res.status(404).json({ error: "Event not found" });
         }
-        res.json(event);
+
+        let isBookmarked = false;
+        // If the user is logged in, check if they have bookmarked the event
+        if (req.user) {
+            const existingBookmark = await Bookmark.findOne({
+                userId: req.user._id,
+                eventId: id,
+            });
+            isBookmarked = !existingBookmark; // true if bookmark exists, false otherwise
+        }
+
+        res.status(200).json({ ...event.toObject(), isBookmarked });
     } catch (error) {
+        console.error("🚨 Error:", error);
         res.status(500).json({ error: "Failed to fetch event" });
     }
 };

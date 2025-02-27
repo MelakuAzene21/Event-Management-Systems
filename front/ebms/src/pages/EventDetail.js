@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 import { setPendingBooking } from "../features/slices/bookingSlice";
 import ReviewComponent from "../components/Reviews";
+import { toast } from "react-toastify";
 export default function EventPage() {
     const { id } = useParams();
     const [event, setEvent] = useState(null);
@@ -157,33 +158,27 @@ export default function EventPage() {
         return <div>No event found.</div>;
     }
 
+    // const handleBookmark = async (eventId, isBookmarked) => {
+    //     if (!user) {
+    //         navigate("/login");
+    //         return;
+    //     }
 
-    const handleBookmark = async (eventId, isBookmarked) => {
-        if (!user) {
-            // Redirect to login if the user is not logged in
-            navigate("/login");
-            return;
-        }
+    //     try {
+    //         const response = await axios.post(
+    //             `http://localhost:5000/api/bookmarks/event/${eventId}/toggle`,
+    //             null,
+    //             { withCredentials: true }
+    //         );
 
-        // Perform bookmark/unbookmark action
-        try {
-            if (isBookmarked) {
-                await axios.post(
-                    `http://localhost:5000/api/events/event/${eventId}/unbookmark`,
-                    null,
-                    { withCredentials: true }
-                );
-            } else {
-                await axios.post(
-                    `http://localhost:5000/api/events/event/${eventId}/bookmark`,
-                    null,
-                    { withCredentials: true }
-                );
-            }
-        } catch (error) {
-            console.error("Error handling bookmark:", error);
-        }
-    };
+    //         toast.success(response.data.message);
+
+    //     } catch (error) {
+    //         console.error("Error handling bookmark:", error);
+    //         toast.error("Failed to update bookmark");
+    //     }
+    // };
+    console.log("isBookmarked", event.isBookmarked)
 
 
     return (
@@ -210,12 +205,18 @@ export default function EventPage() {
                     isBookmarkedInitial={event.bookmarkedBy.includes(user._id)} // Adjust according to user's bookmarks
                 /> */}
 
-                <BookmarkButton
+               
+                {/* <BookmarkButton
                     eventId={event._id}
                     isBookmarkedInitial={event.bookmarkedBy.includes(user?._id)} // Adjust according to user's bookmarks
                     onBookmark={handleBookmark}
 
-               />
+               /> */}
+                
+                <BookmarkButton
+                    eventId={event._id}
+                    isBookmarkedInitial={event.isBookmarked} // ✅ Pass the correct initial state
+                />
             </div>
             {/* <div className="mx-2">
                 <h2 className="text-md md:text-xl font-bold mt-3 text-primarydark">{event.ticketPrice === 0 ? 'Free' : 'ETB. ' + event.ticketPrice}</h2>

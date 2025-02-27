@@ -15,6 +15,7 @@ const paymentRoute = require('./routes/payment');
 const reviewRoutes = require('./routes/reviewRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
+const bookmarkRoutes=require('./routes/bookmarkRoutes')
 // Load environment variables
 dotenv.config();
 
@@ -55,6 +56,7 @@ app.use('/api/payment', paymentRoute);
 app.use("/api/reviews", reviewRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/api/bookmarks',bookmarkRoutes)
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

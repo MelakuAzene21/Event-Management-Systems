@@ -20,7 +20,7 @@ router.delete('/delete/:id', verifyToken, checkRole('organizer','admin'), delete
 // router.post('/userLike/:id', verifyToken,UserLike);
 // router.post("/event/:id/bookmark", verifyToken, AddToBookMark);
 // router.post("/event/:id/unbookmark", verifyToken, RemoveBookMark);
-router.get("/bookmarkedEvents", verifyToken, GetBookMarkEvents);
+// router.get("/bookmarkedEvents", verifyToken, GetBookMarkEvents);
 
 
 router.get('/:eventId/attendeeCount', getEventAttendeeCount);
@@ -80,44 +80,44 @@ router.post("/userLike/:eventId", (req, res) => {
 
 
 
-router.post("/event/:id/bookmark", verifyToken, async (req, res) => {
-    try {
-        const eventId = req.params.id;
-        const userId = req.user._id; // Assuming `verifyToken` middleware attaches the user object to req
+// router.post("/event/:id/bookmark", verifyToken, async (req, res) => {
+//     try {
+//         const eventId = req.params.id;
+//         const userId = req.user._id; // Assuming `verifyToken` middleware attaches the user object to req
 
-        await Event.findByIdAndUpdate(eventId, {
-            $addToSet: { bookmarkedBy: userId }
-        });
-        res.json({ success: true, message: 'Event bookmarked successfully' });
-    } catch (error) {
-        console.error("Error bookmarking event:", error);
-        res.status(500).json({ success: false, message: 'Error bookmarking event' });
-    }
-});
+//         await Event.findByIdAndUpdate(eventId, {
+//             $addToSet: { bookmarkedBy: userId }
+//         });
+//         res.json({ success: true, message: 'Event bookmarked successfully' });
+//     } catch (error) {
+//         console.error("Error bookmarking event:", error);
+//         res.status(500).json({ success: false, message: 'Error bookmarking event' });
+//     }
+// });
 
-router.post("/event/:id/unbookmark", verifyToken, async (req, res) => {
-    try {
-        const eventId = req.params.id;
-        const userId = req.user._id;
+// router.post("/event/:id/unbookmark", verifyToken, async (req, res) => {
+//     try {
+//         const eventId = req.params.id;
+//         const userId = req.user._id;
 
-        await Event.findByIdAndUpdate(eventId, {
-            $pull: { bookmarkedBy: userId }
-        });
-        res.json({ success: true, message: 'Event unbookmarked successfully' });
-    } catch (error) {
-        console.error("Error unbookmarking event:", error);
-        res.status(500).json({ success: false, message: 'Error unbookmarking event' });
-    }
-});
+//         await Event.findByIdAndUpdate(eventId, {
+//             $pull: { bookmarkedBy: userId }
+//         });
+//         res.json({ success: true, message: 'Event unbookmarked successfully' });
+//     } catch (error) {
+//         console.error("Error unbookmarking event:", error);
+//         res.status(500).json({ success: false, message: 'Error unbookmarking event' });
+//     }
+// });
 
 
-router.get("/bookmarkedEvents", verifyToken, async (req, res) => {
-    try {
-        const events = await Event.find({ bookmarkedBy: req.user._id }).populate("owner", "name");
-        res.status(200).json(events);
-    } catch (error) {
-        console.error("Error fetching bookmarked events:", error);
-        res.status(500).json({ error: "Failed to fetch bookmarked events" });
-    }
-});
+// router.get("/bookmarkedEvents", verifyToken, async (req, res) => {
+//     try {
+//         const events = await Event.find({ bookmarkedBy: req.user._id }).populate("owner", "name");
+//         res.status(200).json(events);
+//     } catch (error) {
+//         console.error("Error fetching bookmarked events:", error);
+//         res.status(500).json({ error: "Failed to fetch bookmarked events" });
+//     }
+// });
 module.exports = router;

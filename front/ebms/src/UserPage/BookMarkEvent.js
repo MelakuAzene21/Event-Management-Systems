@@ -1,35 +1,84 @@
+// import { useState, useEffect } from "react";
+// import { toast } from "react-toastify";
 
-import { useState } from "react";
+// const BookmarkButton = ({ eventId, isBookmarkedInitial, onBookmark }) => {
+//     const [isBookmarked, setIsBookmarked] = useState(isBookmarkedInitial);
+
+//     // Sync local state with the latest prop value when the component re-renders
+//     useEffect(() => {
+//         setIsBookmarked(isBookmarkedInitial);
+//     }, [isBookmarkedInitial]);
+
+//     const handleClick = async () => {
+//         try {
+//             if (onBookmark) {
+//                 await onBookmark(eventId, isBookmarked);
+//             }
+//             setIsBookmarked((prev) => !prev); // Toggle state after API call
+//         } catch (error) {
+//             console.error("Error handling bookmark action:", error);
+//             toast.error("Error handling bookmark action");
+//         }
+//     };
+
+//     return (
+//         <button
+//             onClick={handleClick}
+//             className={`p-2 text-2xl rounded-full transition duration-300 focus:outline-none
+//                 ${isBookmarked ? "text-yellow-500" : "text-gray-500"}
+//                 hover:text-yellow-400`}
+//         >
+//             {isBookmarked ? "★" : "☆"}
+//         </button>
+//     );
+// };
+
+// export default BookmarkButton;
+
+
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const BookmarkButton = ({ eventId, isBookmarkedInitial, onBookmark }) => {
+const BookmarkButton = ({ eventId, isBookmarkedInitial }) => {
     const [isBookmarked, setIsBookmarked] = useState(isBookmarkedInitial);
+    const user = useSelector((state) => state.auth.user);
+    const navigate = useNavigate();
+    // Sync with backend when `isBookmarkedInitial` changes
+    useEffect(() => {
+        setIsBookmarked(isBookmarkedInitial);
+    }, [isBookmarkedInitial]);
 
     const handleClick = async () => {
-        try {
-            // Call the `onBookmark` prop and pass the event ID and current state
-            if (onBookmark) {
-                await onBookmark(eventId, isBookmarked);
-                toast.success('Bookamrked Successfully')
-            }
-            // Toggle the local bookmark state
-            setIsBookmarked(!isBookmarked);
-        } catch (error) {
-            console.error("Error handling bookmark action:", error);
-            toast.success('Error handling bookmark action')
-
+        if (!user) {
+            navigate("/login");
+            return;
         }
+        try {
+                const response = await axios.post(
+                    `http://localhost:5000/api/bookmarks/event/${eventId}/toggle`,
+                    null,
+                    { withCredentials: true }
+                );
+
+                toast.success(response.data.message);
+
+            } catch (error) {
+                console.error("Error handling bookmark:", error);
+                toast.error("Failed to update bookmark");
+            }
     };
 
     return (
         <button
             onClick={handleClick}
-            className={`flex items-center justify-center px-4 py-2 rounded-lg transition-all duration-300 
-                ${isBookmarked ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-800'} 
-                hover:bg-yellow-400 focus:outline-none`}
+            className={`p-2 text-2xl rounded-full transition duration-300 focus:outline-none 
+                ${isBookmarked ? "text-yellow-500" : "text-gray-500"} 
+                hover:text-yellow-400`}
         >
-            <span className="text-2xl">{isBookmarked ? '★' : '☆'}</span>
-            <span className="ml-2 text-sm font-semibold">{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
+            {isBookmarked ? "★" : "☆"}
         </button>
     );
 };

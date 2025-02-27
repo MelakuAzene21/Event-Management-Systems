@@ -177,7 +177,17 @@ toast.success('Logout Successfully')
                     </div>
                 </Link>
 
+                <Link to={'/bookmarked'}>
+                    <div>
+                        <div className='flex flex-col place-items-center py-1 px-3 rounded cursor-pointer hover:text-primarydark hover:bg-white hover:shadow-sm shadow-gray-200 hover:transition-shadow duration-1500'>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 py-1">
+                                <path fillRule="evenodd" d="M3 5a2 2 0 012-2h14a2 2 0 012 2v4.5a1.5 1.5 0 01-1.5 1.5 1.5 1.5 0 011.5 1.5V19a2 2 0 01-2 2H5a2 2 0 01-2-2v-6.5A1.5 1.5 0 014.5 11 1.5 1.5 0 013 9.5V5zm4 2a1 1 0 011-1h8a1 1 0 110 2H8a1 1 0 01-1-1zm0 4a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clipRule="evenodd" />
+                            </svg>
 
+                            Bookmarked
+                        </div>
+                    </div>
+                </Link>
                 <div className="relative">
                    
                     {/* <Link to="/show-not" className="text-gray-700 hover:text-black">
