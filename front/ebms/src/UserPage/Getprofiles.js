@@ -189,7 +189,7 @@ import { useGetCurrentUserQuery, useUpdateProfileMutation } from "../features/ap
 import { AiOutlineEdit } from "react-icons/ai";
 import axios from "axios";
 import { toast } from "react-toastify";
-
+import Spinner from '../layout/Spinner'
 const UserProfile = () => {
     const { data: user, isLoading, isError, error } = useGetCurrentUserQuery();
     const [updateProfile] = useUpdateProfileMutation(); // Mutation for updating the profile
@@ -198,7 +198,7 @@ const UserProfile = () => {
     const [editedData, setEditedData] = useState({ name: "", email: "" });
     const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null);
     const [selectedFile, setSelectedFile] = useState(null);
-
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         if (user?.avatar) {
             setAvatarPreview(user.avatar);
@@ -219,6 +219,7 @@ const UserProfile = () => {
 
     const handleSave = async () => {
         try {
+            setLoading(!loading);
             let avatarUrl = user.avatar;
 
             if (selectedFile) {
@@ -240,9 +241,11 @@ const UserProfile = () => {
             }).unwrap();
             toast.success('Your Profile Updated Successfully');
             setIsEditing(false);
+            setLoading(false)
         } catch (err) {
             console.error("Error updating profile:", err);
             toast.error("Error Updating Profile")
+            setLoading(false);
         }
     };
 
@@ -343,8 +346,9 @@ const UserProfile = () => {
                         <button
                             onClick={handleSave}
                             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
+
                         >
-                            Save
+                         {loading?<Spinner/>:'Save'}
                         </button>
                     </div>
                 )}

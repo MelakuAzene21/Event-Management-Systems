@@ -182,6 +182,15 @@ exports.updateProfile = async (req, res) => {
                 return res.status(404).json({ message: 'User not found.' });
             }
 
+            // **Send email notification after profile update**
+            await sendEmail(
+                updatedUser.email,
+                "Profile Updated Successfully",
+                "profileUpdate", // Email template name
+                { name: updatedUser.name } // Replacements for template
+            );
+
+
             // Send updated profile data in response
             res.json({ message: 'Profile updated successfully.', user: updatedUser });
         });
