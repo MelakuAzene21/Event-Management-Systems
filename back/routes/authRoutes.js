@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login,logout, getProfile, updateProfile, getAllUsers ,uploadAvatar} = require('../controllers/authController');
+const { register, login,logout, getProfile, updateProfile, getAllUsers ,uploadAvatar,forgotPassword,resetPassword} = require('../controllers/authController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
@@ -12,7 +12,8 @@ router.post('/logout',verifyToken, logout);
 router.get('/profile',verifyToken, getProfile);
 // router.post('/upload-avatar', uploadAvatar);
 
-
+router.post('/forgot-password', forgotPassword);
+router.put('/reset-password/:token', resetPassword);
 
 
 // Google OAuth Login

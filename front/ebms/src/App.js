@@ -23,9 +23,12 @@ import SuccessPage from './Private/SuccessPage'
 import ScanQR from './Booking/ScanQR';
 import BookingsTable from './UserPage/Boooked';
 import UserTickets from './UserPage/UserTickets';
+import BookmarkedEvents from './UserPage/GetBookmarkEvents';
 import ReviewsDetailPage from './Origanizer/ReviewsDetailPage';
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+import ResetPassword from './auth/ResetPassword';
+import ForgotPassword from './auth/forgotPassword';
 function App() {
   const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
@@ -52,7 +55,11 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/useraccount" element={<UserProfile />} />
-          <Route path="*" element={<NotFound />} />
+            <Route path='/bookmarked' element={<BookmarkedEvents />} />
+            <Route path='/forgot-password' element={<ForgotPassword />} />
+
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="*" element={<NotFound />} />
             <Route path="/create-event" element={<CreateEvent />} />
             <Route path="/myEvent" element={<MyEventsPage />} />
           <Route path="/reviews/:eventId" element={<ReviewsDetailPage />} />
