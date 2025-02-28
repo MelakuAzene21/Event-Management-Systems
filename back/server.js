@@ -1,11 +1,11 @@
 const express = require('express');
+const http = require("http");
 const dotenv = require('dotenv');
 const path=require('path')
 const passport = require("passport");
 const session = require('express-session');
 require("./config/passport");
-
-
+const { initializeSocket } = require('./config/socket')
 const cookieParser = require('cookie-parser');
 const connectDB = require('./config/db'); // Import the database connection
 const authRoutes = require('./routes/authRoutes');
@@ -15,12 +15,17 @@ const paymentRoute = require('./routes/payment');
 const reviewRoutes = require('./routes/reviewRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
-const bookmarkRoutes=require('./routes/bookmarkRoutes')
+const bookmarkRoutes = require('./routes/bookmarkRoutes');
+const notificationRoutes=require('./routes/notificationRoutes')
 // Load environment variables
 dotenv.config();
 
 // Initialize the application
 const app = express();
+const server = http.createServer(app);
+
+const io = initializeSocket(server); // Initialize WebSocket
+
 const cors = require('cors');
 // Configure CORS to allow requests from your frontend
 app.use(cors({
@@ -56,8 +61,10 @@ app.use('/api/payment', paymentRoute);
 app.use("/api/reviews", reviewRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/tickets', ticketRoutes);
-app.use('/api/bookmarks',bookmarkRoutes)
+app.use('/api/bookmarks', bookmarkRoutes);
+app.use("/api/notifications", notificationRoutes);
+
 // Start the server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
  

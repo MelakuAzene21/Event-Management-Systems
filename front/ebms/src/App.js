@@ -29,6 +29,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import ResetPassword from './auth/ResetPassword';
 import ForgotPassword from './auth/forgotPassword';
+import NotificationsPage from './pages/NotificationsPage';
+import { setupSocket } from './features/middleware/socketMiddleware';
 function App() {
   const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
@@ -38,6 +40,12 @@ function App() {
       dispatch(setUser(user)); // Update Redux state with the user data
     }
   }, [user, dispatch]);
+
+  useEffect(() => {
+    if (user) {
+      setupSocket(user._id); // Ensure user joins their socket room
+    }
+  }, [user]);
 
   if (isLoading) {
     return <div>Loading...</div>; // Show a loading state
@@ -71,6 +79,7 @@ function App() {
           <Route path='/calendar' element={<CalendarView/>}/>
             <Route path='/payment' element={<PaymentPage />} />
             <Route path='/booked' element={<BookingsTable />} />
+            <Route path='/show-not' element={<NotificationsPage />} />
 
             <Route path='/:id/booking-summary' element={<BookingSummary />} />
             <Route path='/:id/booking-summary' element={<BookingSummary />} />

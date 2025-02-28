@@ -71,7 +71,10 @@ const mongoose = require("mongoose");
 const User = require('../models/User');
 const { cloudinary } = require('../utils/cloudinaryConfig');
 const Booking = require('../models/Booking');
-const BookMark=require('../models/Bookmark')
+const BookMark = require('../models/Bookmark')
+const Notification = require("../models/Notification");
+const io = require("../config/socket"); // Import WebSocket instance
+const { getIO } = require("../config/socket");
 // Event creation handler with multiple image uploads
 exports.createEvent = async (req, res) => {
     try {
@@ -217,6 +220,27 @@ exports.getMyEvent = async (req, res) => {
     }
 };
 
+// exports.UpdateEvent = async (req, res) => {
+//     const { id } = req.params;
+//     try {
+//         const event = await Event.findOne({ _id: id, organizer: req.user._id });
+//         if (!event) {
+//             return res.status(404).json({ error: "Event not found" });
+//         }
+
+//         // Update fields
+//         Object.assign(event, req.body);
+//         await event.save();
+
+//         res.status(200).json(event);
+//     } catch (error) {
+//         console.error("Error updating event:", error);
+//         res.status(500).json({ error: "Failed to update event" });
+//     }
+// }
+
+
+
 exports.UpdateEvent = async (req, res) => {
     const { id } = req.params;
     try {
@@ -225,17 +249,42 @@ exports.UpdateEvent = async (req, res) => {
             return res.status(404).json({ error: "Event not found" });
         }
 
-        // Update fields
+        // Fetch attendees who booked the event
+        const attendees = await Booking.find({ event: id, status: "booked" }).select("user");
+
+        // Update event details
         Object.assign(event, req.body);
         await event.save();
 
-        res.status(200).json(event);
+        // Send real-time notifications to attendees
+        const io = getIO();
+        const message = `📢 The event "${event.title}" has been updated!`;
+
+        for (const attendee of attendees) {
+            const newNotification = new Notification({
+                userId: attendee.user,
+                message,
+                eventId: id,
+            });
+            await newNotification.save();
+
+            console.log(`📩 Sending notification to user ${attendee.user}`);
+
+            // Emit real-time notification
+            io.to(attendee.user.toString()).emit("event-update", {
+                _id: newNotification._id,
+                message: newNotification.message,
+                eventId: newNotification.eventId,
+                isRead: newNotification.isRead,
+            });
+        }
+
+        res.status(200).json({ message: "Event updated successfully!" });
     } catch (error) {
         console.error("Error updating event:", error);
         res.status(500).json({ error: "Failed to update event" });
     }
-}
-
+};
 
 exports.deleteEvent = async (req, res) => {
     try {

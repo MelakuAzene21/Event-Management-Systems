@@ -37,6 +37,10 @@ import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // Default: localStorage for web
 import { reviewApi } from '../features/api/reviewApi';
 import { eventsApi } from '../features/api/myEventApi';
+import { notificationsApi } from '../features/api/notificationsApi';
+import notificationReducer from "../features/slices/notificationSlice";
+import { socketMiddleware } from "../features/middleware/socketMiddleware";
+
 //  Create persist configs for the slices you want to persist
 const bookingPersistConfig = {
     key: 'booking',
@@ -52,12 +56,14 @@ export const store = configureStore({
         event: eventReducer,             // Event state
         booking: persistedBookingReducer, // Persisted booking state
         review: reviewReducer,
+        notifications: notificationReducer,
         [authApi.reducerPath]: authApi.reducer, // Auth API
         [eventApi.reducerPath]: eventApi.reducer, // Event API
         [bookingApi.reducerPath]: bookingApi.reducer, // Booking API
         [reviewApi.reducerPath]: reviewApi.reducer,
         [reportApi.reducerPath]: reportApi.reducer,
         [eventsApi.reducerPath]: eventsApi.reducer,
+        [notificationsApi.reducerPath]: notificationsApi.reducer,
 
     },
     middleware: (getDefaultMiddleware) =>
@@ -69,7 +75,9 @@ export const store = configureStore({
             .concat(bookingApi.middleware)
             .concat(reviewApi.middleware)
             .concat(reportApi.middleware)
-            .concat(eventsApi.middleware),
+            .concat(eventsApi.middleware)
+            .concat(notificationsApi.middleware)
+            .concat(socketMiddleware),
 });
 
 // Create persistor for your store
