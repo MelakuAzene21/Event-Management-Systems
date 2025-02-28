@@ -59,7 +59,7 @@ const notificationSlice = createSlice({
         addNotification: (state, action) => {
             const exists = state.notifications.some(notif => notif._id === action.payload._id);
             if (!exists) {
-                state.notifications.push(action.payload);
+                state.notifications.unshift(action.payload);
                 saveToLocalStorage(state.notifications); // Persist to local storage
             }
         },
