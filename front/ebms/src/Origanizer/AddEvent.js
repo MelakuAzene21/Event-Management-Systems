@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useCreateEventMutation } from "../features/api/eventApi";
 import { toast } from "react-toastify";
+import Title from "../layout/Title";
 const CreateEvent = () => {
     const [formData, setFormData] = useState({
         title: "",
@@ -132,6 +133,7 @@ const CreateEvent = () => {
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Create an Event</h2>
+            <Title title={"Create event"}/>
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Title */}
                 <div>
@@ -167,14 +169,22 @@ const CreateEvent = () => {
                     <label className="block text-sm font-medium text-gray-700">
                         Category
                     </label>
-                    <input
-                        type="text"
+                    <select
                         name="category"
                         value={formData.category}
                         onChange={handleInputChange}
                         required
                         className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
+                    >
+                        <option value="">Select Category</option>
+                        <option value="music">Music</option>
+                        <option value="graduation">Graduation</option>
+                        <option value="education">Educational</option>
+                        <option value="workshop">Workshop</option>
+                        <option value="entertainment">Entertainment</option>
+                        {/* Add more options as needed */}
+                    </select>
+
                 </div>
 
                 {/* Event Date */}

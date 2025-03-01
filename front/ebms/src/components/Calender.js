@@ -4,6 +4,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths } from "
 import { useEffect, useState } from "react";
 import { BsCaretLeftFill, BsFillCaretRightFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
+import Title from "../layout/Title";
 
 
 export default function CalendarView() {
@@ -32,6 +33,7 @@ export default function CalendarView() {
 
     return (
         <div className="p-4 md:mx-16">
+            <Title title={"Event Calender"}/>
             <div className=" rounded p-2">
                 <div className="flex items-center mb-4 justify-center gap-6 ">
                     <button className="primary" onClick={() => setCurrentMonth((prevMonth) => addMonths(prevMonth, -1))}>

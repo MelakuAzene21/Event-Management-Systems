@@ -3,6 +3,7 @@ import axios from "axios";
 import { QRCodeCanvas } from "qrcode.react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import Title from "../layout/Title";
 
 const UserTickets = () => {
     const [tickets, setTickets] = useState([]);
@@ -47,6 +48,7 @@ const UserTickets = () => {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-100 to-green-100 p-6">
+            <Title title={"Ticket Page"}/>
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}

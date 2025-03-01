@@ -200,6 +200,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import Title from "../layout/Title";
 
 const SuccessPage = () => {
     const location = useLocation();
@@ -273,6 +274,7 @@ const SuccessPage = () => {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-green-100 to-blue-100 p-6">
+           <Title title={"Payment Success page"}/>
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}

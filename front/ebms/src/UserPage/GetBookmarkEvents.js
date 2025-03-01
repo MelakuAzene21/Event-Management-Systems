@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import {Link} from "react-router-dom"
+import Title from "../layout/Title";
 const BookmarkedEvents = () => {
     const [bookmarkedEvents, setBookmarkedEvents] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -38,7 +39,7 @@ const BookmarkedEvents = () => {
     return (
         <div className="max-w-6xl mx-auto px-4 py-8">
             <h2 className="text-3xl font-semibold text-center text-gray-800 mb-8">Your Bookmarked Events</h2>
-
+<Title title={"Bookmarked Events"}/>
             {bookmarkedEvents.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {bookmarkedEvents.map((event) => (

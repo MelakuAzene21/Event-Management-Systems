@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useFetchReportsQuery } from "../features/api/reportApi";
+import Title from "../layout/Title";
 
 const Reports = ({ events = [] }) => {
     const today = new Date().toISOString().split("T")[0]; // Get today's date
@@ -23,6 +24,7 @@ const Reports = ({ events = [] }) => {
     return (
         <div className="max-w-5xl mx-auto p-6 bg-white shadow-lg rounded-lg">
             <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">Event Reports</h2>
+           <Title title={"Reports Page"}/>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
                 <select
                     className="p-3 border rounded-lg bg-gray-50 focus:ring focus:ring-blue-300 w-full"

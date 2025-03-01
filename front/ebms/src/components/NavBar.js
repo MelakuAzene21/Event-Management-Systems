@@ -155,16 +155,19 @@ toast.success('Logout Successfully')
                 </div>
 
 
-                <Link to={'/show-not'}>
-                    <div>
-                       <div className='flex flex-col place-items-center py-1 px-3 rounded cursor-pointer hover:text-primarydark hover:bg-white hover:shadow-sm shadow-gray-200 hover:transition-shadow duration-1500'>
+                <Link to={'/show-not'} className="relative">
+                    <div className="flex flex-col place-items-center py-1 px-3 rounded cursor-pointer hover:text-primarydark hover:bg-white hover:shadow-sm shadow-gray-200 hover:transition-shadow duration-1500">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 py-1">
                             <path fillRule="evenodd" d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9zm4.502 8.9a2.25 2.25 0 104.496 0 25.057 25.057 0 01-4.496 0z" clipRule="evenodd" />
                         </svg>
-                            {/* Show only unread notifications */}
-                            ({notifications.filter(notif => !notif.isRead).length})
-                      </div>
-                   </div>
+
+                        {/* Notification Badge */}
+                        {notifications.filter(notif => !notif.isRead).length > 0 && (
+                            <span className="absolute top-0 right-0 -mt-1 -mr-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                {notifications.filter(notif => !notif.isRead).length}
+                            </span>
+                        )}
+                    </div>
                 </Link>
 
                 <Link to={'/booked'}>

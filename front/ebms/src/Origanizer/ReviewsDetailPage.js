@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
+import Title from "../layout/Title";
 
 const ReviewsDetailPage = () => {
     const { eventId } = useParams();
@@ -39,6 +40,7 @@ const ReviewsDetailPage = () => {
 
     return (
         <div className="p-6 bg-gray-100 min-h-screen">
+            <Title title={"Reviews Detail Page"}/>
             <div className="max-w-4xl mx-auto">
                 <h1 className="text-3xl font-bold text-blue-600 text-center mb-6">📢 Reviews for  <span className="text-green-600 underline italic">{eventTitle}</span> Event</h1>
 

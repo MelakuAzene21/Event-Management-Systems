@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Title from '../layout/Title';
 
 export default function UpdateEventPage() {
     const [event, setEvent] = useState(null);
@@ -56,6 +57,7 @@ export default function UpdateEventPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
             <div className="w-full max-w-lg bg-white shadow-md rounded-lg p-8">
+               <Title title={"Update Event Page"}/>
                 <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">Update Event</h1>
                 <form onSubmit={handleUpdate} className="space-y-4">
                     <label>Event Title</label>

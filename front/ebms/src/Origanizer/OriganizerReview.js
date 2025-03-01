@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import Title from "../layout/Title";
 
 const OrganizerEventReviews = () => {
     const [events, setEvents] = useState([]);
@@ -44,7 +45,7 @@ const OrganizerEventReviews = () => {
     return (
         <div className="p-6 bg-gray-100 min-h-screen">
             <h1 className="text-3xl font-bold text-blue-600 text-center mb-6">📊 Event Reviews </h1>
-
+<Title title={"All Review  Page"}/>
             {loading ? (
                 <p className="text-center text-gray-500">Loading...</p>
             ) : error ? (

@@ -14,6 +14,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SkeletonLoader from "../layout/SkeletonLoader";
 import EventCarousel from "../layout/Carousel";
+import Title from '../layout/Title';
 export default function IndexPage() {
     const [events, setEvents] = useState([]);
     // const { data: events, isLoading, isError } = useGetAllEventsQuery();
@@ -21,7 +22,6 @@ export default function IndexPage() {
     // const { user } = useContext(UserContext);
     const [loading, setLoading] = useState(true); // Add loading state
     const user = useSelector((state) => state.auth.user);
-
     const navigate = useNavigate()
     const [selectedCategory, setSelectedCategory] = useState("All"); // New state for selected category
     const [timeFilter, setTimeFilter] = useState("Upcoming"); // New state for time filter
@@ -128,7 +128,7 @@ export default function IndexPage() {
     // };
 
 
-    const categories = ["All", "music", "comedy", "workshop", "sport"];
+    const categories = ["All", "music", "comedy", 'education', "workshop", "sport"];
     const timeFilters = ["Upcoming", "Past", "Today"];
 
     return (
@@ -140,6 +140,8 @@ export default function IndexPage() {
             {/* Filters */}
             <div className="mx-10 mt-5 z-50">
                 <div className="flex flex-wrap gap-4">
+                                <Title title={"Home Page"} />
+                    
                     <div className="flex gap-2">
                         {categories.map((category) => (
                             <button

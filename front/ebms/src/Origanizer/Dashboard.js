@@ -6,6 +6,7 @@ import Reports from "./Reports";
 import OriganizerTicketPage from "./OrgTickets";
 import OrganizerEventReviews from "./OriganizerReview";
 import axios from "axios";
+import Title from "../layout/Title";
 const OrganizerDashboard = () => {
     const [activeTab, setActiveTab] = useState("events");
 
@@ -55,7 +56,7 @@ const OrganizerDashboard = () => {
             <div className="w-full bg-gray-300  shadow-md px-6 flex justify-end ">
                 <Logout />
             </div>
-
+<Title title={"Dashboard"}/>
             <div className="flex flex-1">
                 {/* Sidebar */}
                 <div className="w-1/6 bg-gray-400 text-black">

@@ -190,6 +190,7 @@ import { AiOutlineEdit } from "react-icons/ai";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Spinner from '../layout/Spinner'
+import Title from "../layout/Title";
 const UserProfile = () => {
     const { data: user, isLoading, isError, error } = useGetCurrentUserQuery();
     const [updateProfile] = useUpdateProfileMutation(); // Mutation for updating the profile
@@ -255,6 +256,7 @@ const UserProfile = () => {
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200">
             <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md backdrop-blur-lg bg-opacity-80 border border-gray-200">
+             <Title title={"Profile Page"}/>
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-semibold text-gray-800">User Profile</h2>
                     <AiOutlineEdit

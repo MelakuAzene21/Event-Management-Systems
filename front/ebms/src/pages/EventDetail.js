@@ -1,7 +1,7 @@
 import axios from "axios";
-import { BsArrowRightShort } from "react-icons/bs";
+// import { BsArrowRightShort } from "react-icons/bs";
 import {  useEffect, useState } from "react";
-import { Link, useParams ,useNavigate} from "react-router-dom"
+import {  useParams ,useNavigate} from "react-router-dom"
 import { AiFillCalendar } from "react-icons/ai";
 import { MdLocationPin } from "react-icons/md";
 import { FaCopy, FaWhatsappSquare, FaFacebook } from "react-icons/fa";
@@ -13,7 +13,8 @@ import { useDispatch } from "react-redux";
 import { v4 as uuidv4 } from 'uuid';
 import { setPendingBooking } from "../features/slices/bookingSlice";
 import ReviewComponent from "../components/Reviews";
-import { toast } from "react-toastify";
+import Title from "../layout/Title";
+// import { toast } from "react-toastify";
 export default function EventPage() {
     const { id } = useParams();
     const [event, setEvent] = useState(null);
@@ -184,6 +185,8 @@ export default function EventPage() {
     return (
         <div className="flex flex-col mx-5 xl:mx-32 md:mx-10 mt-5 flex-grow">
             <div >
+                            <Title title={"Event Details Page"} />
+                
                 <div className="grid grid-cols-3 gap-4">
                                      {event.images.map((imgUrl, index) => (
                                          <img

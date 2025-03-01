@@ -50,6 +50,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { markNotificationAsRead } from "../features/slices/notificationSlice";
 import { Bell, CheckCircle } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns"; // Use parseISO for correct parsing
+import Title from "../layout/Title";
 
 const NotificationsPage = () => {
     const notifications = useSelector((state) => state.notifications.notifications);
@@ -65,6 +66,7 @@ const NotificationsPage = () => {
                 <Bell className="text-blue-600" size={28} />
                 <h2 className="text-2xl font-semibold text-gray-800">Notifications</h2>
             </div>
+            <Title title={"Notification page"}/>
             <div className="bg-white shadow-md rounded-lg p-4">
                 {notifications.length === 0 ? (
                     <p className="text-gray-500 text-center">No new notifications</p>

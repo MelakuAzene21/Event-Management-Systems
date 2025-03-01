@@ -358,6 +358,7 @@ import {
 } from "../features/api/myEventApi";
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "react-toastify";
+import Title from "../layout/Title";
 
 export default function MyEventsPage() {
     const { data, isLoading, error } = useGetMyEventsQuery();
@@ -388,6 +389,7 @@ export default function MyEventsPage() {
 
     return (
         <div className="flex flex-col mx-5 xl:mx-32 md:mx-10 mt-5">
+           <Title title={"My Event page"}/>
             <div className="flex justify-end mb-4">
                 <Link to="/create-event">
                     <button className="px-6 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition duration-300">

@@ -255,7 +255,7 @@ import { toast } from 'react-toastify';
 import { useCreateBookingMutation } from "../features/api/bookingApi";
 import { useGetCurrentUserQuery } from "../features/api/authApi";
 import '../Overlay.css';
-
+import Title from '../layout/Title';
 export default function BookingSummary() {
 
     const { id } = useParams();
@@ -380,6 +380,7 @@ export default function BookingSummary() {
                     Back
                 </button>
             </Link>
+            <Title  title={"Booking Summary"}/>
             {showOverlay && (
                 <div className="overlay">
                     <div className="spinner-container">

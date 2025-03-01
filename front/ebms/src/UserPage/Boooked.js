@@ -81,6 +81,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "../components/ui/button";
 
 import { toast } from "react-toastify";
+import Title from "../layout/Title";
 
 const BookingsTable = () => {
     const [bookings, setBookings] = useState([]);
@@ -125,6 +126,7 @@ const BookingsTable = () => {
     return (
         <div className="container mx-auto p-6 min-h-[50vh]">
             <h2 className="text-center text-2xl font-bold mb-4">Total Bookings: {bookings.length}</h2>
+           <Title title={"Booking History"}/>
             {loading ? (
                 <p className="text-center text-gray-500">Loading bookings...</p>
             ) : (
