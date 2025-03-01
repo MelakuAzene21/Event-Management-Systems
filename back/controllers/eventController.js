@@ -75,6 +75,8 @@ const BookMark = require('../models/Bookmark')
 const Notification = require("../models/Notification");
 const io = require("../config/socket"); // Import WebSocket instance
 const { getIO } = require("../config/socket");
+const sendEmail =require("../helpers/Send-Email")
+
 // Event creation handler with multiple image uploads
 exports.createEvent = async (req, res) => {
     try {
@@ -250,7 +252,8 @@ exports.UpdateEvent = async (req, res) => {
         }
 
         // Fetch attendees who booked the event
-        const attendees = await Booking.find({ event: id, status: "booked" }).select("user");
+        const attendees = await Booking.find({ event: id, status: "booked" })
+            .populate("user", "email name"); // Get user email & name
 
         // Update event details
         Object.assign(event, req.body);
@@ -262,21 +265,34 @@ exports.UpdateEvent = async (req, res) => {
 
         for (const attendee of attendees) {
             const newNotification = new Notification({
-                userId: attendee.user,
+                userId: attendee.user._id,
                 message,
                 eventId: id,
             });
             await newNotification.save();
 
-            console.log(`📩 Sending notification to user ${attendee.user}`);
+            console.log(`📩 Sending notification to user ${attendee.user._id}`);
 
             // Emit real-time notification
-            io.to(attendee.user.toString()).emit("event-update", {
+            io.to(attendee.user._id.toString()).emit("event-update", {
                 _id: newNotification._id,
                 message: newNotification.message,
                 eventId: newNotification.eventId,
                 isRead: newNotification.isRead,
             });
+
+            // Send Email Notification 📧
+            const emailSubject = `🔔 Update: Event "${event.title}" has been modified!`;
+            const emailTemplate = "eventUpdate"; // Template name for event update emails
+            const emailReplacements = {
+                userName: attendee.user.name,
+                eventTitle: event.title,
+                eventDate: event.eventDate,
+                eventLocation: event.location,
+                eventDescription: event.description,
+            };
+
+            sendEmail(attendee.user.email, emailSubject, emailTemplate, emailReplacements);
         }
 
         res.status(200).json({ message: "Event updated successfully!" });
