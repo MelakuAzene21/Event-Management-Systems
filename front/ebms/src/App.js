@@ -31,6 +31,8 @@ import ResetPassword from './auth/ResetPassword';
 import ForgotPassword from './auth/forgotPassword';
 import NotificationsPage from './pages/NotificationsPage';
 import { setupSocket } from './features/middleware/socketMiddleware';
+import { HelmetProvider } from "react-helmet-async";
+
 function App() {
   const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
@@ -55,7 +57,8 @@ function App() {
     <Router>
       <ToastContainer position="top-center" />
 
-       <div>
+      <div>
+        <HelmetProvider>
          <Routes>
           <Route path="/" element={<Layout />}>
           <Route index element={<EventPage />} />
@@ -87,7 +90,8 @@ function App() {
             <Route path='/scanQR' element={<ScanQR />} />
 
           </Route>
-        </Routes>
+          </Routes>
+        </HelmetProvider>
       </div>
     </Router>
   );

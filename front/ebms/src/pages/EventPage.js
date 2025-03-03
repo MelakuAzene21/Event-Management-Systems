@@ -6,15 +6,13 @@ import { Link } from "react-router-dom";
 import { BsArrowRightShort } from "react-icons/bs";
 import { BiLike } from "react-icons/bi";
 import BookmarkButton from "../UserPage/BookMarkEvent";
-// import { useGetAllEventsQuery } from "../features/api/eventApi";
-
-
-// import { UserContext } from "../UserContext";
+import ShareEventModal from "../UserPage/ShareEvent";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import SkeletonLoader from "../layout/SkeletonLoader";
 import EventCarousel from "../layout/Carousel";
 import Title from '../layout/Title';
+import { Helmet } from "react-helmet-async";
 export default function IndexPage() {
     const [events, setEvents] = useState([]);
     // const { data: events, isLoading, isError } = useGetAllEventsQuery();
@@ -203,41 +201,63 @@ export default function IndexPage() {
                             //! Check the event date is passed or not --------------------------------------------------------------------------------------- 
                             // if (eventDate > currentDate || eventDate.toDateString() === currentDate.toDateString()) {
                             return (
-                                <div className="bg-white rounded-xl relative" key={event._id}>
-                                    <div className='rounded-tl-[0.75rem] rounded-tr-[0.75rem] rounded-br-[0] rounded-bl-[0] object-fill aspect-16:9'>
+                                <div className="bg-white rounded-xl relative " key={event._id}>
+                                    <div className="relative rounded-tl-[0.75rem] rounded-tr-[0.75rem] rounded-br-[0] rounded-bl-[0] object-fill aspect-16:9  mb-7">
                                         {event.images && (
+                         
+                                            
                                             <Link to={`/events/${event._id}`}>
-                                            <img
-
-                                                src={`http://localhost:5000${event.images[0]}`}
-                                                // src={event.image[0]}
-                                                alt={event.title}
-                                                width="300"
-                                                height="200"
+                                                <img
+                                                    src={`http://localhost:5000${event.images[0]}`}
+                                                    alt={event.title}
+                                                    width="300"
+                                                    height="200"
                                                     className="w-full h-full hover:scale-105 transition-transform duration-300 ease-in-out"
-
-                                            />
+                                                />
                                             </Link>
                                         )}
 
-                                       
+                                        {/* to share event details */}
 
-                                        <div className=" flex gap-4 bottom-[240px] right-8 md:bottom-[20px] md:right-3 lg:bottom-[250px] lg:right-4 sm:bottom-[260px] sm:right-3">
+
+                                        <Helmet>
+                                            <title>{event.title} | Event</title>
+                                            <meta name="description" content={event.description} />
+
+                                            {/* Open Graph (Facebook, LinkedIn) */}
+                                            <meta property="og:title" content={event.title} />
+                                            <meta property="og:description" content={event.description} />
+                                            <meta property="og:image" content={`http://localhost:5000${event.images[0]}`} />
+                                            <meta property="og:url" content={window.location.href} />
+                                            <meta property="og:type" content="website" />
+
+                                            {/* Twitter Card */}
+                                            <meta name="twitter:card" content="summary_large_image" />
+                                            <meta name="twitter:title" content={event.title} />
+                                            <meta name="twitter:description" content={event.description} />
+                                            <meta name="twitter:image" content={`http://localhost:5000${event.images[0]}`} />
+                                        </Helmet>
+                                        {/* Parent div containing Bookmark, Share, and Like button in a row */}
+                                        <div className="absolute flex items-center justify-between w-full px-4 -bottom-10">
+
+                                            {/* Bookmark Button - aligned left */}
                                             <BookmarkButton
                                                 eventId={event._id}
-                                                isBookmarkedInitial={event.isBookmarked} // ✅ Pass the correct initial state
+                                                isBookmarkedInitial={event.isBookmarked}
                                             />
-                                        </div>
-                                        
 
+                                            {/* Share Event Icon - centered */}
+                                            <ShareEventModal event={event} />
 
-                                        <div className="absolute flex gap-4 bottom-[240px] right-8 md:bottom-[20px] md:right-3 lg:bottom-[250px] lg:right-4 sm:bottom-[260px] sm:right-3">
+                                            {/* Like Button - aligned right */}
                                             <button onClick={() => handleLike(event._id)}>
                                                 <BiLike className="w-auto h-12 lg:h-10 sm:h-12 md:h-10 bg-white p-2 rounded-full shadow-md transition-all hover:text-primary" />
                                             </button>
 
                                         </div>
                                     </div>
+
+
 
 
 
@@ -271,8 +291,8 @@ export default function IndexPage() {
                                         </div>
                                         <Link to={`/events/${event._id}`} className="flex justify-center">
                <button 
-         className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-lg transition duration-200 hover:bg-blue-700"
->{event.ticketPrice === 0 ? 'Get Ticket' : 'Buy Ticket'}< BsArrowRightShort className="w-6 h-6" /></button>
+                 className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-lg transition duration-200 hover:bg-blue-700"
+>               {event.ticketPrice === 0 ? 'Get Ticket' : 'Buy Ticket'}< BsArrowRightShort className="w-6 h-6" /></button>
                                         </Link>
 
                                     </div>
@@ -284,7 +304,7 @@ export default function IndexPage() {
                     </div>
                 )}
             </div>
-
+ 
 
             {/* Free Online Events Section */}
             {onlineFreeEvents.length > 0 && (

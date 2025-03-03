@@ -302,7 +302,8 @@ export default function EventPage() {
                     Confirm Booking
                 </button>
             </div>
-
+           
+        
             {/* Share with friends */}
             <div className="mx-2 mt-5 text-md md:text-xl font-extrabold">
                 Share with friends
