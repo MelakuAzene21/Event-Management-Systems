@@ -29,9 +29,10 @@ const io = initializeSocket(server); // Initialize WebSocket
 const cors = require('cors');
 // Configure CORS to allow requests from your frontend
 app.use(cors({
-    origin: 'http://localhost:3000',  // Your frontend's URL
-    credentials: true                // Allow cookies to be sent along with requests
+    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    credentials: true
 }));
+ 
 // Middleware
 app.use(express.json());
 app.use(cookieParser()); 
