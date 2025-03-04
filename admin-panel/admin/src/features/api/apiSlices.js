@@ -56,7 +56,10 @@ export const authApi = createApi({
             query: () => '/auth/profile',
             providesTags: ['User'],
         }),
-
+        getEvents: builder.query({
+            query: () => "/events/getEvent",
+            providesTags: ["Event"],
+        }),
         // Logout Endpoint
         logout: builder.mutation({
             query: () => ({
@@ -87,4 +90,5 @@ export const {
     useGetUsersQuery,
     useDeleteUserMutation,
     useUpdateUserMutation,
+    useGetEventsQuery,
 } = authApi;

@@ -11,7 +11,10 @@ import {
   Container,
   Grid,
   Box,
+  Paper,
+  Divider,
 } from "@mui/material";
+import GoogleIcon from "@mui/icons-material/Google"; // Google Icon
 
 const Login = () => {
   const [login, { isLoading }] = useLoginMutation();
@@ -41,22 +44,14 @@ const Login = () => {
     try {
       const userData = await login(formData).unwrap();
       dispatch(setUser(userData.user));
-      console.log("Login user data:", userData.user);
 
-      console.log("User role:", userData.user.role);
-        if (userData.user.role === "admin") {
-            navigate("/users", { replace: true })
-        };
-    //   } else if (userData.user.role === "user") {
-    //     navigate("/", { replace: true });
-    //   } else {
-    //     setErrorMessage("Unknown role. Please contact support.");
-    //   }
+      if (userData.user.role === "admin") {
+        navigate("/admin", { replace: true });
+      }
 
       setErrorMessage("");
     } catch (error) {
       setErrorMessage("Login failed: Invalid email or password.");
-      console.log("Error:", error);
     }
   };
 
@@ -69,31 +64,35 @@ const Login = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundImage: "linear-gradient(to right, #2196F3, #4CAF50)",
+        backgroundColor: "#f4f5f7", // Light Grey Background
       }}
     >
-      <Box
+      <Paper
+        elevation={6}
         sx={{
-          padding: 3,
-          backgroundColor: "white",
-          borderRadius: 2,
-          boxShadow: 3,
+          padding: 4,
+          borderRadius: 3,
           width: "100%",
+          maxWidth: 400,
+          backgroundColor: "white",
         }}
       >
-        <Typography variant="h4" align="center" gutterBottom>
-          Login
+        <Typography variant="h5" align="center" fontWeight={600} gutterBottom>
+          Welcome Back 👋
+        </Typography>
+        <Typography variant="body2" align="center" color="textSecondary">
+          Please enter your details to login
         </Typography>
 
         {errorMessage && (
-          <Typography color="error" variant="body2" align="center" paragraph>
+          <Typography color="error" variant="body2" align="center" mt={2}>
             {errorMessage}
           </Typography>
         )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={{ marginTop: 16 }}>
           <TextField
-            label="Email"
+            label="Email Address"
             variant="outlined"
             fullWidth
             margin="normal"
@@ -120,40 +119,62 @@ const Login = () => {
             type="submit"
             fullWidth
             variant="contained"
-            color="primary"
-            sx={{ padding: "10px", marginBottom: 2 }}
+            sx={{
+              padding: "12px",
+              mt: 2,
+              mb: 2,
+              backgroundColor: "#333",
+              "&:hover": { backgroundColor: "#555" },
+            }}
             disabled={isLoading}
           >
             {isLoading ? "Logging in..." : "Login"}
           </Button>
 
+          <Divider sx={{ my: 2 }}>OR</Divider>
+
           <Button
             fullWidth
-            variant="contained"
-            color="error"
-            sx={{ padding: "10px", marginBottom: 2 }}
+            variant="outlined"
+            startIcon={<GoogleIcon />}
+            sx={{
+              padding: "12px",
+              color: "#333",
+              borderColor: "#ddd",
+              "&:hover": { backgroundColor: "#f9f9f9" },
+            }}
             onClick={googleLogin}
           >
             Login with Google
           </Button>
 
-          <Grid container justifyContent="center">
+          <Grid container justifyContent="center" sx={{ mt: 2 }}>
             <Grid item>
               <Typography variant="body2" align="center">
                 Don't have an account?{" "}
-                <Link to="/register" style={{ color: "#2196F3" }}>
+                <Link
+                  to="/register"
+                  style={{
+                    textDecoration: "none",
+                    color: "#333",
+                    fontWeight: 500,
+                  }}
+                >
                   Sign Up
                 </Link>
               </Typography>
-              <Typography variant="body2" align="center" sx={{ marginTop: 1 }}>
-                <Link to="/forgot-password" style={{ color: "#2196F3" }}>
+              <Typography variant="body2" align="center" sx={{ mt: 1 }}>
+                <Link
+                  to="/forgot-password"
+                  style={{ textDecoration: "none", color: "#555" }}
+                >
                   Forgot Password?
                 </Link>
               </Typography>
             </Grid>
           </Grid>
         </form>
-      </Box>
+      </Paper>
     </Container>
   );
 };
