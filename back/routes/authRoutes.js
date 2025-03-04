@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login,logout, getProfile, updateProfile, getAllUsers ,uploadAvatar,forgotPassword,resetPassword} = require('../controllers/authController');
+const { register, login,logout, getProfile, updateProfile, getAllUsers ,deleteUser,uploadAvatar,forgotPassword,resetPassword, updateUser} = require('../controllers/authController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
@@ -57,10 +57,13 @@ router.get("/logout", (req, res) => {
 });
 
 
+router.delete("/users/:id", verifyToken, checkRole('admin'), deleteUser);
+router.put("/users/:id", verifyToken, checkRole('admin'), updateUser);
 
 
 router.put('/updateProfile/:id',verifyToken, updateProfile);
 router.get('/getAllUser',verifyToken,checkRole('admin'), getAllUsers);
+// router.get('/getAllUser',  getAllUsers);
 
 
 const multer = require('multer');

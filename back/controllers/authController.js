@@ -306,6 +306,7 @@ exports.forgotPassword = async (req, res) => {
 
 
 
+
 exports.resetPassword = async (req, res) => {
     const { token } = req.params; // This should be the un-hashed token from the URL
     const { password } = req.body;
@@ -332,4 +333,49 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     res.status(200).json({ message: 'Password has been reset successfully' });
+};
+
+
+
+// Delete User by ID
+exports.deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById(id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await User.findByIdAndDelete(id);
+
+        res.json({ message: "User deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+};
+
+
+
+
+// Update user role or status
+exports.updateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { role, status } = req.body;
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (role) user.role = role; // Update role if provided
+        if (status) user.status = status; // Update status if provided
+
+        await user.save();
+
+        res.json({ message: "User updated successfully", user });
+    } catch (error) {
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
 };
