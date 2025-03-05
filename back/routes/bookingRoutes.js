@@ -208,18 +208,24 @@ router.get("/booking/:id", verifyToken, async (req, res) => {
 });
 
 
-//fetch all booking for all admin
+// Fetch All Bookings (For Admin)
 router.get("/all-booking", verifyToken, async (req, res) => {
     try {
-        const bookings = await Booking.find()
-            .populate("user", "name") // Only fetch the 'name' field from the User model
+        const bookings = await Booking.find({ status: "booked" }) // Only fetch booked bookings
+            .populate("user", "name") // Fetch only 'name' field from User model
             .populate("event", "title eventDate"); // Fetch 'title' and 'eventDate' from Event model
 
-        res.json(bookings);
+        // Calculate total revenue by summing up 'totalAmount' of booked tickets
+        const totalRevenue = bookings.reduce((sum, booking) => sum + booking.totalAmount, 0);
+
+        res.json({ bookings, totalRevenue });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error("Error fetching bookings:", error);
+        res.status(500).json({ message: "Failed to fetch bookings" });
     }
 });
+
+
 
 //fetch booking for a specific organizer event
 router.get("/", verifyToken, async (req, res) => {
