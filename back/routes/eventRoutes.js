@@ -4,7 +4,8 @@ const User=require('../models/User')
 const { createEvent, getEvents, eventDetails, 
     getMyEvent, UpdateEvent, deleteEvent, 
     getMostNearUpcomingEvent, UserLike,
-    AddToBookMark,RemoveBookMark,GetBookMarkEvents,getEventAttendeeCount} = require('../controllers/eventController');
+    AddToBookMark, RemoveBookMark, GetBookMarkEvents,
+    getEventAttendeeCount } = require('../controllers/eventController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
