@@ -60,6 +60,23 @@ export const authApi = createApi({
             query: () => "/events/getEvent",
             providesTags: ["Event"],
         }),
+        //get eevnt details
+        getEventDetails: builder.query({
+            query: (id) => `/events/${id}`,
+        }),
+       
+       
+        // ✅ Fetch Upcoming Events
+        getUpcomingEvents: builder.query({
+            query: () => "/events/nearUpcoming",
+            providesTags: ["Event"],
+        }),
+
+        // ✅ Fetch All Bookings & Total Revenue
+        getBookings: builder.query({
+            query: () => "/bookings/all-booking",
+            providesTags: ["Booking"],
+        }), 
         // Logout Endpoint
         logout: builder.mutation({
             query: () => ({
@@ -91,4 +108,7 @@ export const {
     useDeleteUserMutation,
     useUpdateUserMutation,
     useGetEventsQuery,
+    useGetEventDetailsQuery,
+    useGetUpcomingEventsQuery,
+    useGetBookingsQuery,
 } = authApi;

@@ -6,6 +6,7 @@ import Users from "../pages/User";
 import Events from "../pages/Events";
 import Profile from "../pages/Profile"; // Admin Profile Page
 import Login from "../components/Login";
+import EventDetails from "../pages/EventDeails.jsx";
 
 const AdminRoutes = () => {
   return (
@@ -18,6 +19,7 @@ const AdminRoutes = () => {
         <Route path="events" element={<Events />} />
         <Route path="profile" element={<Profile />} />
       </Route>
+      <Route path="/events/:id" element={<EventDetails />} />
     </Routes>
   );
 };

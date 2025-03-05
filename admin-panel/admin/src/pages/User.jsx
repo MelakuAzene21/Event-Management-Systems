@@ -101,6 +101,9 @@ const Users = () => {
                 <strong>Email</strong>
               </TableCell>
               <TableCell>
+                <strong>Joined At</strong>
+              </TableCell>
+              <TableCell>
                 <strong>Role</strong>
               </TableCell>
               <TableCell>
@@ -120,6 +123,15 @@ const Users = () => {
                 </TableCell>
                 <TableCell>{user.name}</TableCell>
                 <TableCell>{user.email}</TableCell>
+
+                <TableCell>
+                  {new Date(user.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </TableCell>
+
                 <TableCell>
                   <Select
                     value={user.role}
