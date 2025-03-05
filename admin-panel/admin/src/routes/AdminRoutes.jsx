@@ -7,6 +7,7 @@ import Events from "../pages/Events";
 import Profile from "../pages/Profile"; // Admin Profile Page
 import Login from "../components/Login";
 import EventDetails from "../pages/EventDeails.jsx";
+import MonthlyRevenueChart from "../pages/MonthlyRevenueChart.jsx";
 
 const AdminRoutes = () => {
   return (
@@ -18,6 +19,7 @@ const AdminRoutes = () => {
         <Route path="users" element={<Users />} />
         <Route path="events" element={<Events />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="report" element={<MonthlyRevenueChart />} />
       </Route>
       <Route path="/events/:id" element={<EventDetails />} />
     </Routes>

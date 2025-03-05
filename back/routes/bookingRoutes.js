@@ -225,6 +225,34 @@ router.get("/all-booking", verifyToken, async (req, res) => {
     }
 });
 
+// Fetch Monthly Revenue + Total Revenue (For Admin)
+router.get("/monthly-revenue", verifyToken, async (req, res) => {
+    try {
+        const bookings = await Booking.aggregate([
+            {
+                $match: { status: "booked" } // Only include successful bookings
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    totalRevenue: { $sum: "$totalAmount" } // Sum revenue per month
+                }
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1 } } // Sort by year and month
+        ]);
+
+        // Calculate total revenue across all months
+        const totalRevenue = bookings.reduce((sum, entry) => sum + entry.totalRevenue, 0);
+
+        res.json({ totalRevenue, monthlyRevenue: bookings });
+    } catch (error) {
+        console.error("Error fetching monthly revenue:", error);
+        res.status(500).json({ message: "Failed to fetch monthly revenue" });
+    }
+});
 
 
 //fetch booking for a specific organizer event

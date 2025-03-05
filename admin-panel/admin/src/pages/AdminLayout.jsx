@@ -16,22 +16,31 @@ import {
   MenuItem,
   Avatar,
   Badge,
+  Divider,
 } from "@mui/material";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import EventIcon from "@mui/icons-material/Event";
-import DashboardIcon from "@mui/icons-material/Dashboard";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import ChatIcon from "@mui/icons-material/Chat";
+import BusinessIcon from "@mui/icons-material/Business";
+import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { ToastContainer } from "react-toastify";
 
-const drawerWidth = 200;
+const drawerWidth = 220;
 
 const menuItems = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
   { text: "Users", icon: <PeopleIcon />, path: "/admin/users" },
   { text: "Events", icon: <EventIcon />, path: "/admin/events" },
-];  
+  { text: "Reports", icon: <BarChartIcon />, path: "/admin/report" },
+  { text: "Chats", icon: <ChatIcon />, path: "/admin/chats", badge: 5 }, // Example badge count
+  { text: "Vendors", icon: <BusinessIcon />, path: "/admin/vendors" },
+  { text: "Settings", icon: <SettingsIcon />, path: "/admin/settings" },
+];
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -47,7 +56,6 @@ const AdminLayout = () => {
 
   // Handle Logout
   const handleLogout = () => {
-    // Clear authentication tokens, session storage, etc.
     localStorage.removeItem("token");
     navigate("/");
   };
@@ -79,14 +87,23 @@ const AdminLayout = () => {
               onClick={() => navigate(item.path)}
               sx={{ color: "white" }}
             >
-              <ListItemIcon sx={{ color: "white" }}>{item.icon}</ListItemIcon>
+              <ListItemIcon sx={{ color: "white" }}>
+                {item.badge ? (
+                  <Badge badgeContent={item.badge} color="error">
+                    {item.icon}
+                  </Badge>
+                ) : (
+                  item.icon
+                )}
+              </ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItem>
           ))}
         </List>
+        <Divider sx={{ backgroundColor: "rgba(255,255,255,0.2)", my: 2 }} />
       </Drawer>
 
-      {/* Main Content - Ensuring it takes up the full remaining space */}
+      {/* Main Content */}
       <Box
         component="main"
         sx={{

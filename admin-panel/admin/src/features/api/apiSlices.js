@@ -77,6 +77,10 @@ export const authApi = createApi({
             query: () => "/bookings/all-booking",
             providesTags: ["Booking"],
         }), 
+
+        getMonthlyRevenue: builder.query({
+            query: () => "/bookings/monthly-revenue",
+        }),
         // Logout Endpoint
         logout: builder.mutation({
             query: () => ({
@@ -111,4 +115,5 @@ export const {
     useGetEventDetailsQuery,
     useGetUpcomingEventsQuery,
     useGetBookingsQuery,
+    useGetMonthlyRevenueQuery,
 } = authApi;
