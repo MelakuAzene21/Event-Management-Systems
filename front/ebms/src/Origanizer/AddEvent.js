@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useCreateEventMutation } from "../features/api/eventApi";
 import { toast } from "react-toastify";
 import Title from "../layout/Title";
+import EventLocationInput from "../components/EventLocationInput";
+
 const CreateEvent = () => {
     const [formData, setFormData] = useState({
         title: "",
@@ -26,7 +28,9 @@ const CreateEvent = () => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
-
+    const handleLocationSelect = (location) => {
+        setFormData({ ...formData, location });
+    };
 
     const handleTicketChange = (e) => {
         const { name, value } = e.target;
@@ -217,7 +221,7 @@ const CreateEvent = () => {
                     />
                 </div>
 
-                {/* Location */}
+                {/* Location
                 <div>
                     <label className="block text-sm font-medium text-gray-700">
                         Location
@@ -230,6 +234,12 @@ const CreateEvent = () => {
                         required
                         className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
+                </div> */}
+
+                {/* Location */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Location</label>
+                    <EventLocationInput onSelect={handleLocationSelect} />
                 </div>
 
                 {/* Organized By */}
