@@ -77,6 +77,28 @@ const io = require("../config/socket"); // Import WebSocket instance
 const { getIO } = require("../config/socket");
 const sendEmail =require("../helpers/Send-Email")
 
+const axios = require("axios");
+
+// Function to get coordinates from OpenStreetMap
+async function getCoordinates(location) {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+        location
+    )}&format=json&limit=1`;
+
+    try {
+        const response = await axios.get(url);
+        if (response.data.length === 0) return null; // No results found
+
+        const { lat, lon } = response.data[0];
+        return { latitude: parseFloat(lat), longitude: parseFloat(lon) };
+    } catch (error) {
+        console.error("Error fetching coordinates:", error);
+        return null;
+    }
+}
+
+
+
 // Event creation handler with multiple image uploads
 exports.createEvent = async (req, res) => {
     try {
@@ -92,7 +114,11 @@ exports.createEvent = async (req, res) => {
         } = req.body;
 
 
-       
+        // Get latitude & longitude using Nominatim
+        const coordinates = await getCoordinates(location);
+        console.log("Coordinate for location",location)
+        if (!coordinates) return res.status(400).json({ message: "Invalid location" });
+
 
         // Ensure tickets are provided
         if (!tickets || tickets.length === 0) {
@@ -135,7 +161,7 @@ exports.createEvent = async (req, res) => {
             category,
             eventDate,
             eventTime,
-            location,
+            location: { name: location, ...coordinates },
             organizedBy,
             organizer: req.user._id, // Use the logged-in user ID
             ticketTypes: formattedTickets, // Store ticket details
