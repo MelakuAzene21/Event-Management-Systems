@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { setPendingBooking } from "../features/slices/bookingSlice";
 import ReviewComponent from "../components/Reviews";
 import Title from "../layout/Title";
+import EventMap from "../components/EventMap";
 // import { toast } from "react-toastify";
 export default function EventPage() {
     const { id } = useParams();
@@ -250,10 +251,21 @@ export default function EventPage() {
                             <MdLocationPin className="w-auto h-5 text-primarydark " />
                             <div className="flex flex-col gap-1">
 
-                                <h1 className="text-md md:text-lg font-extrabold">Location</h1>
+                                {/* <h1 className="text-md md:text-lg font-extrabold">Location</h1>
                                 <div className="text-sm md:text-lg">
                                     {event.location}
-                                </div>
+                                </div> */}
+
+                                <p>Location: {event.location.name}</p>
+
+                                {/* Show map only if coordinates exist */}
+                                {event.location.latitude && event.location.longitude && (
+                                    <EventMap
+                                        latitude={event.location.latitude}
+                                        longitude={event.location.longitude}
+                                    />
+                                )}
+
                             </div>
 
                         </div>
