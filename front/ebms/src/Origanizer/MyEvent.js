@@ -471,7 +471,7 @@ const EventRow = ({ event, openDeleteModal }) => {
         <tr className="border-b hover:bg-gray-50 transition">
             <td className="py-3 px-4">{event.title}</td>
             <td className="py-3 px-4">{new Date(event.eventDate).toLocaleDateString()}</td>
-            <td className="py-3 px-4">{event.location || "N/A"}</td>
+            <td className="py-3 px-4">{event.location?.name || "N/A"}</td>
             <td className="py-3 px-4 text-center">
                 {attendeeData ? attendeeData.attendeeCount : "Loading..."}
             </td>

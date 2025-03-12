@@ -88,7 +88,7 @@ export default function IndexPage() {
             (timeFilter === "Upcoming" && eventDate > currentDate) ||
             (timeFilter === "Past" && eventDate < currentDate) ||
             (timeFilter === "Today" && eventDate.toDateString() === currentDate.toDateString());
-        return event.location === "online" && event.ticketPrice === 0 && matchesCategory && matchesTime;
+        return event.location?.name === "online" && event.ticketPrice === 0 && matchesCategory && matchesTime;
     });
 
     // Filter for online events that match the selected category and time filter
@@ -99,7 +99,7 @@ export default function IndexPage() {
             (timeFilter === "Upcoming" && eventDate > currentDate) ||
             (timeFilter === "Past" && eventDate < currentDate) ||
             (timeFilter === "Today" && eventDate.toDateString() === currentDate.toDateString());
-        return event.location === "online" && matchesCategory && matchesTime;
+        return event.location?.name === "online" && matchesCategory && matchesTime;
     });
 
     // Filter for free events that match the selected category and time filter

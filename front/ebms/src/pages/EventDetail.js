@@ -256,15 +256,15 @@ export default function EventPage() {
                                     {event.location}
                                 </div> */}
 
-                                <p>Location: {event.location.name}</p>
+                                <p>Location: {event.location?.name}</p>
 
-                                {/* Show map only if coordinates exist */}
-                                {event.location.latitude && event.location.longitude && (
+                                {event.location?.latitude && event.location?.longitude && (
                                     <EventMap
                                         latitude={event.location.latitude}
                                         longitude={event.location.longitude}
                                     />
                                 )}
+
 
                             </div>
 
