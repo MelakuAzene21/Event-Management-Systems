@@ -110,8 +110,8 @@ toast.success('Logout Successfully')
                         {events
                             .filter((event) =>
                                 event.title && event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||                               event.category && event.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                event.description && event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                event.location && event.location.toLowerCase().includes(searchQuery.toLowerCase())
+                                event.description && event.description.toLowerCase().includes(searchQuery.toLowerCase())
+                                ||  event.location.name && event.location.name.toLowerCase().includes(searchQuery.toLowerCase())
 
 
                             )
