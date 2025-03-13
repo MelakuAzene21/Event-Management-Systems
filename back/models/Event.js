@@ -8,16 +8,19 @@ const eventSchema = new mongoose.Schema(
         eventDate: { type: Date, required: true }, // If 'date' is the same as 'eventDate', you can remove one of them
         eventTime: { type: String, required: true },
         location: {
-            name: { type: String, required: true }, // e.g., "New York"
-            latitude: { type: Number, required: true }, // Latitude
-            longitude: { type: Number, required: true }, // Longitude
-        },        organizedBy: { type: String }, // Could represent the organization name or similar
+            name: { type: String, required: false }, // e.g., "New York"
+            latitude: { type: Number, required: false }, // Latitude
+            longitude: { type: Number, required: false }, // Longitude
+        },
+        organizedBy: { type: String }, // Could represent the organization name or similar
         organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user organizing the event
         user: { // Ensure this field exists
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: false
-        },        ticketTypes: [
+        },
+        
+        ticketTypes: [
             {
                 name: { type: String, required: true }, // e.g., "VIP", "Regular", "Student"
                 price: { type: Number, required: true }, // price of the ticket
@@ -30,6 +33,8 @@ const eventSchema = new mongoose.Schema(
         likes: { type: Number, default: 0 }, // Number of likes
         usersLiked: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Users who liked the event
         bookmarkedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Users who bookmarked the event
+        status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
+
     },
     { timestamps: true } // Automatically add createdAt and updatedAt fields
 );

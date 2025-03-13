@@ -418,6 +418,8 @@ export default function MyEventsPage() {
                                 <th className="py-3 px-4 text-left border-b">Event Name</th>
                                 <th className="py-3 px-4 text-left border-b">Date</th>
                                 <th className="py-3 px-4 text-left border-b">Location</th>
+                                <th className="py-3 px-4 text-center border-b">Status</th>
+
                                 <th className="py-3 px-4 text-center border-b">Registered Attendees</th>
                                 <th className="py-3 px-4 text-center border-b">Tickets Available</th>
                                 <th className="py-3 px-4 text-center border-b">Tickets Booked</th>
@@ -472,6 +474,12 @@ const EventRow = ({ event, openDeleteModal }) => {
             <td className="py-3 px-4">{event.title}</td>
             <td className="py-3 px-4">{new Date(event.eventDate).toLocaleDateString()}</td>
             <td className="py-3 px-4">{event.location?.name || "N/A"}</td>
+            <td className={`py-3 px-4 ${event.status === 'approved' ? 'text-green-500' :
+                    event.status === 'rejected' ? 'text-red-500' :
+                        'text-gray-500'
+                }`}>
+                {event.status}
+            </td>
             <td className="py-3 px-4 text-center">
                 {attendeeData ? attendeeData.attendeeCount : "Loading..."}
             </td>
