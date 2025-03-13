@@ -5,7 +5,8 @@ const { createEvent, getEvents, eventDetails,
     getMyEvent, UpdateEvent, deleteEvent, 
     getMostNearUpcomingEvent, UserLike,
     AddToBookMark, RemoveBookMark, GetBookMarkEvents,
-    getEventAttendeeCount } = require('../controllers/eventController');
+    getEventAttendeeCount, 
+    approveOrRejectEvent} = require('../controllers/eventController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
@@ -13,6 +14,7 @@ const upload=require('../utils/multer')
 router.post('/creatEvent', verifyToken,  upload.array('images', 5), createEvent);
 router.get('/getEvent',  getEvents);
 router.get('/nearUpcoming', getMostNearUpcomingEvent);
+router.put("/:eventId/status", approveOrRejectEvent);
 
 router.get('/myEvent', verifyToken, checkRole('organizer'), getMyEvent);
 router.get('/:id', eventDetails);

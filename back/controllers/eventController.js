@@ -203,6 +203,33 @@ exports.createEvent = async (req, res) => {
 
         // Save to DB
         const savedEvent = await newEvent.save();
+        const io = getIO();
+        const message = `🔔 New event "${newEvent.title}" created by ${req.user.name}, awaiting approval.`;
+
+        // Fetch all admins
+        const admins = await User.find({ role: "admin" });
+
+        for (const admin of admins) {
+            const newNotification = new Notification({
+                userId: admin._id,
+                eventId: newEvent._id,
+                message,
+            });
+            await newNotification.save();
+
+            console.log(`📩 Sending notification to admin ${admin._id}`);
+            io.to(admin._id.toString()).emit("event-approval-request", {
+                _id: newNotification._id,
+                message: newNotification.message,
+                eventId: newNotification.eventId,
+                isRead: newNotification.isRead,
+            });
+
+            // sendEmail(admin.email, "🔔 Event Approval Needed", "eventApproval", {
+            //     eventTitle: newEvent.title,
+            //     organizerName: req.user.name,
+            // });
+        }
         res.status(201).json(savedEvent);
     } catch (error) {
         console.error('Error creating event:', error);
@@ -228,7 +255,7 @@ exports.getMostNearUpcomingEvent = async (req, res) => {
 
 exports.getEvents = async (req, res) => {
     try {
-        const events = await Event.find().populate('organizer', 'name email');
+        const events = await Event.find({status:"approved"}).populate('organizer', 'name email');
         res.status(200).json(events);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching events', error });
@@ -245,7 +272,7 @@ exports.eventDetails = async (req, res) => {
             return res.status(400).json({ error: "Invalid event ID format" });
         }
 
-        const event = await Event.findById(id);
+        const event = await Event.findById(id).populate("organizer", "name email");
         if (!event) {
             return res.status(404).json({ error: "Event not found" });
         }
@@ -360,6 +387,46 @@ exports.UpdateEvent = async (req, res) => {
         res.status(500).json({ error: "Failed to update event" });
     }
 };
+
+exports.approveOrRejectEvent = async (req, res) => {
+    try {
+        const { status } = req.body; // "approved" or "rejected"
+        const event = await Event.findById(req.params.eventId).populate("organizer");
+
+        if (!event) return res.status(404).json({ message: "Event not found" });
+
+        event.status = status;
+        await event.save();
+
+        const io = getIO();
+        const message = `🔔 Your event "${event.title}" has been ${status}.`;
+
+        const newNotification = new Notification({
+            userId: event.organizer._id,
+            eventId: event._id,
+            message,
+        });
+        await newNotification.save();
+
+        console.log(`📩 Sending notification to organizer ${event.organizer._id}`);
+        io.to(event.organizer._id.toString()).emit("event-update", {
+            _id: newNotification._id,
+            message: newNotification.message,
+            eventId: newNotification.eventId,
+            isRead: newNotification.isRead,
+        });
+
+        // sendEmail(event.organizer.email, `🔔 Event "${event.title}" ${status}`, "eventStatus", {
+        //     eventTitle: event.title,
+        //     status: status,
+        // });
+
+        res.json({ message: `Event ${status} successfully!`, event });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 exports.deleteEvent = async (req, res) => {
     try {

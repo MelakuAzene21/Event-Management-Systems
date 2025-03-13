@@ -8,6 +8,7 @@ import Profile from "../pages/Profile"; // Admin Profile Page
 import Login from "../components/Login";
 import EventDetails from "../pages/EventDeails.jsx";
 import MonthlyRevenueChart from "../pages/MonthlyRevenueChart.jsx";
+import EventApproval from "../pages/EventApproval.jsx";
 
 const AdminRoutes = () => {
   return (
@@ -21,6 +22,7 @@ const AdminRoutes = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="report" element={<MonthlyRevenueChart />} />
       </Route>
+      <Route path="/admin/events/:eventId" element={<EventApproval />} />
       <Route path="/events/:id" element={<EventDetails />} />
     </Routes>
   );
