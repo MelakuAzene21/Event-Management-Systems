@@ -241,8 +241,11 @@ export default function EventPage() {
 
                             <h1 className="text-md md:text-lg font-extrabold">Date and Time</h1>
                             <div className="text-sm md:text-lg">
-                                Date: {event.eventDate.split("T")[0]} <br />Time: {event.eventTime}
+                                Date: {new Date(event.eventDate).toLocaleDateString('en-US', { day: 'numeric', month: 'numeric',year: 'numeric' })} <br />
+                                Time: {new Date(`1970-01-01T${event.eventTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                             </div>
+
+
                         </div>
 
                     </div>

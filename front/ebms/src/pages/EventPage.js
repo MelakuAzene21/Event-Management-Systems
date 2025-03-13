@@ -272,7 +272,7 @@ export default function IndexPage() {
 
 
                                         <div className="flex text-sm flex-nowrap justify-between text-primarydark font-bold mr-4">
-                                            <div>{event.eventDate.split("T")[0]}, {event.eventTime}</div>
+                                            <div>{event.eventDate.split("T")[0]}, {new Date(`1970-01-01T${event.eventTime}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</div>
                                         </div>
 
                                         <div className="text-xs flex flex-col flex-wrap truncate-text">

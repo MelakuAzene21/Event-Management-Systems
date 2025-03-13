@@ -26,8 +26,12 @@ const CreateEvent = () => {
     // Handle input changes for text fields
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
+        if (name === "eventTime") {
+            const localTime = new Date(`1970-01-01T${value}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+            setFormData({ ...formData, [name]: localTime });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }    };
     const handleLocationSelect = (location) => {
         setFormData({ ...formData, location });
     };
