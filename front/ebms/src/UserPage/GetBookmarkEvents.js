@@ -54,7 +54,7 @@ const BookmarkedEvents = () => {
                             <div className="p-6">
                                 <h3 className="text-xl font-semibold text-gray-800 mb-2">{event.title}</h3>
                                 <p className="text-gray-500 text-sm mb-2">{new Date(event.eventDate).toLocaleString()}</p>
-                                <p className="text-gray-500 text-sm mb-4">{event.location}</p>
+                                <p className="text-gray-500 text-sm mb-4">{event.location.name}</p>
 
                                 <button
                                     className="w-full bg-red-600 text-white py-3 rounded-md hover:bg-red-700 transition duration-200 ease-in-out"

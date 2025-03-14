@@ -53,7 +53,7 @@ const EventDetails = () => {
             at {event.eventTime}
           </Typography>
           <Typography variant="body1" color="textSecondary" gutterBottom>
-            Location: {event.location}
+            Location: {event.location.name}
           </Typography>
           <Typography variant="body2" paragraph>
             {event.description}
@@ -66,16 +66,8 @@ const EventDetails = () => {
             </Typography>
           ))}
           <Typography variant="h6" sx={{ mt: 2 }}>
-            Organizer: {event.organizedBy || "Unknown"}
+            Organizer: {event.organizer?.name || "Unknown"}
           </Typography>
-          <Button
-            variant="contained"
-            color="secondary"
-            sx={{ mt: 2 }}
-            disabled={event.isBookmarked}
-          >
-            {event.isBookmarked ? "Bookmarked" : "Bookmark Event"}
-          </Button>
         </CardContent>
       </Card>
     );

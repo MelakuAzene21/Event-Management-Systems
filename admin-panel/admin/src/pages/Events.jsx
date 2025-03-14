@@ -191,7 +191,7 @@ const Events = () => {
                     })}
                   </TableCell>
                   <TableCell>{event.eventTime}</TableCell>
-                  <TableCell>{event.location}</TableCell>
+                  <TableCell>{event.location.name}</TableCell>
                   <TableCell>
                     {event.organizer?.name} <br />
                     <Typography variant="caption" color="textSecondary">
