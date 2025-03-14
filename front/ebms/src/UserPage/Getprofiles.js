@@ -191,6 +191,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Spinner from '../layout/Spinner'
 import Title from "../layout/Title";
+import BackButton from "../layout/BackButton";
 const UserProfile = () => {
     const { data: user, isLoading, isError, error } = useGetCurrentUserQuery();
     const [updateProfile] = useUpdateProfileMutation(); // Mutation for updating the profile
@@ -254,108 +255,112 @@ const UserProfile = () => {
     if (isError) return <div className="text-red-500 text-center">Error: {error?.data?.message || "Failed to fetch profile."}</div>;
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200">
-            <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md backdrop-blur-lg bg-opacity-80 border border-gray-200">
-             <Title title={"Profile Page"}/>
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-semibold text-gray-800">User Profile</h2>
-                    <AiOutlineEdit
-                        className="text-gray-600 cursor-pointer hover:text-gray-800 transition-all"
-                        size={24}
-                        onClick={() => {
-                            setIsEditing(true);
-                            setEditedData({ name: user.name, email: user.email });
-                        }}
-                    />
-                </div>
-
-                {/* User Avatar */}
-                <div className="flex flex-col items-center">
-                    {avatarPreview ? (
-                        <img
-                            src={avatarPreview}
-                            alt="User Avatar"
-                            onError={() => setAvatarPreview(null)}
-                            className="w-32 h-32 rounded-full border-4 border-blue-400 shadow-lg transition-all hover:scale-105"
+        <>
+            <BackButton />
+            <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200">
+                
+                <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md backdrop-blur-lg bg-opacity-80 border border-gray-200">
+                    <Title title={"Profile Page"} />
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-semibold text-gray-800">User Profile</h2>
+                        <AiOutlineEdit
+                            className="text-gray-600 cursor-pointer hover:text-gray-800 transition-all"
+                            size={24}
+                            onClick={() => {
+                                setIsEditing(true);
+                                setEditedData({ name: user.name, email: user.email });
+                            }}
                         />
-                    ) : (
-                        <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-4xl">
-                            ?
+                    </div>
+
+                    {/* User Avatar */}
+                    <div className="flex flex-col items-center">
+                        {avatarPreview ? (
+                            <img
+                                src={avatarPreview}
+                                alt="User Avatar"
+                                onError={() => setAvatarPreview(null)}
+                                className="w-32 h-32 rounded-full border-4 border-blue-400 shadow-lg transition-all hover:scale-105"
+                            />
+                        ) : (
+                            <div className="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-4xl">
+                                ?
+                            </div>
+                        )}
+                        {isEditing && (
+                            <input type="file" accept="image/*" onChange={handleFileChange} className="mt-2 text-sm text-gray-500" />
+                        )}
+                    </div>
+
+                    {/* User Details */}
+                    <div className="space-y-4 mt-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600">Name</label>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={editedData.name}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 transition-all"
+                                />
+                            ) : (
+                                <p className="text-gray-800 text-lg">{user.name}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600">Email</label>
+                            {isEditing ? (
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={editedData.email}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 transition-all"
+                                />
+                            ) : (
+                                <p className="text-gray-800 text-lg">{user.email}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600">Role</label>
+                            <p className="text-gray-800">{user.role}</p>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600">Joined At</label>
+                            <p className="text-gray-800">{new Date(user.createdAt).toLocaleDateString()}</p>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-600">Status</label>
+                            <p className="text-gray-800">{user.status}</p>
+                        </div>
+                    </div>
+
+                    {/* Save & Cancel Buttons */}
+                    {isEditing && (
+                        <div className="flex justify-end space-x-4 mt-6">
+                            <button
+                                onClick={() => setIsEditing(false)}
+                                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
+
+                            >
+                                {loading ? <Spinner /> : 'Save'}
+                            </button>
                         </div>
                     )}
-                    {isEditing && (
-                        <input type="file" accept="image/*" onChange={handleFileChange} className="mt-2 text-sm text-gray-500" />
-                    )}
                 </div>
-
-                {/* User Details */}
-                <div className="space-y-4 mt-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-600">Name</label>
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                name="name"
-                                value={editedData.name}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 transition-all"
-                            />
-                        ) : (
-                            <p className="text-gray-800 text-lg">{user.name}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-600">Email</label>
-                        {isEditing ? (
-                            <input
-                                type="email"
-                                name="email"
-                                value={editedData.email}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-2 mt-1 border rounded-lg focus:ring-2 focus:ring-blue-400 transition-all"
-                            />
-                        ) : (
-                            <p className="text-gray-800 text-lg">{user.email}</p>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-600">Role</label>
-                        <p className="text-gray-800">{user.role}</p>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-600">Joined At</label>
-                        <p className="text-gray-800">{new Date(user.createdAt).toLocaleDateString()}</p>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-600">Status</label>
-                        <p className="text-gray-800">{user.status}</p>
-                    </div>
-                </div>
-
-                {/* Save & Cancel Buttons */}
-                {isEditing && (
-                    <div className="flex justify-end space-x-4 mt-6">
-                        <button
-                            onClick={() => setIsEditing(false)}
-                            className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition-all"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
-
-                        >
-                         {loading?<Spinner/>:'Save'}
-                        </button>
-                    </div>
-                )}
             </div>
-        </div>
+        </>
     );
 };
 

@@ -51,6 +51,7 @@ import { markNotificationAsRead } from "../features/slices/notificationSlice";
 import { Bell, CheckCircle } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns"; // Use parseISO for correct parsing
 import Title from "../layout/Title";
+import BackButton from "../layout/BackButton";
 
 const NotificationsPage = () => {
     const notifications = useSelector((state) => state.notifications.notifications);
@@ -62,6 +63,7 @@ const NotificationsPage = () => {
 
     return (
         <div className="max-w-3xl mx-auto p-6 bg-gray-100 min-h-screen">
+           <BackButton/>
             <div className="flex items-center gap-3 mb-6">
                 <Bell className="text-blue-600" size={28} />
                 <h2 className="text-2xl font-semibold text-gray-800">Notifications</h2>

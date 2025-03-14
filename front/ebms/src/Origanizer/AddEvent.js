@@ -3,6 +3,7 @@ import { useCreateEventMutation } from "../features/api/eventApi";
 import { toast } from "react-toastify";
 import Title from "../layout/Title";
 import EventLocationInput from "../components/EventLocationInput";
+import BackButton from "../layout/BackButton";
 
 const CreateEvent = () => {
     const [formData, setFormData] = useState({
@@ -11,8 +12,7 @@ const CreateEvent = () => {
         category: "",
         eventDate: "",
         eventTime: "",
-        location: "",
-        organizedBy: "",        
+        location: "",              
         images: [], // Holds the actual file objects
         tickets: [], // Holds the ticket information
 
@@ -26,12 +26,12 @@ const CreateEvent = () => {
     // Handle input changes for text fields
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        if (name === "eventTime") {
-            const localTime = new Date(`1970-01-01T${value}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-            setFormData({ ...formData, [name]: localTime });
-        } else {
+        // if (name === "eventTime") {
+        //     const localTime = new Date(`1970-01-01T${value}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        //     setFormData({ ...formData, [name]: localTime });
+        // } else {
             setFormData({ ...formData, [name]: value });
-        }    };
+        }   ;
     const handleLocationSelect = (location) => {
         setFormData({ ...formData, location });
     };
@@ -126,8 +126,7 @@ const CreateEvent = () => {
                 category: "",
                 eventDate: "",
                 eventTime: "",
-                location: "",
-                organizedBy: "",                
+                location: "",                              
                 images: [],
                 tickets: [],
 
@@ -140,6 +139,8 @@ const CreateEvent = () => {
 
     return (
         <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
+          
+          <BackButton />
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Create an Event</h2>
             <Title title={"Create event"}/>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -246,20 +247,7 @@ const CreateEvent = () => {
                     <EventLocationInput onSelect={handleLocationSelect} />
                 </div>
 
-                {/* Organized By */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                        Organized By
-                    </label>
-                    <input
-                        type="text"
-                        name="organizedBy"
-                        value={formData.organizedBy}
-                        onChange={handleInputChange}
-                        required
-                        className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    />
-                </div>
+                
 
 
 
