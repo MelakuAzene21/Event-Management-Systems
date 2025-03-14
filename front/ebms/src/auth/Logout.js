@@ -14,7 +14,8 @@ export default function Logout() {
     const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate()
     
-   
+    const notifications = useSelector((state) => state.notifications.notifications);
+
 
    
     //! Logout Function --------------------------------------------------------
@@ -59,11 +60,11 @@ export default function Logout() {
                             />
                         </svg>
                     </Link>
-                    {/* {unreadCount > 0 && (
+                    {notifications.length > 0 && (
                         <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                            {unreadCount}
+                            {notifications.length}
                         </span>
-                    )} */}
+                    )}
                 </div>
 
                 {/* -------------------IF user is Logged DO this Main-------------------- */}
