@@ -1,9 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const { getUserNotifications, markNotificationAsRead } = require("../controllers/notificationController");
+const { getUserNotifications, markNotificationAsRead, adminNotification, markNotificationAsReadAdmin } = require("../controllers/notificationController");
 const verifyToken = require("../middlewares/verifyToken");
 
-router.get("/:userId", getUserNotifications);
-router.put("/:notificationId/read",  markNotificationAsRead);
+router.get("/:userId",verifyToken, getUserNotifications);
+router.get("/admin/:userId", verifyToken,adminNotification);
+router.put("/:notificationId/read", verifyToken, markNotificationAsRead);
+router.post("/admin/mark-read", verifyToken, markNotificationAsReadAdmin);
 
 module.exports = router;

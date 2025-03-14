@@ -141,7 +141,6 @@ exports.createEvent = async (req, res) => {
             eventDate,
             eventTime,
             location,
-            organizedBy,
             tickets // Expecting an array of { name, price, limit }
         } = req.body;
 
@@ -195,7 +194,6 @@ exports.createEvent = async (req, res) => {
             eventDate,
             eventTime,
             location: { name: location, ...coordinates },
-            organizedBy,
             organizer: req.user._id, // Use the logged-in user ID
             ticketTypes: formattedTickets, // Store ticket details
             images, // Save array of image paths
@@ -218,12 +216,16 @@ exports.createEvent = async (req, res) => {
             await newNotification.save();
 
             console.log(`📩 Sending notification to admin ${admin._id}`);
-            io.to(admin._id.toString()).emit("event-approval-request", {
-                _id: newNotification._id,
-                message: newNotification.message,
-                eventId: newNotification.eventId,
-                isRead: newNotification.isRead,
-            });
+            // Emit real-time notification if admin is online
+            if (io.sockets.adapter.rooms.get(admin._id.toString())) {
+                io.to(admin._id.toString()).emit("event-approval-request", {
+                    _id: newNotification._id,
+                    message: newNotification.message,
+                    eventId: newNotification.eventId,
+                    isRead: newNotification.isRead,
+                });
+            }
+        
 
             // sendEmail(admin.email, "🔔 Event Approval Needed", "eventApproval", {
             //     eventTitle: newEvent.title,

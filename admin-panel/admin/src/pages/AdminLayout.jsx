@@ -176,6 +176,8 @@
 
 // export default AdminLayout;
 
+
+
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -209,6 +211,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 const socket = io("http://localhost:5000", {
   transports: ["websocket", "polling"],
@@ -227,9 +230,25 @@ const menuItems = [
 
 const AdminLayout = () => {
 
-  const handleNotificationClick = (notif) => {
+  const handleNotificationClick = async(notif) => {
     if (notif.eventId) {
       navigate(`/admin/events/${notif.eventId}`);
+      // Mark the notification as read
+  try {
+    await axios.post(
+      "http://localhost:5000/api/notifications/admin/mark-read", // Adjust endpoint
+      { notificationId: notif._id ,adminId: user._id},
+      { withCredentials: true }
+    );
+
+    // Update the state to mark the notification as read locally
+    setNotifications((prev) =>
+      prev.map((n) => (n._id === notif._id ? { ...n, isRead: true } : n))
+    );
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+  }
+
     }
     handleNotifClose();
   };
@@ -240,34 +259,96 @@ const AdminLayout = () => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
+    const fetchNotifications = async () => {
+      if (user && user._id) {
+        try {
+          const res = await axios.get(
+            `http://localhost:5000/api/notifications/admin/${user._id}`,
+            { withCredentials: true }
+          );
+
+          setNotifications(res.data); // Set only unread notifications
+          console.log("Notifications from database:", res.data);
+        } catch (error) {
+          console.error("Error fetching notifications:", error);
+        }
+      }
+    };
+
+    fetchNotifications(); // Fetch notifications on mount
+
     socket.on("connect", () => {
       console.log("Connected to WebSocket:", socket.id);
+      if (user && user._id) {
+        socket.emit("join", user._id); // Rejoin on reconnect
+      }
+    });
+
+    socket.on("disconnect", () => {
+      console.warn("Socket disconnected. Attempting to reconnect...");
+      setTimeout(() => {
+        socket.connect();
+      }, 3000); // Retry in 3 seconds
     });
 
     socket.on("event-approval-request", (data) => {
       console.log("Received event approval request:", data); // ✅ Add this
 
-      setNotifications((prev) => [...prev, data]);
+      setNotifications((prev) => {
+        if (!prev.some((n) => n._id === data._id)) {
+          // Avoid duplicate notifications
+          return [...prev, data];
+        }
+        return prev;
+      });
     });
 
     return () => {
+      socket.off("connect");
+      socket.off("disconnect");
       socket.off("event-approval-request");
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
-    const userId = user._id; // Replace with actual admin ID from Redux/Auth state
-    if (userId) {
-      socket.emit("join", userId);
+    if (user && user._id) {
+      console.log(`Joining socket room for admin: ${user._id}`);
+      socket.emit("join", user._id);
     }
-  }, []);
+  }, [user]);
+
+
 
   // Handle Profile Menu
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
 
   // Handle Notification Menu
-  const handleNotifOpen = (event) => setNotifAnchor(event.currentTarget);
+  // const handleNotifOpen = (event) => setNotifAnchor(event.currentTarget);
+
+  const handleNotifOpen = async (event) => {
+    setNotifAnchor(event.currentTarget);
+
+//     // Send a request to mark all unread notifications as read
+//     if (notifications.length > 0) {
+//       try {
+//         await axios.post(
+//           "http://localhost:5000/api/notifications/admin/mark-read",
+//           { adminId: user._id },
+//           {
+//             withCredentials: true,
+//           }
+//         );
+// console.log("Notifications marked as read.");
+//         // Update local state to mark all notifications as read
+//         setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+//       } catch (error) {
+//         console.error("Error marking notifications as read:", error);
+//       }
+//     }
+  };
+
+
   const handleNotifClose = () => setNotifAnchor(null);
 
   // Handle Logout
@@ -298,10 +379,15 @@ const AdminLayout = () => {
         <List>
           {menuItems.map((item) => (
             <ListItem
-              button
               key={item.text}
               onClick={() => navigate(item.path)}
-              sx={{ color: "white" }}
+              sx={{
+                cursor: "pointer",
+                transition: "background-color 0.3s ease",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.2)", // Adjust color as needed
+                },
+              }}
             >
               <ListItemIcon sx={{ color: "white" }}>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
@@ -340,7 +426,10 @@ const AdminLayout = () => {
             <Box sx={{ display: "flex", alignItems: "center" }}>
               {/* Notifications */}
               <IconButton color="inherit" onClick={handleNotifOpen}>
-                <Badge badgeContent={notifications.length} color="error">
+                <Badge
+                  badgeContent={notifications.filter((n) => !n.read).length}
+                  color="error"
+                >
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
@@ -361,17 +450,24 @@ const AdminLayout = () => {
               </Menu> */}
 
               {/* // Modify the Notification Menu */}
-<Menu anchorEl={notifAnchor} open={Boolean(notifAnchor)} onClose={handleNotifClose}>
-  {notifications.length === 0 ? (
-    <MenuItem disabled>No new notifications</MenuItem>
-  ) : (
-    notifications.map((notif, index) => (
-      <MenuItem key={index} onClick={() => handleNotificationClick(notif)}>
-        {notif.message}
-      </MenuItem>
-    ))
-  )}
-</Menu>
+              <Menu
+                anchorEl={notifAnchor}
+                open={Boolean(notifAnchor)}
+                onClose={handleNotifClose}
+              >
+                {notifications.length === 0 ? (
+                  <MenuItem disabled>No new notifications</MenuItem>
+                ) : (
+                  notifications.map((notif, index) => (
+                    <MenuItem
+                      key={index}
+                      onClick={() => handleNotificationClick(notif)}
+                    >
+                      {notif.message}
+                    </MenuItem>
+                  ))
+                )}
+              </Menu>
 
               {/* Profile */}
               <IconButton onClick={handleMenuOpen} color="inherit">
