@@ -144,7 +144,7 @@ exports.uploadAvatar = (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         // Extract token from cookies or Authorization header
-        const token = req.cookies.token || req.header('Authorization')?.replace('Bearer ', '');
+        const token = req.cookies.token;
         if (!token) {
             return res.status(401).json({ message: 'Access denied. No token provided.' });
         }
@@ -165,12 +165,12 @@ exports.updateProfile = async (req, res) => {
 
             // Validate and update profile
             const updatedData = req.body; // Get updated profile data from request body
-            const allowedUpdates = ['name', 'email']; // Specify fields that can be updated
-            const isValidUpdate = Object.keys(updatedData).every((key) => allowedUpdates.includes(key));
+            // const allowedUpdates = ['name', 'email']; // Specify fields that can be updated
+            // const isValidUpdate = Object.keys(updatedData).every((key) => allowedUpdates.includes(key));
 
-            if (!isValidUpdate) {
-                return res.status(400).json({ message: 'Invalid updates!' });
-            }
+            // if (!isValidUpdate) {
+            //     return res.status(400).json({ message: 'Invalid updates!' });
+            // }
 
             // Find and update the user's profile
             const updatedUser = await User.findByIdAndUpdate(userIdFromToken, updatedData, {
