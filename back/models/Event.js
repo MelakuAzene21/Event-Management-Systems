@@ -12,7 +12,6 @@ const eventSchema = new mongoose.Schema(
             latitude: { type: Number, required: false }, // Latitude
             longitude: { type: Number, required: false }, // Longitude
         },
-        organizedBy: { type: String }, // Could represent the organization name or similar
         organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user organizing the event
         user: { // Ensure this field exists
             type: mongoose.Schema.Types.ObjectId,
