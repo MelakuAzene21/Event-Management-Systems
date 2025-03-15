@@ -7,6 +7,7 @@ import { RxExit } from 'react-icons/rx';
 import { BsFillCaretDownFill } from 'react-icons/bs';
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+
 export default function Header() {
     const dispatch = useDispatch(); // Initialize useDispatch
     const [isMenuOpen, setisMenuOpen] = useState(false);
@@ -14,11 +15,11 @@ export default function Header() {
     const [searchQuery, setSearchQuery] = useState("");
     const searchInputRef = useRef();
     const user = useSelector((state) => state.auth.user);
+    // const notifications = useSelector((state) => state.notifications.notifications);
+
+   
     const notifications = useSelector((state) => state.notifications.notifications);
 
-    // const [notifications, setNotifications] = useState([]); // State for notifications
-
-    //! Fetch events from the server -------------------------------------------------
     useEffect(() => {
 
         axios.get("http://localhost:5000/api/events/getEvent").then((response) => {
@@ -28,23 +29,10 @@ export default function Header() {
         });
     }, []);
 
-    // //! Fetch notifications from the server
-    // useEffect(() => {
-    //     axios
-    //         .get("http://localhost:5000/notifications")
-    //         .then((response) => {
-    //             setNotifications(response.data); // Assume response includes `isRead` property
-    //         })
-    //         .catch((error) => {
-    //             console.error("Error fetching notifications:", error);
-    //         });
-    // }, []);
-
-    // //! Compute unread notification count
-    // const unreadCount = notifications.filter((notification) => !notification.isRead).length;
-
+   
 
     //! Search bar functionality----------------------------------------------------
+  
     useEffect(() => {
         const handleDocumentClick = (event) => {
             // Check if the clicked element is the search input or its descendant
@@ -167,6 +155,8 @@ toast.success('Logout Successfully')
                                 {notifications.filter(notif => !notif.isRead).length}
                             </span>
                         )}
+
+                        
                     </div>
                 </Link>
 

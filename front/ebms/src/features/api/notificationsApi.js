@@ -2,15 +2,19 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const notificationsApi = createApi({
     reducerPath: "notificationsApi",
-    baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/api" }),
+    baseQuery: fetchBaseQuery({
+        baseUrl: "http://localhost:5000/api",
+        credentials: 'include', // Include cookies in requests
+    }),
+    tagTypes: ["Notifications"],
     endpoints: (builder) => ({
-        getNotifications: builder.query({
-            query: (userId) => `/notifications/${userId}`,
+        getUnreadNotifications: builder.query({
+            query: () => "/notifications/unread-notifications",
             providesTags: ["Notifications"],
         }),
-        markAsRead: builder.mutation({
-            query: ({ notificationId }) => ({
-                url: `/notifications/${notificationId}/read`,
+        markAllAsRead: builder.mutation({
+            query: () => ({
+                url: "/notifications/mark-as-read",
                 method: "PUT",
             }),
             invalidatesTags: ["Notifications"],
@@ -18,4 +22,4 @@ export const notificationsApi = createApi({
     }),
 });
 
-export const { useGetNotificationsQuery, useMarkAsReadMutation } = notificationsApi;
+export const { useGetUnreadNotificationsQuery, useMarkAllAsReadMutation } = notificationsApi;

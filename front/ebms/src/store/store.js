@@ -38,7 +38,7 @@ import storage from 'redux-persist/lib/storage'; // Default: localStorage for we
 import { reviewApi } from '../features/api/reviewApi';
 import { eventsApi } from '../features/api/myEventApi';
 import { notificationsApi } from '../features/api/notificationsApi';
-import notificationReducer from "../features/slices/notificationSlice";
+import notificationReducer,{setNotifications} from "../features/slices/notificationSlice";
 import { socketMiddleware } from "../features/middleware/socketMiddleware";
 
 //  Create persist configs for the slices you want to persist
@@ -79,6 +79,12 @@ export const store = configureStore({
             .concat(notificationsApi.middleware)
             .concat(socketMiddleware),
 });
-
+// Fetch notifications when user logs in
+store.dispatch(notificationsApi.endpoints.getUnreadNotifications.initiate())
+    .then(({ data }) => {
+        if (data) {
+            store.dispatch(setNotifications(data));
+        }
+    });
 // Create persistor for your store
 export const persistor = persistStore(store);
