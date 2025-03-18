@@ -24,6 +24,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store ,persistor} from './store/store';
 import './index.css';
+import "antd/dist/reset.css"; // Import antd styles
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

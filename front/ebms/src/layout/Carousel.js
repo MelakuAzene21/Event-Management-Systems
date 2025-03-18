@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState, useCallback } from 'react';
+import SkeletonLoader from './SkeletonLoader';
 
 const EventCarousel = () => {
   const [events, setEvents] = useState([]);
@@ -9,7 +10,7 @@ const EventCarousel = () => {
   const fetchLatestEvents = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/events/nearUpcoming?limit=3');
-      setEvents(response.data); 
+      setEvents(response.data);
     } catch (error) {
       console.error('Error fetching events:', error);
       setError(error.message);
@@ -36,54 +37,61 @@ const EventCarousel = () => {
   }, [events, nextSlide]);
 
   if (error) {
-    return <p>Error loading events: {error}</p>;
+    return <p className="text-red-600 text-center text-lg">Error loading events: {error}</p>;
   }
 
   if (events.length === 0) {
-    return <p>Loading events...</p>;
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {[...Array(8)].map((_, i) => (
+          <SkeletonLoader key={i} />
+        ))}
+      </div>
+    );
   }
 
   return (
-    <div className="relative w-full overflow-hidden h-80  py-3 ">
-      <div className="flex transition-transform duration-500 ease-in-out">
+    <div className="relative w-full overflow-hidden h-96 py-5">
+      <div className="relative flex transition-transform duration-700 ease-in-out">
         <div className="carousel-item w-full flex flex-col items-center justify-center h-full">
           <img
-            className="object-cover h-80 w-full"
+            className="object-cover h-96 w-full rounded-lg shadow-xl"
             src={`http://localhost:5000${events[currentIndex]?.images[0]}`}
             alt={events[currentIndex]?.title || 'Event'}
           />
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 p-4">
-            <h2 className="text-green-500 italic text-xl font-bold text-center mb-2">
+          {/* Overlay with Title & Description */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 p-6 rounded-lg text-center">
+            <h1 className="text-4xl font-extrabold text-yellow-400 italic drop-shadow-lg">
+              Discover & Experience Unforgettable Events!
+            </h1>
+            <p className="text-lg text-white mt-2 drop-shadow-lg max-w-2xl">
+              Find and book tickets for concerts, conferences, festivals, and exclusive events near you.
+            </p>
+            <h2 className="text-white italic text-3xl font-bold mt-4 drop-shadow-lg">
               {events[currentIndex]?.title}
             </h2>
-            {/* <p className="text-white text-center mb-2">
-              <strong>Date:</strong> {events[currentIndex]?.date
-                ? `${new Date(events[currentIndex].date).toISOString().split('T')[0]}, ${new Date(events[currentIndex].date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
-                : 'Date not available'}
-            </p> */}
-
-
-
-            <p className="text-white text-center mb-4">
-              <strong>Location:</strong> {events[currentIndex]?.location?.name || 'Location not available'}
+            <p className="text-white text-lg mt-2">
+              <strong>📍 Location:</strong> {events[currentIndex]?.location?.name || 'Location not available'}
             </p>
             <button
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-lg transition duration-200 hover:bg-blue-700"
+              className="mt-4 px-8 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-lg text-lg transition duration-300 hover:bg-yellow-600"
               onClick={() => window.location.href = `/events/${events[currentIndex]?._id}`}
             >
-              Book Now
+              🎟 Book Your Spot
             </button>
           </div>
         </div>
       </div>
+
+      {/* Navigation Buttons */}
       <button
-        className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-white text-black  py-6 px-2 shadow hover:bg-gray-400"
+        className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white text-black p-3 rounded-full shadow-md hover:bg-gray-300 transition"
         onClick={prevSlide}
       >
         ❮
       </button>
       <button
-        className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-white text-black  py-6 px-2 shadow hover:bg-gray-400"
+        className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white text-black p-3 rounded-full shadow-md hover:bg-gray-300 transition"
         onClick={nextSlide}
       >
         ❯
