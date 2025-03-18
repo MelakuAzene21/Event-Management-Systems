@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login,logout, getProfile, updateProfile, getAllUsers ,deleteUser,uploadAvatar,forgotPassword,resetPassword, updateUser} = require('../controllers/authController');
+const { register, login,logout, getProfile, updateProfile, getAllUsers ,deleteUser,uploadAvatar,forgotPassword,resetPassword, updateUser, followedOrganizers, totalFollowerOfOrganizer} = require('../controllers/authController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
@@ -64,8 +64,8 @@ router.put("/users/:id", verifyToken, checkRole('admin'), updateUser);
 router.put('/updateProfile/:id',verifyToken, updateProfile);
 router.get('/getAllUser',verifyToken,checkRole('admin'), getAllUsers);
 // router.get('/getAllUser',  getAllUsers);
-
-
+router.post('/organizers/follow',verifyToken, followedOrganizers);
+router.get('/organizers/:organizerId/followers', verifyToken,totalFollowerOfOrganizer)
 const multer = require('multer');
 const User = require('../models/User'); // Adjust the path to your user model
 

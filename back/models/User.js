@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['admin', 'organizer', 'user'], default: 'user' },
     avatar: { type: String }, // Add this field to store the avatar file path or URL
     status: { type: String, enum: ['active', 'blocked'], default: 'active' },
+    followedOrganizers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     resetPasswordToken: {type:String},
     resetPasswordExpire: {type:Date},
 }, { timestamps: true });

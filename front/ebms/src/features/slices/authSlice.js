@@ -12,6 +12,11 @@ const authSlice = createSlice({
         setUser(state, action) {
             state.user = action.payload; // Set the user information
         },
+        setFollowedOrganizers(state, action) {
+            if (state.user) {
+                state.user.followedOrganizers = action.payload.followedOrganizers;
+            }
+        },
         logout(state) {
             state.user = null;
             state.isLoading = false;
@@ -82,6 +87,6 @@ const authSlice = createSlice({
     },
 });
 
-export const { setUser, logout } = authSlice.actions; // Export setUser action
+export const { setUser, logout,setFollowedOrganizers } = authSlice.actions; // Export setUser action
 
 export default authSlice.reducer;

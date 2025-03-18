@@ -257,7 +257,7 @@ exports.getMostNearUpcomingEvent = async (req, res) => {
 
 exports.getEvents = async (req, res) => {
     try {
-        const events = await Event.find({status:"approved"}).populate('organizer', 'name email');
+        const events = await Event.find({status:"approved"}).populate('organizer', 'avatar name email');
         res.status(200).json(events);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching events', error });

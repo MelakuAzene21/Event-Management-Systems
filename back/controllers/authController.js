@@ -379,3 +379,36 @@ exports.updateUser = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
+
+// Follow an organizer
+exports.followedOrganizers= async (req, res) => {
+        const { userId, organizerId } = req.body;
+
+        try {
+            const user = await User.findById(userId);
+            if (!user.followedOrganizers.includes(organizerId)) {
+                user.followedOrganizers.push(organizerId);
+                await user.save();
+            }
+
+            // Return the updated user object
+            res.json(user);
+        } catch (error) {
+            console.error("Error following organizer:", error);
+            console.log("error on folloing", error);
+            res.status(500).send("Server error");
+        }
+}
+exports.totalFollowerOfOrganizer = async (req, res) => {
+    try {
+        const organizerId = req.params.organizerId;
+
+        // Count users who have the organizerId in their followedOrganizers array
+        const followersCount = await User.countDocuments({ followedOrganizers: organizerId });
+
+        res.status(200).json({ followers: followersCount });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
