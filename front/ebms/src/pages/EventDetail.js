@@ -347,7 +347,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { AiFillCalendar } from "react-icons/ai";
 import { MdLocationPin } from "react-icons/md";
 import { FaCopy, FaWhatsappSquare, FaFacebook } from "react-icons/fa";
 import BookmarkButton from "../UserPage/BookMarkEvent";
@@ -359,9 +358,12 @@ import ReviewComponent from "../components/Reviews";
 import Title from "../layout/Title";
 import EventMap from "../components/EventMap";
 import { Carousel } from "react-responsive-carousel";
+import { Calendar, Clock, Users } from "lucide-react";
+
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // Carousel styles
 // import { toast } from "react-toastify";
-import OrganizerFollowCard  from "../Origanizer/OrganizerInfo";
+import OrganizerFollowCard from "../Origanizer/OrganizerInfo";
+
 export default function EventPage() {
     const { id } = useParams();
     const [event, setEvent] = useState(null);
@@ -397,6 +399,9 @@ export default function EventPage() {
                 setLoading(false);
             });
     }, [id]);
+    const totalTickets = event?.ticketTypes?.reduce((sum, ticket) => sum + ticket.limit, 0) || 0;
+    const totalBooked = event?.ticketTypes?.reduce((sum, ticket) => sum + ticket.booked, 0) || 0;
+    const totalAvailable = event?.ticketTypes?.reduce((sum, ticket) => sum + ticket.available, 0) || 0;
 
     // Fetch related events based on category
     const fetchRelatedEvents = async (currentEvent) => {
@@ -511,79 +516,76 @@ export default function EventPage() {
             <Title title="Event Details Page" />
 
             {/* Image Carousel */}
-            <div className="mb-8">
+            <div className="mb-8 relative">
                 {event.images && event.images.length > 0 ? (
-                    <Carousel
-                        showThumbs={false}
-                        showStatus={false}
-                        infiniteLoop
-                        autoPlay
-                        interval={3000}
-                        className="rounded-lg shadow-lg"
-                    >
-                        {event.images.map((imgUrl, index) => (
-                            <div key={index}>
-                                <img
-                                    src={`http://localhost:5000${imgUrl}`}
-                                    alt={`${event.title} ${index + 1}`}
-                                    className="w-full h-64 md:h-96 object-cover rounded-lg"
-                                />
-                            </div>
-                        ))}
-                    </Carousel>
+                    <>
+                        <Carousel
+                            showThumbs={false}
+                            showStatus={false}
+                            infiniteLoop
+                            autoPlay
+                            interval={3000}
+                            className="rounded-lg shadow-lg"
+                        >
+                            {event.images.map((imgUrl, index) => (
+                                <div key={index}>
+                                    <img
+                                        src={`http://localhost:5000${imgUrl}`}
+                                        alt={`${event.title} ${index + 1}`}
+                                        className="w-full h-64 md:h-96 object-cover rounded-lg"
+                                    />
+                                </div>
+                            ))}
+                        </Carousel>
+                        <BookmarkButton
+                            eventId={event._id}
+                            isBookmarkedInitial={event.isBookmarked}
+                            className="absolute bottom-4 right-4"
+                        />
+                    </>
                 ) : (
-                    <div className="w-full h-64 md:h-96 bg-gray-200 flex items-center justify-center rounded-lg">
+                    <div className="w-full h-64 md:h-96 bg-gray-200 flex items-center justify-center rounded-lg relative">
                         <p className="text-gray-500">No images available</p>
+                        <BookmarkButton
+                            eventId={event._id}
+                            isBookmarkedInitial={event.isBookmarked}
+                            className="absolute bottom-4 right-4"
+                        />
                     </div>
                 )}
             </div>
 
             {/* Event Title and Bookmark */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-800">
+                <h1 className="text-2xl md:text-3xl lg:text-3xl font-bold text-gray-800">
                     {event.title.toUpperCase()}
                 </h1>
-                <BookmarkButton
-                    eventId={event._id}
-                    isBookmarkedInitial={event.isBookmarked}
-                    className="mt-4 md:mt-0"
-                />
+              
             </div>
-
-            {/* Event Description */}
-            <p className="text-gray-600 text-base md:text-lg leading-relaxed mb-6">
-                {event.description}
-            </p>
-
-            {/* Organized By
-            <div className="mb-6">
-                <p className="text-lg font-semibold text-gray-700">
-                    Organized By: <span className="text-blue-600">{event.organizedBy}</span>
-                </p>
-            </div> */}
-
-        
-
-            <OrganizerFollowCard event={event}/>
-
-            {/* When and Where */}
-            <div className="mb-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">When and Where</h2>
-                <div className="flex flex-col md:flex-row gap-6">
-                    {/* Date and Time */}
-                    <div className="flex items-start gap-3">
-                        <AiFillCalendar className="w-6 h-6 text-blue-600" />
+            
+            {/* Date/Time/Attendees Cards and Ticket Selection Side by Side */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                {/* Cards (Left) */}
+                <div className="lg:col-span-2 space-y-4">
+                    <div className="border rounded-lg p-4 shadow-sm flex items-center gap-3 bg-white">
+                        <Calendar className="w-6 h-6 text-gray-700" />
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-700">Date and Time</h3>
-                            <p className="text-gray-600">
-                                Date:{" "}
+                            <h3 className="text-sm font-semibold text-gray-800">Date</h3>
+                            <p className="text-gray-600 text-sm">
                                 {new Date(event.eventDate).toLocaleDateString("en-US", {
+                                    weekday: "long",
+                                    month: "long",
                                     day: "numeric",
-                                    month: "numeric",
                                     year: "numeric",
-                                })}{" "}
-                                <br />
-                                Time:{" "}
+                                })}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="border rounded-lg p-4 shadow-sm flex items-center gap-3 bg-white">
+                        <Clock className="w-6 h-6 text-gray-700" />
+                        <div>
+                            <h3 className="text-sm font-semibold text-gray-800">Time</h3>
+                            <p className="text-gray-600 text-sm">
                                 {new Date(`1970-01-01T${event.eventTime}`).toLocaleTimeString([], {
                                     hour: "2-digit",
                                     minute: "2-digit",
@@ -592,90 +594,113 @@ export default function EventPage() {
                             </p>
                         </div>
                     </div>
-
-                    {/* Location */}
-                    <div className="flex items-start gap-3">
-                        <MdLocationPin className="w-6 h-6 text-blue-600" />
+                    <div className="border rounded-lg p-4 shadow-sm flex items-center gap-3 bg-white">
+                        <Users className="w-6 h-6 text-gray-700" />
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-700">Location</h3>
-                            <p className="text-gray-600">{event.location?.name}</p>
-                            {event.location?.latitude && event.location?.longitude && (
-                                <div className="mt-4">
-                                    <EventMap
-                                        latitude={event.location.latitude}
-                                        longitude={event.location.longitude}
-                                    />
-                                </div>
-                            )}
+                            <h3 className="text-sm font-semibold text-gray-800">Tickets</h3>
+                            <p className="text-gray-600 text-sm">{totalBooked} / {totalTickets} (Left: {totalAvailable})</p>
                         </div>
                     </div>
                 </div>
+
+                {/* Ticket Selection (Right, Sticky, Reduced Size) */}
+                <div className="lg:col-span-1 bg-white rounded-lg shadow-md p-4 sticky top-4 h-fit">
+                    <h2 className="text-lg font-bold text-gray-800 mb-3 text-center">Select Tickets</h2>
+                    <div className="space-y-2">
+                        {event.ticketTypes.map((ticket, index) => (
+                            <div
+                                key={index}
+                                onClick={() => handleTicketSelection(ticket)}
+                                className={`p-2 border rounded-lg cursor-pointer transition-all duration-200 ${selectedTicket?.name === ticket.name ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:bg-gray-50"
+                                    }`}
+                            >
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-800">{ticket.name}</p>
+                                        <p className="text-xs text-gray-600">{ticket.available ?? ticket.limit} left</p>
+                                        <p className="text-xs text-gray-700">{ticket.price === 0 ? "Free" : `${ticket.price} ETB`}</p>
+                                    </div>
+                                    <div className="flex items-center space-x-1">
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); handleDecrease(ticket); }}
+                                            className="px-1 py-0.5 bg-gray-200 rounded hover:bg-gray-300 text-xs"
+                                        >
+                                            -
+                                        </button>
+                                        <span className="px-2 text-xs">{ticketCounts[ticket.name] || 1}</span>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); handleIncrease(ticket); }}
+                                            className="px-1 py-0.5 bg-gray-200 rounded hover:bg-gray-300 text-xs"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <button
+                        onClick={handleBooking}
+                        className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors text-sm"
+                    >
+                        Book Now
+                    </button>
+                </div>
+            </div>
+           
+            
+           
+            {/* Event Description */}
+            <div className="bg-white rounded-xl shadow-lg p-8 mb-6 border border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900 mb-6 tracking-wide uppercase text-center">
+                    About This Event
+                </h2>
+                <div className="text-gray-700 text-lg leading-loose space-y-4 px-8">
+                    {event.description ? (
+                        event.description.split("\n").map((paragraph, index) => (
+                            <p key={index} className="text-gray-700 indent-8 text-justify">
+                                {paragraph}
+                            </p>
+                        ))
+                    ) : (
+                        <p className="text-gray-500 italic text-center">No description available for this event.</p>
+                    )}
+                </div>
             </div>
 
+
+           
+            <OrganizerFollowCard event={event}/>
+
+          
+            {/* Location Section */}
+            <div className="mt-10 bg-white shadow-md rounded-lg p-6">
+                <div className="flex items-start gap-3">
+                    <MdLocationPin className="w-6 h-6 text-blue-600" />
+                    <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-700">Location</h3>
+                        <p className="text-gray-600 mt-1">
+                            {event.location?.name || "San Francisco Convention Center, 747 Howard St, San Francisco, CA 94103"}
+                        </p>
+                        {event.location?.latitude && event.location?.longitude && (
+                            <div className="mt-4 relative">
+                                <EventMap
+                                    latitude={event.location.latitude}
+                                    longitude={event.location.longitude}
+                                />
+                              
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+              
             {/* Reviews */}
             <div className="mb-8">
                 <ReviewComponent eventId={event?._id} attendeeId={user?._id} />
             </div>
 
-            {/* Ticket Selection */}
-            <div className="mb-8 p-6 bg-white rounded-lg shadow-md border border-gray-200 max-w-lg mx-auto">
-                <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">Choose a Ticket</h2>
-                <div className="space-y-4">
-                    {event.ticketTypes.map((ticket, index) => (
-                        <div
-                            key={index}
-                            onClick={() => handleTicketSelection(ticket)}
-                            className={`flex justify-between items-center p-4 border rounded-lg cursor-pointer transition-all duration-200 ${selectedTicket?.name === ticket.name
-                                    ? "border-blue-500 bg-blue-50"
-                                    : "border-gray-300 hover:bg-gray-50"
-                                }`}
-                        >
-                            <div className="flex flex-col">
-                                <span className="text-lg font-medium text-gray-800">{ticket.name}</span>
-                                <span className="text-sm text-gray-600">
-                                    {ticket.available ?? ticket.limit} left
-                                </span>
-                                <span className="text-sm text-gray-600">
-                                    {ticket.price === 0 ? (
-                                        <span className="text-blue-500 font-bold italic">Free</span>
-                                    ) : (
-                                        `${ticket.price} ETB`
-                                    )}
-                                </span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDecrease(ticket);
-                                    }}
-                                    className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
-                                >
-                                    -
-                                </button>
-                                <span className="px-3 py-1 border rounded text-sm">
-                                    {ticketCounts[ticket.name] || 1}
-                                </span>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleIncrease(ticket);
-                                    }}
-                                    className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
-                                >
-                                    +
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                <button
-                    onClick={handleBooking}
-                    className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200"
-                >
-                    Confirm Booking
-                </button>
-            </div>
+           
 
             {/* Share with Friends */}
             <div className="mb-8">
