@@ -194,13 +194,13 @@ const ReviewComponent = ({ eventId, attendeeId }) => {
         }
     };
     return (
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto p-4  border-2 border-gray-200 rounded-lg mt-4">
             {/* Post Your Review Button */}
             <button
                 onClick={() => setModalIsOpen(true)} // Open modal to post new review
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
             >
-                Post Your Review
+                Post 
             </button>
 
             {/* Review Form Modal */}
@@ -256,7 +256,7 @@ const ReviewComponent = ({ eventId, attendeeId }) => {
             ) : error ? (
                 <p className="text-red-500">{error.message}</p>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-4 p-4 rounded-lg bg-gray-100  ">
                     {reviews?.map((review) => (
                         <div key={review._id} className="bg-white shadow-md p-4 rounded-lg flex justify-between">
                             <div className="flex items-center">
