@@ -521,7 +521,7 @@ export default function EventPage() {
                     <>
                         <Carousel
                             showThumbs={false}
-                            showStatus={false}
+                            showStatus={true}
                             infiniteLoop
                             autoPlay
                             interval={3000}

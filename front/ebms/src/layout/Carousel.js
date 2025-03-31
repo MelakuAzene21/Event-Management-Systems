@@ -71,7 +71,7 @@ const EventCarousel = () => {
               {events[currentIndex]?.title}
             </h2>
             <p className="text-white text-lg mt-2">
-              <strong>📍 Location:</strong> {events[currentIndex]?.location?.name || 'Location not available'}
+              <strong>📍 Location:</strong> {events[currentIndex]?.location?.name?.split(',')[1]|| 'Location not available'}
             </p>
             <button
               className="mt-4 px-8 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-lg text-lg transition duration-300 hover:bg-yellow-600"

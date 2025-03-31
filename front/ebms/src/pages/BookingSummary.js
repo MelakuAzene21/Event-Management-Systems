@@ -252,7 +252,6 @@ import SkeletonLoader from '../layout/SkeletonLoader';
 import { v4 as uuidv4 } from 'uuid';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { useCreateBookingMutation } from "../features/api/bookingApi";
 import { useGetCurrentUserQuery } from "../features/api/authApi";
 import '../Overlay.css';
 import Title from '../layout/Title';
@@ -263,12 +262,10 @@ export default function BookingSummary() {
     const [isCheckboxChecked, setIsCheckboxChecked] = useState(false)
     const [loading, setLoading] = useState(true)
     const booking = useSelector((state) => state.booking.pendingBooking);
-    const [paymentMethod, setPaymentMethod] = useState('Chapa');
     const [load, setLoad] = useState(false);
     const [showOverlay, setShowOverlay] = useState(false);
-    const [createBooking, { isLoading1 }] = useCreateBookingMutation();
     const { data: userDetails } = useGetCurrentUserQuery();
-
+    console.log('user detals', userDetails);
     const transactionRef = uuidv4();
     const BASE_URL =
         process.env.NODE_ENV === 'production'
@@ -286,7 +283,7 @@ export default function BookingSummary() {
             console.error("Error fetching events:", error);
             setLoading(false)
         });
-    }, [id])
+    }, [id, BASE_URL])
 
     // Handle checkbox change
     const handleCheckboxChange = (e) => {
@@ -372,7 +369,7 @@ export default function BookingSummary() {
 
     return (
         <div>
-            <Link to={'/event/' + event._id}>
+            <Link to={`/events/${event._id}`}>
                 <button
                     className='inline-flex mt-12 gap-2 p-3 ml-12 bg-gray-100 justify-center items-center text-blue-700 font-bold rounded-md'
                 >
@@ -389,9 +386,9 @@ export default function BookingSummary() {
                     </div>
                 </div>
             )}
-            <div className='flex flex-col'>
-                <div className='inline-flex gap-5 mt-8'>
-                    <div className="p-4 ml-12 bg-gray-100 w-3/4 mb-12">
+            <div className='flex flex-col bg-gray-50 rounded-lg shadow-lg p-4'>
+                <div className='inline-flex gap-2 mt-8'>
+                    <div className="p-4 ml-12 bg-gray-50 rounded-2xl shadow-lg w-3/4 mb-12">
                         <h2 className='text-left font-bold'>Terms & Conditions</h2>
                         <ul className="custom-list list-disc pl-5">
                             <li>Tickets are non-refundable under any circumstances.</li>
@@ -401,22 +398,22 @@ export default function BookingSummary() {
                         </ul>
                     </div>
 
-                    <div className="w-1/4 pl-4 h-1/4 mr-12 bg-blue-100">
+                    <div className="w-1/4 pl-4 h-1/4 mr-12 bg-gray-100 rounded-2xl shadow-lg">
                         <h2 className='mt-4 font-bold'>Booking Summary</h2>
                         <div className='text-sm'>
-                            <div className='text-left mt-5'>Your Name: {userDetails.firstName} {userDetails.lastName}</div>
+                            <div className='text-left mt-5'>Your Name: {userDetails.name} </div>
                             <div className='text-left mt-5'>Your Email: {userDetails.email}</div>
                             <div className='text-left mt-5'>Event Name: {event.title}</div>
                             <div className='text-left mt-5'>Ticket Type: {booking.ticketType}</div>
                             <div className='text-left mt-5'>Total Ticket: {booking.ticketCount}</div>
+                           <hr className="my-2 pt-2 border-gray-300" />
                             <div className='text-left mt-5'>Total Price: {booking.totalAmount} ETB</div>
-                            <div className='text-left mt-5'>Payment Method: {paymentMethod}</div>
                         </div>
                         <hr className="my-2 pt-2 border-gray-300" />
                         <div className='flex justify-between'>
                             <input className='h-5' type='checkbox' onChange={handleCheckboxChange} />
                             <div className='px-2 text-sm'>
-                                I have verified the Event name, date, and time before proceeding to payment. I accept terms and conditions.
+                                I have verified the event details and accept the terms and conditions
                             </div>
                         </div>
 
@@ -432,6 +429,19 @@ export default function BookingSummary() {
                     </div>
                 </div>
             </div>
+
+            {/* Overlay */}
+            {showOverlay && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg flex flex-col items-center gap-4">
+                        <svg className="animate-spin h-8 w-8 text-blue-600" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        <p className="text-gray-700">Processing your booking...</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

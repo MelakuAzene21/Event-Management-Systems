@@ -201,6 +201,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import Title from "../layout/Title";
+import { CheckCircle } from "lucide-react";
 
 const SuccessPage = () => {
     const location = useLocation();
@@ -285,22 +286,33 @@ const SuccessPage = () => {
                     <p className="text-center text-gray-500 text-lg">Verifying your transaction...</p>
                 ) : transactionData ? (
                     <>
-                        <div className="text-center space-y-4">
-                            <motion.h1
-                                initial={{ opacity: 0, y: -20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6, delay: 0.3 }}
-                                className="text-4xl font-bold text-green-600"
-                            >
-                                Payment Successful!
-                            </motion.h1>
-                            <p className="text-lg text-gray-600">
-                                Thank you for your purchase! Your booking has been confirmed.
-                            </p>
-                            <p className="text-gray-500 italic">
-                                Please present your QR code at the event for smooth entry.
-                            </p>
-                        </div>
+                            <div className="flex flex-col items-center space-y-4 text-center">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.6 }}
+                                >
+                                    <CheckCircle className="w-16 h-16 text-green-500" />
+                                </motion.div>
+
+                                <motion.h1
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.3 }}
+                                    className="text-4xl font-bold text-green-600"
+                                >
+                                    Payment Successful!
+                                </motion.h1>
+
+                                <p className="text-lg text-gray-600">
+                                    Thank you for your purchase! Your booking has been confirmed.
+                                </p>
+
+                                <p className="text-gray-500 italic">
+                                    Please present your QR code at the event for smooth entry.
+                                </p>
+                            </div>
+
 
                         {booking.length > 0 && (
                             <div className="mt-8 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
