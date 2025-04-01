@@ -142,10 +142,7 @@ exports.createEvent = async (req, res) => {
             eventTime,
             location,
             tickets // Expecting an array of { name, price, limit }
-        } = req.body;
-
-
-        // Get latitude & longitude using Nominatim
+        } = req.body;        // Get latitude & longitude using Nominatim
         console.log("location name of event",location)
         const coordinates = await getCoordinates(location);
         console.log("Coordinate for location",coordinates)
@@ -167,8 +164,13 @@ exports.createEvent = async (req, res) => {
             return res.status(400).json({ message: 'You can upload up to 5 images only' });
         }
 
-        // Save images (Cloudinary or local storage)
-        const images = req.files.map(file => `/uploads/events/${file.filename}`);
+        // // Save images (Cloudinary or local storage)
+        // const images = req.files.map(file => `/uploads/events/${file.filename}`);
+        
+        
+        // Get Cloudinary URLs from uploaded files
+        // Process images from Cloudinary
+        const images = req.files.map(file => file.path); // file.path gives the Cloudinary URL
 
         // Ensure tickets are parsed correctly (handle both JSON and array cases)
         const parsedTickets = typeof tickets === "string" ? JSON.parse(tickets) : tickets;
