@@ -32,6 +32,7 @@ import ForgotPassword from './auth/forgotPassword';
 import NotificationsPage from './pages/NotificationsPage';
 import { setupSocket } from './features/middleware/socketMiddleware';
 import { HelmetProvider } from "react-helmet-async";
+import SkeletonLoader from './layout/SkeletonLoader';
 
 function App() {
   const { data: user, isLoading } = useGetCurrentUserQuery();
@@ -50,8 +51,11 @@ function App() {
   }, [user]);
 
   if (isLoading) {
-    return <div>Loading...</div>; // Show a loading state
-  }
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {[...Array(10)].map((_, i) => (
+          <SkeletonLoader key={i} />
+        ))}
+      </div>  }
 
   return (
     <Router>

@@ -473,7 +473,7 @@ const EventRow = ({ event, openDeleteModal }) => {
         <tr className="border-b hover:bg-gray-50 transition">
             <td className="py-3 px-4">{event.title}</td>
             <td className="py-3 px-4">{new Date(event.eventDate).toLocaleDateString()}</td>
-            <td className="py-3 px-4">{event.location?.name || "N/A"}</td>
+            <td className="py-3 px-4">{event.location?.name?.split(', ')[0] || "N/A"}</td>
             <td className={`py-3 px-4 ${event.status === 'approved' ? 'text-green-500' :
                     event.status === 'rejected' ? 'text-red-500' :
                         'text-gray-500'

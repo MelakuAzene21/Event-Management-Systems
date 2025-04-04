@@ -359,7 +359,7 @@ import Title from "../layout/Title";
 import EventMap from "../components/EventMap";
 import { Carousel } from "react-responsive-carousel";
 import { Calendar, Clock, Users } from "lucide-react";
-
+import { FaExclamationTriangle } from "react-icons/fa"; // Add this to your existing imports
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // Carousel styles
 // import { toast } from "react-toastify";
 import OrganizerFollowCard from "../Origanizer/OrganizerInfo";
@@ -508,9 +508,23 @@ export default function EventPage() {
 
     // No event found
     if (!event) {
-        return <div className="text-center text-gray-500 p-4">No event found.</div>;
+        return (
+            <div className="container mx-auto px-4 py-16 flex justify-center items-center min-h-screen">
+                <div className="bg-white shadow-md rounded-lg p-8 text-center max-w-md">
+                    <FaExclamationTriangle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Event Not Found</h2>
+                    <p className="text-gray-600 mb-6">
+                        The event you're looking for might have been removed or doesn't exist. Let's find you something else to explore!
+                    </p>
+                    <Link to="/">
+                        <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold">
+                            Explore Other Events
+                        </button>
+                    </Link>
+                </div>
+            </div>
+        );
     }
-
     return (
         <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16">
             <Title title="Event Details Page" />
