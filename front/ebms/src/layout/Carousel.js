@@ -1,6 +1,7 @@
 // import axios from 'axios';
 // import React, { useEffect, useState, useCallback } from 'react';
 // import SkeletonLoader from './SkeletonLoader';
+// import { WifiOff } from 'lucide-react'; // Assuming you're using lucide-react for icons
 
 // const EventCarousel = () => {
 //   const [events, setEvents] = useState([]);
@@ -11,9 +12,10 @@
 //     try {
 //       const response = await axios.get('http://localhost:5000/api/events/nearUpcoming?limit=3');
 //       setEvents(response.data);
+//       setError(null); // Clear error on successful fetch
 //     } catch (error) {
 //       console.error('Error fetching events:', error);
-//       setError(error.message);
+//       setError('Network Error: Unable to load events. Please check your connection and try again.');
 //     }
 //   };
 
@@ -36,11 +38,25 @@
 //     }
 //   }, [events, nextSlide]);
 
+//   // Error State with Improved UI/UX
 //   if (error) {
-//     return <p className="text-red-600 text-center text-lg">Error loading events: {error}</p>;
+//     return (
+//       <div className="flex flex-col items-center justify-center h-96 bg-gray-100 rounded-lg shadow-lg p-6">
+//         <WifiOff className="w-16 h-16 text-red-500 mb-4" /> {/* Descriptive Icon */}
+//         <h2 className="text-2xl font-semibold text-gray-800 mb-2">Oops! Something Went Wrong</h2>
+//         <p className="text-gray-600 text-center max-w-md mb-4">{error}</p>
+//         <button
+//           className="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition duration-300"
+//           onClick={fetchLatestEvents}
+//         >
+//           Retry
+//         </button>
+//       </div>
+//     );
 //   }
 
-//   if (events.length === 0) {
+//   // Loading State
+//   if (events.length === 0 && !error) {
 //     return (
 //       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
 //         {[...Array(8)].map((_, i) => (
@@ -50,6 +66,7 @@
 //     );
 //   }
 
+//   // Success State (Carousel)
 //   return (
 //     <div className="relative w-full overflow-hidden h-96 py-5">
 //       <div className="relative flex transition-transform duration-700 ease-in-out">
@@ -59,7 +76,6 @@
 //             src={`http://localhost:5000${events[currentIndex]?.images[0]}`}
 //             alt={events[currentIndex]?.title || 'Event'}
 //           />
-//           {/* Overlay with Title & Description */}
 //           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 p-6 rounded-lg text-center">
 //             <h1 className="text-4xl font-extrabold text-yellow-400 italic drop-shadow-lg">
 //               Discover & Experience Unforgettable Events!
@@ -71,7 +87,7 @@
 //               {events[currentIndex]?.title}
 //             </h2>
 //             <p className="text-white text-lg mt-2">
-//               <strong>📍 Location:</strong> {events[currentIndex]?.location?.name?.split(',')[1]|| 'Location not available'}
+//               <strong>📍 Location:</strong> {events[currentIndex]?.location?.name?.split(',')[1] || 'Location not available'}
 //             </p>
 //             <button
 //               className="mt-4 px-8 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-lg text-lg transition duration-300 hover:bg-yellow-600"
@@ -104,7 +120,7 @@
 import axios from 'axios';
 import React, { useEffect, useState, useCallback } from 'react';
 import SkeletonLoader from './SkeletonLoader';
-import { WifiOff } from 'lucide-react'; // Assuming you're using lucide-react for icons
+import { WifiOff } from 'lucide-react';
 
 const EventCarousel = () => {
   const [events, setEvents] = useState([]);
@@ -115,7 +131,7 @@ const EventCarousel = () => {
     try {
       const response = await axios.get('http://localhost:5000/api/events/nearUpcoming?limit=3');
       setEvents(response.data);
-      setError(null); // Clear error on successful fetch
+      setError(null);
     } catch (error) {
       console.error('Error fetching events:', error);
       setError('Network Error: Unable to load events. Please check your connection and try again.');
@@ -145,7 +161,7 @@ const EventCarousel = () => {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-96 bg-gray-100 rounded-lg shadow-lg p-6">
-        <WifiOff className="w-16 h-16 text-red-500 mb-4" /> {/* Descriptive Icon */}
+        <WifiOff className="w-16 h-16 text-red-500 mb-4" />
         <h2 className="text-2xl font-semibold text-gray-800 mb-2">Oops! Something Went Wrong</h2>
         <p className="text-gray-600 text-center max-w-md mb-4">{error}</p>
         <button
@@ -171,7 +187,7 @@ const EventCarousel = () => {
 
   // Success State (Carousel)
   return (
-    <div className="relative w-full overflow-hidden h-96 py-5">
+    <div className="relative w-full overflow-hidden h-96 mt-10">
       <div className="relative flex transition-transform duration-700 ease-in-out">
         <div className="carousel-item w-full flex flex-col items-center justify-center h-full">
           <img
@@ -190,11 +206,12 @@ const EventCarousel = () => {
               {events[currentIndex]?.title}
             </h2>
             <p className="text-white text-lg mt-2">
-              <strong>📍 Location:</strong> {events[currentIndex]?.location?.name?.split(',')[1] || 'Location not available'}
+              <strong>📍 Location:</strong>{' '}
+              {events[currentIndex]?.location?.name?.split(',')[1] || 'Location not available'}
             </p>
             <button
               className="mt-4 px-8 py-3 bg-yellow-500 text-black font-bold rounded-lg shadow-lg text-lg transition duration-300 hover:bg-yellow-600"
-              onClick={() => window.location.href = `/events/${events[currentIndex]?._id}`}
+              onClick={() => (window.location.href = `/events/${events[currentIndex]?._id}`)}
             >
               🎟 Book Your Spot
             </button>

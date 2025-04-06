@@ -9,11 +9,14 @@ import Login from "../components/Login";
 import EventDetails from "../pages/EventDeails.jsx";
 import MonthlyRevenueChart from "../pages/MonthlyRevenueChart.jsx";
 import EventApproval from "../pages/EventApproval.jsx";
-
+import ForgotPassword from "../components/forgot-password.jsx";
+import NotFoundPage from "../components/NotFoundPage.jsx";
 const AdminRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="*" element={<NotFoundPage />} />
       <Route path="admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="dashboard" element={<Dashboard />} />

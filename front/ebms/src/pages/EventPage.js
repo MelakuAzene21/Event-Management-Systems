@@ -358,17 +358,17 @@
 
 
 
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import SkeletonLoader from "../layout/SkeletonLoader";
-import EventCarousel from "../layout/Carousel";
-import Title from "../layout/Title";
-import CategoryTags from "../layout/CategoryTag";
-import EventCard from "../components/EventCard"; // Import EventCard
-import NoEventsFound from "../components/NoEventsFound"; // Import NoEventsFound
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import SkeletonLoader from '../layout/SkeletonLoader';
+import EventCarousel from '../layout/Carousel';
+import Title from '../layout/Title';
+import CategoryTags from '../layout/CategoryTag';
+import EventCard from '../components/EventCard';
+import NoEventsFound from '../components/NoEventsFound';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 export default function IndexPage() {
     const [events, setEvents] = useState([]);
@@ -376,26 +376,26 @@ export default function IndexPage() {
     const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate();
     const [selectedCategories, setSelectedCategories] = useState([]);
-    const [timeFilter, setTimeFilter] = useState("Upcoming");
+    const [timeFilter, setTimeFilter] = useState('Upcoming');
     const [currentPage, setCurrentPage] = useState(1);
     const eventsPerPage = 6;
 
     useEffect(() => {
         axios
-            .get("http://localhost:5000/api/events/getEvent")
+            .get('http://localhost:5000/api/events/getEvent')
             .then((response) => {
                 setEvents(response.data);
                 setLoading(false);
             })
             .catch((error) => {
-                console.error("Error fetching events:", error);
+                console.error('Error fetching events:', error);
                 setLoading(false);
             });
     }, []);
 
     const handleLike = (eventId) => {
         if (!user || !user._id) {
-            navigate("/login");
+            navigate('/login');
             return;
         }
         axios
@@ -412,7 +412,7 @@ export default function IndexPage() {
                 );
             })
             .catch((error) => {
-                console.error("Error liking/unliking event", error);
+                console.error('Error liking/unliking event', error);
             });
     };
 
@@ -423,9 +423,9 @@ export default function IndexPage() {
         const matchesCategory =
             selectedCategories.length === 0 || selectedCategories.includes(event.category.toLowerCase());
         const matchesTime =
-            (timeFilter === "Upcoming" && eventDate > currentDate) ||
-            (timeFilter === "Past" && eventDate < currentDate) ||
-            (timeFilter === "Today" && eventDate.toDateString() === currentDate.toDateString());
+            (timeFilter === 'Upcoming' && eventDate > currentDate) ||
+            (timeFilter === 'Past' && eventDate < currentDate) ||
+            (timeFilter === 'Today' && eventDate.toDateString() === currentDate.toDateString());
         return matchesCategory && matchesTime;
     });
 
@@ -436,7 +436,7 @@ export default function IndexPage() {
 
     const handlePageChange = (pageNumber) => {
         setCurrentPage(pageNumber);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const getPaginationButtons = () => {
@@ -449,15 +449,14 @@ export default function IndexPage() {
             startPage = Math.max(1, endPage - maxButtonsToShow + 1);
         }
 
-        // Previous Button
         buttons.push(
             <button
                 key="prev"
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
                 className={`px-4 py-2 rounded-md font-medium transition-colors duration-200 ${currentPage === 1
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 text-white hover:bg-blue-700"
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
                     } flex items-center gap-1 shadow-md`}
             >
                 <ArrowLeft className="w-4 h-4" />
@@ -465,15 +464,14 @@ export default function IndexPage() {
             </button>
         );
 
-        // Page Numbers
         for (let i = startPage; i <= endPage; i++) {
             buttons.push(
                 <button
                     key={i}
                     onClick={() => handlePageChange(i)}
                     className={`px-4 py-2 rounded-md font-medium transition-all duration-200 shadow-md ${currentPage === i
-                            ? "bg-blue-500 text-white border-2 border-blue-500"
-                            : "bg-gray-400 text-white border-2 border-blue-500 hover:bg-blue-600"
+                            ? 'bg-blue-500 text-white border-2 border-blue-500'
+                            : 'bg-gray-400 text-white border-2 border-blue-500 hover:bg-blue-600'
                         }`}
                 >
                     {i}
@@ -481,7 +479,6 @@ export default function IndexPage() {
             );
         }
 
-        // Ellipsis and Last Page
         if (endPage < totalPages) {
             if (endPage < totalPages - 1) {
                 buttons.push(
@@ -495,8 +492,8 @@ export default function IndexPage() {
                     key={totalPages}
                     onClick={() => handlePageChange(totalPages)}
                     className={`px-4 py-2 rounded-md font-medium transition-all duration-200 shadow-md ${currentPage === totalPages
-                            ? "bg-blue-500 text-white border-2 border-blue-500"
-                            : "bg-black text-white border-2 border-blue-500 hover:bg-blue-600"
+                            ? 'bg-blue-500 text-white border-2 border-blue-500'
+                            : 'bg-black text-white border-2 border-blue-500 hover:bg-blue-600'
                         }`}
                 >
                     {totalPages}
@@ -504,15 +501,14 @@ export default function IndexPage() {
             );
         }
 
-        // Next Button
         buttons.push(
             <button
                 key="next"
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
                 className={`px-4 py-2 rounded-md font-medium transition-colors duration-200 ${currentPage === totalPages
-                        ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        : "bg-blue-600 text-white hover:bg-blue-700"
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
                     } flex items-center gap-1 shadow-md`}
             >
                 <span>Next</span>
@@ -524,16 +520,16 @@ export default function IndexPage() {
     };
 
     const categories = [
-        "music",
-        "nightlife",
-        "performing & visual arts",
-        "holidays",
-        "dating",
-        "hobbies",
-        "business",
-        "food & drink",
+        'music',
+        'nightlife',
+        'performing & visual arts',
+        'holidays',
+        'dating',
+        'hobbies',
+        'business',
+        'food & drink',
     ];
-    const timeFilters = ["Upcoming", "Past", "Today"];
+    const timeFilters = ['Upcoming', 'Past', 'Today'];
 
     const toggleCategory = (category) => {
         setSelectedCategories((prev) =>
@@ -546,7 +542,7 @@ export default function IndexPage() {
 
     const resetFilters = () => {
         setSelectedCategories([]);
-        setTimeFilter("Upcoming");
+        setTimeFilter('Upcoming');
         setCurrentPage(1);
     };
 
@@ -556,49 +552,66 @@ export default function IndexPage() {
             <div className="container mx-auto px-4">
                 <CategoryTags
                     categories={categories}
-                    selectedCategory={selectedCategories.length === 1 ? selectedCategories[0] : ""}
+                    selectedCategory={selectedCategories.length === 1 ? selectedCategories[0] : ''}
                     onCategorySelect={toggleCategory}
                 />
             </div>
 
             <div className="flex gap-6 mx-4 md:mx-10 mt-5">
-                <div className="hidden md:block w-full md:w-1/4 bg-white shadow-lg p-6 rounded-lg h-fit border-gray-400 border-2">
+                {/* Filter Sidebar */}
+                <div className="hidden md:block w-full md:w-1/5 bg-white shadow-lg p-5 rounded-xl h-fit border-gray-300 border">
                     <Title title="Filters" />
-                    <h2 className="font-semibold text-lg mb-2 text-gray-800">Category</h2>
-                    <div className="flex flex-col gap-2 mb-4">
-                        {categories.map((category) => (
-                            <label key={category} className="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    checked={selectedCategories.includes(category.toLowerCase())}
-                                    onChange={() => toggleCategory(category)}
-                                    className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                />
-                                <span className="text-gray-700 capitalize">{category}</span>
-                            </label>
-                        ))}
+
+                    {/* Category Filter */}
+                    <div className="mb-6">
+                        <h2 className="font-semibold text-base text-gray-800 mb-3">Category</h2>
+                        <div className="flex flex-col gap-2">
+                            {categories.map((category) => (
+                                <label key={category} className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedCategories.includes(category.toLowerCase())}
+                                        onChange={() => toggleCategory(category)}
+                                        className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
+                                    />
+                                    <span className="text-gray-700 text-sm capitalize transition-colors duration-200 hover:text-blue-600">
+                                        {category}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
                     </div>
-                    <h2 className="font-semibold text-lg mb-2 text-gray-800">Time</h2>
-                    <div className="flex flex-col gap-2">
-                        {timeFilters.map((filter) => (
-                            <button
-                                key={filter}
-                                onClick={() => setTimeFilter(filter)}
-                                className={`px-4 py-2 rounded-lg shadow-md transition-all duration-200 ${timeFilter === filter ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700 hover:bg-gray-300"}`}
-                            >
-                                {filter}
-                            </button>
-                        ))}
+
+                    {/* Time Filter */}
+                    <div className="mb-6">
+                        <h2 className="font-semibold text-base text-gray-800 mb-3">Time</h2>
+                        <div className="flex gap-2">
+                            {timeFilters.map((filter) => (
+                                <button
+                                    key={filter}
+                                    onClick={() => setTimeFilter(filter)}
+                                    className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 shadow-sm ${timeFilter === filter
+                                            ? 'bg-blue-600 text-white shadow-md'
+                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                                        }`}
+                                >
+                                    {filter}
+                                </button>
+                            ))}
+                        </div>
                     </div>
+
+                    {/* Clear Filters Button */}
                     <button
                         onClick={resetFilters}
-                        className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg shadow-md w-full hover:bg-red-600 transition-colors duration-200"
+                        className="w-full py-2 px-4 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 transition-all duration-300 text-sm font-medium"
                     >
                         Clear Filters
                     </button>
                 </div>
 
-                <div className="w-full md:w-3/4">
+                {/* Main Content */}
+                <div className="w-full md:w-4/5">
                     {loading ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                             {[...Array(8)].map((_, i) => (
@@ -610,12 +623,7 @@ export default function IndexPage() {
                             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
                                 {currentEvents.length > 0 ? (
                                     currentEvents.map((event) => (
-                                        <EventCard
-                                            key={event._id}
-                                            event={event}
-                                            user={user}
-                                            handleLike={handleLike}
-                                        />
+                                        <EventCard key={event._id} event={event} user={user} handleLike={handleLike} />
                                     ))
                                 ) : (
                                     <NoEventsFound resetFilters={resetFilters} />
@@ -623,7 +631,7 @@ export default function IndexPage() {
                             </div>
 
                             {totalPages > 1 && (
-                                <div className="flex justify-center mt-8">
+                                <div className="flex justify-center mt-8 mb-4">
                                     <div className="flex items-center gap-2">{getPaginationButtons()}</div>
                                 </div>
                             )}

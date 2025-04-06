@@ -8,12 +8,12 @@ export default function Layout() {
     const user = useSelector((state) => state.auth.user); // Fetch user from global state
 
     return (
-        <div className=' pt-14 flex flex-col min-h-screen'>
+        <div className='  flex flex-col min-h-screen'>
             {/* Show Navbar only if the user is NOT an organizer */}
             {user?.role !== "organizer" && <Header />}
-            <div className="flex-grow">
+            <main className="flex-grow">
                 <Outlet />
-            </div>
+            </main>
             {user?.role !== "organizer" && <Footer />}           
         </div>
     )

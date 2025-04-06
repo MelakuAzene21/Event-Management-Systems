@@ -204,7 +204,7 @@ const BookingsTable = () => {
                     </p>
                     <Button
                         className="mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md"
-                        onClick={() => window.location.href = "/events"} // Adjust the redirect URL as needed
+                        onClick={() => window.location.href = "/"} // Adjust the redirect URL as needed
                     >
                         Browse Events
                     </Button>
