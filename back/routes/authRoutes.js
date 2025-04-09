@@ -1,61 +1,80 @@
 const express = require('express');
-const { register, login,logout, getProfile, updateProfile, getAllUsers ,deleteUser,forgotPassword,resetPassword, updateUser, followedOrganizers, totalFollowerOfOrganizer} = require('../controllers/authController');
+const { register, login,logout, getProfile, updateProfile, getAllUsers,googleCallback,logoutGoogle,deleteUser,forgotPassword,resetPassword, updateUser, followedOrganizers, totalFollowerOfOrganizer, uploadAvatar} = require('../controllers/authController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
+const upload=require('../utils/uploadAavatar');
 const passport = require("passport");
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('cloudinary').v2;
+// const { CloudinaryStorage } = require('multer-storage-cloudinary');
+// const cloudinary = require('cloudinary').v2;
 require("../config/passport");
 router.post('/register', register);
 router.post('/login', login);
 router.post('/logout',verifyToken, logout);
 router.get('/profile',verifyToken, getProfile);
-// router.post('/upload-avatar', uploadAvatar);
-
 router.post('/forgot-password', forgotPassword);
 router.put('/reset-password/:token', resetPassword);
 
 
-// Google OAuth Login
-router.get("/google", passport.authenticate("google",
+// // Google OAuth Login
+// router.get("/google", passport.authenticate("google",
 
-    { scope: ["profile", "email"] ,
-    prompt: 'select_account consent' , // Forces Google to show account selection and persmission dialog
-    accessType: 'offline' ,// Enables refresh token
-    authtype:'reauthenticate'  }));
+//     { scope: ["profile", "email"] ,
+//     prompt: 'select_account consent' , // Forces Google to show account selection and persmission dialog
+//     accessType: 'offline' ,// Enables refresh token
+//     authtype:'reauthenticate'  }));
+
+// // Google OAuth Callback
+// router.get(
+//     "/google/callback",
+//     passport.authenticate("google", { failureRedirect: "http://localhost:3000/login" }),
+//     (req, res) => {
+
+//         console.log("Google response",req.query);
+// const{code}=req.query;
+// console.log("Authorization code",code);
+//         const token = req.user.token;
+//         console.log("Token from google authenticated",token);
+//         // Store token in a cookie
+//         res.cookie("token", req.user.token, {
+//             httpOnly: true,
+//             secure: false, // Change to true in production (for HTTPS)
+//             sameSite: "strict",
+//         });
+//         res.redirect("http://localhost:3000");
+//     }
+// );
+
+// // Logout Route
+// router.get("/logout", (req, res) => {
+//     req.logout((err) => {
+//         if (err) return res.status(500).send("Error logging out.");
+//         res.clearCookie("token");
+//         res.redirect("http://localhost:3000");
+//     });
+// });
+
+
+// Google OAuth Login
+router.get(
+    '/google',
+    passport.authenticate('google', {
+        scope: ['profile', 'email'],
+        prompt: 'select_account consent', // Forces Google to show account selection and permission dialog
+        accessType: 'offline', // Enables refresh token
+        authType: 'reauthenticate',
+    })
+);
 
 // Google OAuth Callback
 router.get(
-    "/google/callback",
-    passport.authenticate("google", { failureRedirect: "http://localhost:3000/login" }),
-    (req, res) => {
-
-        console.log("Google response",req.query);
-const{code}=req.query;
-console.log("Authorization code",code);
-        const token = req.user.token;
-        console.log("Token from google authenticated",token);
-        // Store token in a cookie
-        res.cookie("token", req.user.token, {
-            httpOnly: true,
-            secure: false, // Change to true in production (for HTTPS)
-            sameSite: "strict",
-        });
-        res.redirect("http://localhost:3000");
-    }
+    '/google/callback',
+    passport.authenticate('google', { failureRedirect: 'http://localhost:3000/login' }),
+    googleCallback
 );
 
-
-
 // Logout Route
-router.get("/logout", (req, res) => {
-    req.logout((err) => {
-        if (err) return res.status(500).send("Error logging out.");
-        res.clearCookie("token");
-        res.redirect("http://localhost:3000");
-    });
-});
+router.get('/logout', logoutGoogle);
 
 
 router.delete("/users/:id", verifyToken, checkRole('admin'), deleteUser);
@@ -66,85 +85,88 @@ router.put('/updateProfile/:id',verifyToken, updateProfile);
 router.get('/getAllUser',verifyToken,checkRole('admin'), getAllUsers);
 // router.get('/getAllUser',  getAllUsers);
 router.post('/organizers/follow',verifyToken, followedOrganizers);
-router.get('/organizers/:organizerId/followers', verifyToken,totalFollowerOfOrganizer)
-const multer = require('multer');
-const User = require('../models/User'); // Adjust the path to your user model
-// Configure Cloudinary Storage for avatars
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: 'user_avatars', // Specific folder for avatars
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'avif'],
-        transformation: [
-            { width: 200, height: 200, crop: 'fill' }, // Optional: resize avatar
-            { quality: 'auto' },
-            { fetch_format: 'auto' }
-        ]
-    }
-});
+router.get('/organizers/:organizerId/followers', verifyToken, totalFollowerOfOrganizer)
 
-// Configure multer
-const upload = multer({
-    storage,
-    limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit for avatars
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
-        if (!allowedTypes.includes(file.mimetype)) {
-            return cb(new Error('Only JPEG, JPG, PNG, WEBP, and AVIF images are allowed'), false);
-        }
-        cb(null, true);
-    }
-});
+router.post('/upload-avatar', verifyToken, upload.single('avatar'), uploadAvatar);
 
-// Upload avatar route
-router.post('/upload-avatar', verifyToken, upload.single('avatar'), async (req, res) => {
-    try {
-        const userId = req.user.id;
+// const multer = require('multer');
+// const User = require('../models/User'); // Adjust the path to your user model
+// // Configure Cloudinary Storage for avatars
+// const storage = new CloudinaryStorage({
+//     cloudinary: cloudinary,
+//     params: {
+//         folder: 'user_avatars', // Specific folder for avatars
+//         allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'avif'],
+//         transformation: [
+//             { width: 200, height: 200, crop: 'fill' }, // Optional: resize avatar
+//             { quality: 'auto' },
+//             { fetch_format: 'auto' }
+//         ]
+//     }
+// });
 
-        // The file is now uploaded to Cloudinary, and req.file contains the Cloudinary response
-        if (!req.file) {
-            return res.status(400).json({ message: 'No file uploaded' });
-        }
+// // Configure multer
+// const upload = multer({
+//     storage,
+//     limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit for avatars
+//     fileFilter: (req, file, cb) => {
+//         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
+//         if (!allowedTypes.includes(file.mimetype)) {
+//             return cb(new Error('Only JPEG, JPG, PNG, WEBP, and AVIF images are allowed'), false);
+//         }
+//         cb(null, true);
+//     }
+// });
 
-        // Get the secure URL from Cloudinary
-        const avatarUrl = req.file.path; // Cloudinary returns the URL in path property
+// // Upload avatar route
+// router.post('/upload-avatar', verifyToken, upload.single('avatar'), async (req, res) => {
+//     try {
+//         const userId = req.user.id;
 
-        // Update the user's avatar in the database
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { avatar: avatarUrl },
-            { new: true }
-        );
+//         // The file is now uploaded to Cloudinary, and req.file contains the Cloudinary response
+//         if (!req.file) {
+//             return res.status(400).json({ message: 'No file uploaded' });
+//         }
 
-        if (!updatedUser) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+//         // Get the secure URL from Cloudinary
+//         const avatarUrl = req.file.path; // Cloudinary returns the URL in path property
 
-        res.status(200).json({
-            message: 'Avatar uploaded successfully',
-            avatar: avatarUrl
-        });
-    } catch (error) {
-        console.error('Error uploading avatar:', error);
-        res.status(500).json({
-            message: 'Error uploading avatar',
-            error: error.message
-        });
-    }
-});
+//         // Update the user's avatar in the database
+//         const updatedUser = await User.findByIdAndUpdate(
+//             userId,
+//             { avatar: avatarUrl },
+//             { new: true }
+//         );
 
-// Optional: Delete old avatar from Cloudinary when updating
-const deleteOldAvatar = async (avatarUrl) => {
-    try {
-        if (avatarUrl) {
-            // Extract public_id from the URL
-            const publicId = avatarUrl.split('/').pop().split('.')[0];
-            await cloudinary.uploader.destroy(`user_avatars/${publicId}`);
-        }
-    } catch (error) {
-        console.error('Error deleting old avatar:', error);
-    }
-};
+//         if (!updatedUser) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+
+//         res.status(200).json({
+//             message: 'Avatar uploaded successfully',
+//             avatar: avatarUrl
+//         });
+//     } catch (error) {
+//         console.error('Error uploading avatar:', error);
+//         res.status(500).json({
+//             message: 'Error uploading avatar',
+//             error: error.message
+//         });
+//     }
+// });
+
+// // Optional: Delete old avatar from Cloudinary when updating
+// const deleteOldAvatar = async (avatarUrl) => {
+//     try {
+//         if (avatarUrl) {
+//             // Extract public_id from the URL
+//             const publicId = avatarUrl.split('/').pop().split('.')[0];
+//             await cloudinary.uploader.destroy(`user_avatars/${publicId}`);
+//         }
+//     } catch (error) {
+//         console.error('Error deleting old avatar:', error);
+//     }
+// };
 
 
 

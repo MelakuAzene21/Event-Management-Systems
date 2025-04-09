@@ -3,6 +3,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../helpers/Send-Email')
 const crypto = require('crypto');
+const {deleteOldAvatar}=require('../utils/avatarUpdate')
 exports.register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -128,17 +129,52 @@ exports.getProfile = async (req, res) => {
     }
 };
 
-// Controller for uploading avatar
-exports.uploadAvatar = (req, res) => {
+
+// Upload Avatar Handler
+exports.uploadAvatar = async (req, res) => {
     try {
+        const userId = req.user.id;
+
+        // Check if a file was uploaded
         if (!req.file) {
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        const avatarUrl = path.join('uploads/events/', req.file.filename); // Path to the uploaded file
-        res.status(200).json({ message: 'Avatar uploaded successfully', avatarUrl });
+        // Get the secure URL from Cloudinary
+        const avatarUrl = req.file.path; // Cloudinary returns the URL in path property
+
+        // Find the user to get the old avatar URL (if any)
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Delete the old avatar from Cloudinary if it exists
+        if (user.avatar) {
+            await deleteOldAvatar(user.avatar);
+        }
+
+        // Update the user's avatar in the database
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { avatar: avatarUrl },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({
+            message: 'Avatar uploaded successfully',
+            avatar: avatarUrl,
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Error uploading avatar', error: error.message });
+        console.error('Error uploading avatar:', error);
+        res.status(500).json({
+            message: 'Error uploading avatar',
+            error: error.message,
+        });
     }
 };
 exports.updateProfile = async (req, res) => {
@@ -412,3 +448,38 @@ exports.totalFollowerOfOrganizer = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+
+
+
+
+// Google OAuth Callback Handler
+exports.googleCallback = (req, res) => {
+    console.log('Google response', req.query);
+    const { code } = req.query;
+    console.log('Authorization code', code);
+    const token = req.user.token;
+    console.log('Token from Google authenticated', token);
+
+    // Store token in a cookie
+    res.cookie('token', token, {
+        httpOnly: true,
+        secure: false, // Change to true in production (for HTTPS)
+        sameSite: 'strict',
+    });
+
+    res.redirect('http://localhost:3000');
+};
+
+// Logout Handler
+exports.logoutGoogle = (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            console.error('Error logging out:', err);
+            return res.status(500).send('Error logging out.');
+        }
+        res.clearCookie('token');
+        res.redirect('http://localhost:3000');
+    });
+};
+

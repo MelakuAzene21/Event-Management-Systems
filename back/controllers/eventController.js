@@ -457,93 +457,52 @@ exports.deleteEvent = async (req, res) => {
 };
  
 
-// exports.UserLike = async (req, res) => {
-
-//     // app.post("/event/:eventId", (req, res) => {
-//     const eventId = req.params.eventId;
-//     const userId = req.body.userId;  // Assume userId is passed from the frontend (either through cookies or authentication)
-
-//     Event.findById(eventId)
-//         .then((event) => {
-//             if (!event) {
-//                 return res.status(404).json({ message: "Event not found" });
-//             }
-
-//             // Check if the user has already liked this event
-//             const userHasLiked = event.usersLiked.includes(userId);
-
-//             if (userHasLiked) {
-//                 // If the user has already liked, remove their like (unlike)
-//                 event.likes -= 1;
-//                 event.usersLiked = event.usersLiked.filter((id) => id.toString() !== userId.toString());
-//             } else {
-//                 // If the user hasn't liked, add their like
-//                 event.likes += 1;
-//                 event.usersLiked.push(userId);
-//             }
-
-//             return event.save();
-//         })
-//         .then((updatedEvent) => {
-//             res.json(updatedEvent);
-//         })
-//         .catch((error) => {
-//             console.error("Error liking/unliking the event:", error);
-//             res.status(500).json({ message: "Server error" });
-//         });
-//     // });
-
-
-// }
-
-
-
-
-exports.AddToBookMark = async (req, res) => {
+exports.userLike = async function (req, res) {
     try {
-        const eventId = req.params.id;
-        const userId = req.user._id; // Assuming `verifyToken` middleware attaches the user object to req
+        const eventId = req.params.eventId;
+        const userId = req.body.userId;
 
-        await Event.findByIdAndUpdate(eventId, {
-            $addToSet: { bookmarkedBy: userId }
+        console.log("User ID:", userId);
+        console.log("Event ID:", eventId);
+
+        if (!userId) {
+            return res.status(400).json({ message: "User ID is required" });
+        }
+
+        const event = await Event.findById(eventId);
+
+        if (!event) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+
+        // Ensure usersLiked is an array and filter out null/undefined values
+        event.usersLiked = (event.usersLiked || []).filter((id) => id != null);
+
+        // Check if user has already liked
+        const userHasLiked = event.usersLiked.some((id) => id.toString() === userId.toString());
+
+        if (userHasLiked) {
+            // Unlike event
+            event.likes = Math.max(0, event.likes - 1);
+            event.usersLiked = event.usersLiked.filter((id) => id.toString() !== userId.toString());
+        } else {
+            // Like event
+            event.likes += 1;
+            event.usersLiked.push(userId);
+        }
+
+        const updatedEvent = await event.save();
+
+        res.json({
+            likes: updatedEvent.likes,
+            usersLiked: updatedEvent.usersLiked,
         });
-        res.json({ success: true, message: 'Event bookmarked successfully' });
+
     } catch (error) {
-        console.error("Error bookmarking event:", error);
-        res.status(500).json({ success: false, message: 'Error bookmarking event' });
+        console.error("Error liking/unliking the event:", error);
+        res.status(500).json({ message: "Server error" });
     }
 };
-
-
-
-
-exports.RemoveBookMark = async (req, res) => {
-    try {
-        const eventId = req.params.id;
-        const userId = req.user._id;
-
-        await Event.findByIdAndUpdate(eventId, {
-            $pull: { bookmarkedBy: userId }
-        });
-        res.json({ success: true, message: 'Event unbookmarked successfully' });
-    } catch (error) {
-        console.error("Error unbookmarking event:", error);
-        res.status(500).json({ success: false, message: 'Error unbookmarking event' });
-    }
-};
-
-
-
-exports.GetBookMarkEvents = async (req, res) => {
-    try {
-        const events = await Event.find({ bookmarkedBy: req.user._id }).populate("owner", "name");
-        res.status(200).json(events);
-    } catch (error) {
-        console.error("Error fetching bookmarked events:", error);
-        res.status(500).json({ error: "Failed to fetch bookmarked events" });
-    }
-};
-
 
 
 exports. getEventAttendeeCount = async (req, res) => {
