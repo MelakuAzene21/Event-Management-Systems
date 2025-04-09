@@ -187,7 +187,7 @@ const EventCarousel = () => {
 
   // Success State (Carousel)
   return (
-    <div className="relative w-full overflow-hidden h-96 mt-10">
+    <div className="relative w-full overflow-hidden h-96">
       <div className="relative flex transition-transform duration-700 ease-in-out">
         <div className="carousel-item w-full flex flex-col items-center justify-center h-full">
           <img

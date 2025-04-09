@@ -442,15 +442,30 @@ export default function Header() {
                     {user ? (
                         <>
                             {/* User Icon and Chevron */}
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-3">
                                 <div
-                                    className="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-gray-200 cursor-pointer hover:bg-gray-50 transition-all"
+                                    className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-200 shadow-sm cursor-pointer transition-all duration-300 hover:shadow-md hover:border-gray-300"
                                     onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                                 >
-                                    <BsPerson className="text-blue-600 w-6 h-6" />
+                                    {user.avatar ? (
+                                        <img
+                                            src={user.avatar}
+                                            alt="User Avatar"
+                                            className="w-full h-full object-cover rounded-full"
+                                        />
+                                    ) : (
+                                        <BsPerson
+                                            className="text-blue-600 w-6 h-6 transition-transform duration-200 hover:scale-110"
+                                        />
+                                    )}
+                                    {/* Optional: Online status dot */}
+                                    {user.isOnline && (
+                                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                                    )}
                                 </div>
+
                                 <BsFillCaretDownFill
-                                    className={`h-5 w-5 text-gray-600 transition-transform duration-200 ease-in-out lg:hidden ${isMobileMenuOpen ? 'rotate-180' : ''
+                                    className={`h-5 w-5 text-gray-600 cursor-pointer transition-all duration-200 ease-in-out lg:hidden ${isMobileMenuOpen ? 'rotate-180 text-blue-600' : ''
                                         }`}
                                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 />
