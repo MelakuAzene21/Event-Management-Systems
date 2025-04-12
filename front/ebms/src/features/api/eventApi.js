@@ -43,6 +43,15 @@ export const eventApi = createApi({
             }),
             invalidatesTags: ['Event'],
         }),
+       //user like the events
+        likeEvent: builder.mutation({
+            query: ({ eventId, userId }) => ({
+                url: `/userLike/${eventId}`,
+                method: 'POST',
+                body: { userId },
+            }),
+            invalidatesTags: ['Event'],
+        }),
         // Delete an event
         deleteEvent: builder.mutation({
             query: (id) => ({
@@ -51,6 +60,8 @@ export const eventApi = createApi({
             }),
             invalidatesTags: ['Event'],
         }),
+
+        
     }),
 });
 
@@ -61,4 +72,5 @@ export const {
     useCreateEventMutation,
     useUpdateEventMutation,
     useDeleteEventMutation,
+    useLikeEventMutation
 } = eventApi;

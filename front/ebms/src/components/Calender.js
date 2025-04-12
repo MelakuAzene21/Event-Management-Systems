@@ -1,25 +1,15 @@
-// import React from 'react'
-import axios from "axios";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths } from "date-fns";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import { BsCaretLeftFill, BsFillCaretRightFill } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import Title from "../layout/Title";
-
+import { useGetAllEventsQuery } from "../features/api/eventApi";
+import SkeletonLoader from "../layout/SkeletonLoader";
 
 export default function CalendarView() {
     const [currentMonth, setCurrentMonth] = useState(new Date());
-    const [events, setEvents] = useState([]);
-
-    //! Fetch events from the server -------------------------------------------------------
-    useEffect(() => {
-
-        axios.get("http://localhost:5000/api/events/getEvent").then((response) => {
-            setEvents(response.data);
-        }).catch((error) => {
-            console.error("Error fetching events:", error);
-        });
-    }, []);
+    const { data: events = [], isLoading } = useGetAllEventsQuery();
+   
 
     const firstDayOfMonth = startOfMonth(currentMonth);
     const lastDayOfMonth = endOfMonth(currentMonth);
@@ -29,6 +19,8 @@ export default function CalendarView() {
 
     //! Create an array of empty cells to align days correctly-----------------------------------------
     const emptyCells = Array.from({ length: firstDayOfWeek }, (_, index) => <div key={`empty-${index}`} className="p-2 bg-white ring-4 ring-background"></div>);
+    
+    if (isLoading) return <SkeletonLoader/>;
 
 
     return (

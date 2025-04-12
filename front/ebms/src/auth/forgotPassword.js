@@ -62,7 +62,7 @@
 
 
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useForgotPasswordMutation } from '../features/api/authApi';
 import { Link } from 'react-router-dom';
 import Title from '../layout/Title';
 import { toast } from 'react-toastify';
@@ -71,26 +71,20 @@ import forgotpass from '../assets/forgotpass.svg'; // Adjust path as necessary
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
 
-    const BASE_URL =
-        process.env.NODE_ENV === 'production'
-            ? 'https://e-market-fnu1.onrender.com'
-            : process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         try {
-            const response = await axios.post(`${BASE_URL}/api/auth/forgot-password`, { email });
-            setMessage(response.data.message);
+            const response = await forgotPassword(email).unwrap();
+            setMessage(response.message);
             toast.success("Reset Link Sent Successfully!");
         } catch (error) {
             console.error("Error during forgot password:", error);
             setMessage('Unable to send reset email. Please try again.');
             toast.error('Failed to send reset email.');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -151,10 +145,10 @@ const ForgotPassword = () => {
                         {/* Submit Button with Spinner */}
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={isLoading}
                             className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-300 focus:ring-offset-2 transition-all duration-300 font-medium flex items-center justify-center shadow-sm disabled:bg-blue-400"
                         >
-                            {loading ? (
+                            {isLoading ? (
                                 <div className="flex items-center space-x-2">
                                     <svg
                                         className="animate-spin h-5 w-5 text-white"

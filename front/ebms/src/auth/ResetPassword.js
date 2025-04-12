@@ -1,33 +1,28 @@
 
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { toast } from "react-toastify";
 import Spinner from '../layout/Spinner';
 import Title from '../layout/Title';
-
+import { useResetPasswordMutation } from '../features/api/authApi';
 const ResetPassword = () => {
     const { token } = useParams();
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
-        const [loading, setLoading] = useState(false)
     
-    const BASE_URL =
-        process.env.NODE_ENV === 'production'
-            ? 'https://e-market-fnu1.onrender.com'
-            : process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const [resetPassword, { isLoading }] = useResetPasswordMutation();
+
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`${BASE_URL}/api/auth/reset-password/${token}`, { password });
-            setMessage('Password has been reset successfully.');
+            await resetPassword({ token, password }).unwrap();
             toast.success('Password has been reset successfully.')
-            setLoading(false);
+            setMessage('Password has been reset successfully.');
             navigate('/login');
         } catch (error) {
             setMessage(error);
-            setLoading(false);
             toast.error(' Invalid or expired token.')
 
         }
@@ -51,7 +46,7 @@ const ResetPassword = () => {
                     type="submit"
                     className="w-full py-3 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
                 >
-                    {loading ? <Spinner /> : "Reset Password"} 
+                    {isLoading ? <Spinner /> : "Reset Password"} 
                 </button>
             </form>
         </div>

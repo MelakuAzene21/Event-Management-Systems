@@ -9,15 +9,14 @@ import EventDetailPage from './pages/EventDetail';
 import CreateEvent from './Origanizer/AddEvent'
 import Layout from './Layout';
 import CalendarView from './components/Calender';
-import { useGetCurrentUserQuery } from './features/api/authApi';
-import { useDispatch } from 'react-redux';
+// import { useGetCurrentUserQuery } from './features/api/authApi';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from './features/slices/authSlice';
 import { useEffect } from 'react';
 import UserProfile from './UserPage/Getprofiles';
 import MyEventsPage from './Origanizer/MyEvent'
 import UpdateEventPage from './Origanizer/UpdateEvent';
 import OriganizerDashboard from './Origanizer/Dashboard';
-import PaymentPage from './Private/Payment';
 import BookingSummary from './pages/BookingSummary';
 import SuccessPage from './Private/SuccessPage'
 import ScanQR from './Booking/ScanQR';
@@ -32,10 +31,11 @@ import ForgotPassword from './auth/forgotPassword';
 import NotificationsPage from './pages/NotificationsPage';
 import { setupSocket } from './features/middleware/socketMiddleware';
 import { HelmetProvider } from "react-helmet-async";
-import SkeletonLoader from './layout/SkeletonLoader';
+// import SkeletonLoader from './layout/SkeletonLoader';
 
 function App() {
-  const { data: user, isLoading } = useGetCurrentUserQuery();
+  const user=useSelector((state) => state.auth.user);
+  // const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -50,12 +50,12 @@ function App() {
     }
   }, [user]);
 
-  if (isLoading) {
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {[...Array(10)].map((_, i) => (
-          <SkeletonLoader key={i} />
-        ))}
-      </div>  }
+//   if (isLoading) {
+// <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+//         {[...Array(10)].map((_, i) => (
+//           <SkeletonLoader key={i} />
+//         ))}
+//       </div>  }
 
   return (
     <Router>
@@ -84,7 +84,6 @@ function App() {
             <Route path="/wallet" element={<UserTickets />} />
           <Route path="/events/:id" element={<EventDetailPage />} />
           <Route path='/calendar' element={<CalendarView/>}/>
-            <Route path='/payment' element={<PaymentPage />} />
             <Route path='/booked' element={<BookingsTable />} />
             <Route path='/show-not' element={<NotificationsPage />} />
 

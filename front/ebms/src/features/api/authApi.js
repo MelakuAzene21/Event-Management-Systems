@@ -8,7 +8,7 @@ const baseQuery = fetchBaseQuery({
 export const authApi = createApi({
     reducerPath: 'authApi',
     baseQuery,
-    tagTypes: ['User'], // Tag for invalidation
+    tagTypes: ['User','Followers'], // Tag for invalidation
     endpoints: (builder) => ({
         // Signup Endpoint
         signup: builder.mutation({
@@ -54,6 +54,37 @@ export const authApi = createApi({
             invalidatesTags: ['User'], // Invalidate cache for user
         }),
 
+        forgotPassword: builder.mutation({
+            query: (email) => ({
+                url: '/auth/forgot-password',
+                method: 'POST',
+                body: { email },
+            }),
+        }),
+
+        resetPassword: builder.mutation({
+            query: ({ token, password }) => ({
+                url: `/auth/reset-password/${token}`,
+                method: 'PUT',
+                body: { password },
+            }),
+        }),
+        getOrganizerFollowers: builder.query({
+            query: (organizerId) => `/auth/organizers/${organizerId}/followers`,
+            providesTags: (result, error, arg) => [{ type: "Followers", id: arg }],
+        }),
+
+        followOrganizer: builder.mutation({
+            query: ({ userId, organizerId }) => ({
+                url: `/auth/organizers/follow`,
+                method: "POST",
+                body: { userId, organizerId },
+            }),
+            invalidatesTags: (result, error, { organizerId }) => [
+                { type: "Followers", id: organizerId },
+            ],
+        }),
+
     }),
 });
 
@@ -63,4 +94,8 @@ export const {
     useGetCurrentUserQuery,
     useLogoutMutation,
     useUpdateProfileMutation,
+    useForgotPasswordMutation,
+    useResetPasswordMutation,
+    useFollowOrganizerMutation,
+    useGetOrganizerFollowersQuery
 } = authApi;

@@ -12,6 +12,10 @@ export const eventsApi = createApi({
             query: () => "/events/myEvent",
             providesTags: ["Events"],
         }),
+        getEventReviews: builder.query({
+            query: (eventId) => `/reviews/${eventId}`,
+            providesTags: (result, error, id) => [{ type: "Reviews", id }],
+        }),
         getAttendeeCount: builder.query({
             query: (eventId) => `/events/${eventId}/attendeeCount`,
         }),
@@ -29,4 +33,5 @@ export const {
     useGetMyEventsQuery,
     useGetAttendeeCountQuery,
     useDeleteEventMutation,
+    useGetEventReviewsQuery,
 } = eventsApi;

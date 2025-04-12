@@ -358,8 +358,7 @@
 
 
 
-import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import SkeletonLoader from '../layout/SkeletonLoader';
@@ -369,10 +368,9 @@ import CategoryTags from '../layout/CategoryTag';
 import EventCard from '../components/EventCard';
 import NoEventsFound from '../components/NoEventsFound';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-
+import { useGetAllEventsQuery,useLikeEventMutation } from '../features/api/eventApi';
 export default function IndexPage() {
-    const [events, setEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
+   
     const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate();
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -380,40 +378,20 @@ export default function IndexPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const eventsPerPage = 6;
 
-    useEffect(() => {
-        axios
-            .get('http://localhost:5000/api/events/getEvent')
-            .then((response) => {
-                setEvents(response.data);
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.error('Error fetching events:', error);
-                setLoading(false);
-            });
-    }, []);
+    const { data: events = [], isLoading: loading } = useGetAllEventsQuery();
+    const [likeEvent] = useLikeEventMutation();
 
-    const handleLike = (eventId) => {
+
+    const handleLike = async (eventId) => {
         if (!user || !user._id) {
             navigate('/login');
             return;
         }
-        axios
-            .post(
-                `http://localhost:5000/api/events/userLike/${eventId}`,
-                { userId: user._id },
-                { withCredentials: true }
-            )
-            .then((response) => {
-                setEvents((prevEvents) =>
-                    prevEvents.map((event) =>
-                        event._id === eventId ? { ...event, likes: response.data.likes } : event
-                    )
-                );
-            })
-            .catch((error) => {
-                console.error('Error liking/unliking event', error);
-            });
+        try {
+            await likeEvent({ eventId, userId: user._id });
+        } catch (error) {
+            console.error('Error liking/unliking event', error);
+        }
     };
 
     const currentDate = new Date();

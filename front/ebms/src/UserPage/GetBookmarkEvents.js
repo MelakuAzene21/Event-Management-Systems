@@ -1,48 +1,24 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import Title from "../layout/Title";
 import { toast } from "react-toastify";
 import { IoBookmark, IoLocationOutline, IoTimeOutline, IoCalendarOutline } from "react-icons/io5";
 import SkeletonLoader from "../layout/SkeletonLoader";
-
+import { useGetBookmarkedEventsQuery } from "../features/api/bookingApi";
+import { useUnbookmarkEventMutation } from "../features/api/bookingApi";
 const BookmarkedEvents = () => {
-    const [bookmarkedEvents, setBookmarkedEvents] = useState([]);
+    const {
+        data: bookmarkedEvents = [],
+        loading,        
+    } = useGetBookmarkedEventsQuery();
     const [filteredEvents, setFilteredEvents] = useState([]);
-    const [loading, setLoading] = useState(true);
+
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [showUnbookmarkModal, setShowUnbookmarkModal] = useState(false);
     const [eventToUnbookmark, setEventToUnbookmark] = useState(null);
 
-    useEffect(() => {
-        const fetchBookmarkedEvents = async () => {
-            try {
-                const response = await axios.get("http://localhost:5000/api/bookmarks/bookmarkedEvents", {
-                    withCredentials: true,
-                });
-                console.log("API Response:", response.data); // Debug the API response
-                // If the response indicates no bookmarks (e.g., empty array or specific message), handle it gracefully
-                if (!response.data || response.data.length === 0 || response.data.success === false) {
-                    setBookmarkedEvents([]);
-                    setFilteredEvents([]);
-                } else {
-                    setBookmarkedEvents(response.data);
-                    setFilteredEvents(response.data);
-                }
-            } catch (error) {
-                console.error("Error fetching bookmarked events", error.response ? error.response.data : error.message);
-                // Only set an error if it's a genuine failure (e.g., network issue), not just "no bookmarks"
-               
-                setBookmarkedEvents([]);
-                setFilteredEvents([]);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchBookmarkedEvents();
-    }, []);
-
+    
     // Filter events based on search query and category
     useEffect(() => {
         let filtered = bookmarkedEvents;
@@ -65,14 +41,13 @@ const BookmarkedEvents = () => {
         setFilteredEvents(filtered);
     }, [searchQuery, selectedCategory, bookmarkedEvents]);
 
+    const [unbookmarkEvent] = useUnbookmarkEventMutation();
+
     const handleUnbookmark = async () => {
         if (!eventToUnbookmark) return;
 
         try {
-            await axios.delete(`http://localhost:5000/api/bookmarks/event/${eventToUnbookmark}/unbookmark`, {
-                withCredentials: true,
-            });
-            setBookmarkedEvents((prev) => prev.filter((event) => event._id !== eventToUnbookmark));
+            await unbookmarkEvent(eventToUnbookmark).unwrap();
             toast.success("Event removed from bookmarks!");
         } catch (error) {
             console.error("Error unbookmarking event:", error);
@@ -82,6 +57,7 @@ const BookmarkedEvents = () => {
             setEventToUnbookmark(null);
         }
     };
+
 
     const confirmUnbookmark = (eventId) => {
         setEventToUnbookmark(eventId);
@@ -151,7 +127,10 @@ const BookmarkedEvents = () => {
             {/* Events Grid or No Events Message */}
             {filteredEvents.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredEvents.map((event) => (
+                    {filteredEvents
+                        .filter(event => event && event._id) // filter out null or invalid ones
+
+                        .map((event) => (
                         <div
                             key={event._id}
                             className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200"

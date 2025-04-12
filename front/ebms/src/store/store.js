@@ -40,7 +40,7 @@ import { eventsApi } from '../features/api/myEventApi';
 import { notificationsApi } from '../features/api/notificationsApi';
 import notificationReducer,{setNotifications} from "../features/slices/notificationSlice";
 import { socketMiddleware } from "../features/middleware/socketMiddleware";
-
+import { ticketApi } from '../features/api/ticketApi';
 //  Create persist configs for the slices you want to persist
 const bookingPersistConfig = {
     key: 'booking',
@@ -63,6 +63,7 @@ export const store = configureStore({
         [reviewApi.reducerPath]: reviewApi.reducer,
         [reportApi.reducerPath]: reportApi.reducer,
         [eventsApi.reducerPath]: eventsApi.reducer,
+        [ticketApi.reducerPath]: ticketApi.reducer,
         [notificationsApi.reducerPath]: notificationsApi.reducer,
 
     },
@@ -76,8 +77,11 @@ export const store = configureStore({
             .concat(reviewApi.middleware)
             .concat(reportApi.middleware)
             .concat(eventsApi.middleware)
+            .concat(ticketApi.middleware)
             .concat(notificationsApi.middleware)
-            .concat(socketMiddleware),
+            .concat(socketMiddleware)
+    
+          
 });
 // Fetch notifications when user logs in
 store.dispatch(notificationsApi.endpoints.getUnreadNotifications.initiate())
