@@ -417,34 +417,39 @@ exports.updateUser = async (req, res) => {
 };
 
 // Follow an organizer
-exports.followedOrganizers= async (req, res) => {
-        const { userId, organizerId } = req.body;
+exports.followedOrganizers = async (req, res) => {
+    const { userId, organizerId } = req.body;
 
-        try {
-            const user = await User.findById(userId);
-            if (!user.followedOrganizers.includes(organizerId)) {
-                user.followedOrganizers.push(organizerId);
-                await user.save();
-            }
-
-            // Return the updated user object
-            res.json(user);
-        } catch (error) {
-            console.error("Error following organizer:", error);
-            console.log("error on folloing", error);
-            res.status(500).send("Server error");
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
         }
-}
+        if (!user.followedOrganizers.includes(organizerId)) {
+            user.followedOrganizers.push(organizerId);
+            await user.save();
+        }
+
+        // Return the updated user object
+        res.json(user);
+    } catch (error) {
+        console.error("Error following organizer:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+// Get followers of an organizer
 exports.totalFollowerOfOrganizer = async (req, res) => {
     try {
         const organizerId = req.params.organizerId;
 
-        // Count users who have the organizerId in their followedOrganizers array
-        const followersCount = await User.countDocuments({ followedOrganizers: organizerId });
+        // Find users who have the organizerId in their followedOrganizers array
+        const followers = await User.find({ followedOrganizers: organizerId }).select('_id');
 
-        res.status(200).json({ followers: followersCount });
+        // Return an array of follower IDs
+        res.status(200).json({ followers: followers.map(user => user._id) });
     } catch (error) {
-        console.error(error);
+        console.error("Error fetching followers:", error);
         res.status(500).json({ message: "Server error" });
     }
 };

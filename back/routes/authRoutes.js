@@ -85,7 +85,7 @@ router.put('/updateProfile/:id',verifyToken, updateProfile);
 router.get('/getAllUser',verifyToken,checkRole('admin'), getAllUsers);
 // router.get('/getAllUser',  getAllUsers);
 router.post('/organizers/follow',verifyToken, followedOrganizers);
-router.get('/organizers/:organizerId/followers', verifyToken, totalFollowerOfOrganizer)
+router.get('/organizers/:organizerId/followers',  totalFollowerOfOrganizer)
 
 router.post('/upload-avatar', verifyToken, upload.single('avatar'), uploadAvatar);
 
