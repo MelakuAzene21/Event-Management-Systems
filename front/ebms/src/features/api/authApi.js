@@ -74,6 +74,10 @@ export const authApi = createApi({
             providesTags: (result, error, arg) => [{ type: "Followers", id: arg }],
         }),
 
+        getOrganizer: builder.query({
+            query: (id) => `/auth/organizer/${id}`,
+        }),
+
         followOrganizer: builder.mutation({
             query: ({ userId, organizerId }) => ({
                 url: `/auth/organizers/follow`,
@@ -88,6 +92,7 @@ export const authApi = createApi({
     }),
 });
 
+
 export const {
     useSignupMutation,
     useLoginMutation,
@@ -97,5 +102,6 @@ export const {
     useForgotPasswordMutation,
     useResetPasswordMutation,
     useFollowOrganizerMutation,
-    useGetOrganizerFollowersQuery
+    useGetOrganizerFollowersQuery,
+    useGetOrganizerQuery,
 } = authApi;

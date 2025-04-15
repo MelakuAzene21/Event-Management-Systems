@@ -1,20 +1,26 @@
 const express = require('express');
-const { register, login,logout, getProfile, updateProfile, getAllUsers,googleCallback,logoutGoogle,deleteUser,forgotPassword,resetPassword, updateUser, followedOrganizers, totalFollowerOfOrganizer, uploadAvatar} = require('../controllers/authController');
+const { register, login, logout, getProfile, updateProfile,
+    getAllUsers, googleCallback, logoutGoogle, deleteUser,
+    forgotPassword, resetPassword, updateUser, followedOrganizers,
+    totalFollowerOfOrganizer, uploadAvatar, getAllVendors, getVendorById, 
+    getOrganizerDEtails} = require('../controllers/authController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
 const upload=require('../utils/uploadAavatar');
 const passport = require("passport");
+const uploadMiddleware = require('../utils/uploadAavatar');
 // const { CloudinaryStorage } = require('multer-storage-cloudinary');
 // const cloudinary = require('cloudinary').v2;
 require("../config/passport");
-router.post('/register', register);
+router.post('/register',uploadMiddleware, register);
 router.post('/login', login);
 router.post('/logout',verifyToken, logout);
 router.get('/profile',verifyToken, getProfile);
 router.post('/forgot-password', forgotPassword);
 router.put('/reset-password/:token', resetPassword);
-
+router.get('/vendors', getAllVendors)
+router.get('/vendor/:id', getVendorById);
 
 // // Google OAuth Login
 // router.get("/google", passport.authenticate("google",
@@ -86,8 +92,8 @@ router.get('/getAllUser',verifyToken,checkRole('admin'), getAllUsers);
 // router.get('/getAllUser',  getAllUsers);
 router.post('/organizers/follow',verifyToken, followedOrganizers);
 router.get('/organizers/:organizerId/followers',  totalFollowerOfOrganizer)
-
-router.post('/upload-avatar', verifyToken, upload.single('avatar'), uploadAvatar);
+router.get('/organizer/:id',getOrganizerDEtails)
+router.post('/upload-avatar', verifyToken, uploadMiddleware, uploadAvatar);
 
 // const multer = require('multer');
 // const User = require('../models/User'); // Adjust the path to your user model

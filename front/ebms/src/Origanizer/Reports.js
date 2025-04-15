@@ -5,6 +5,8 @@ import {
 } from "recharts";
 
 const Reports = ({ events = [] }) => {
+    const safeEvents = Array.isArray(events) ? events : [];
+
     const today = new Date().toISOString().split("T")[0];
     const [selectedEvent, setSelectedEvent] = useState("");
     const [startDate, setStartDate] = useState("");
@@ -33,9 +35,10 @@ const Reports = ({ events = [] }) => {
                     onChange={(e) => setSelectedEvent(e.target.value)}
                 >
                     <option value="">All Events</option>
-                    {events.map((event) => (
+                    {safeEvents.map((event) => (
                         <option key={event._id} value={event._id}>{event.title}</option>
                     ))}
+
                 </select>
                 <input
                     type="date"

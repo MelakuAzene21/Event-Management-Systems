@@ -30,13 +30,17 @@ const cors = require('cors');
 // Configure CORS to allow requests from your frontend
 app.use(cors({
     origin: ['http://localhost:3000', 'http://localhost:5173'],
-    credentials: true
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
  
+
+// Parse URL-encoded data (optional, after multer)
+app.use(express.urlencoded({ extended: true }));
 // Middleware
-app.use(express.json());
 app.use(cookieParser()); 
 
+app.use(express.json());
 
 // Session middleware (for Passport)
 app.use(
@@ -64,6 +68,9 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);
 app.use("/api/notifications", notificationRoutes);
+
+
+app.use(express.json());
 
 // Start the server
 const PORT = process.env.PORT || 5000;

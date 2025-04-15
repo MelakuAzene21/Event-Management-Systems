@@ -276,7 +276,7 @@ exports.eventDetails = async (req, res) => {
             return res.status(400).json({ error: "Invalid event ID format" });
         }
 
-        const event = await Event.findById(id).populate("organizer", "name email");
+        const event = await Event.findById(id).populate("organizer", "name email avatar about organizationName");
         if (!event) {
             return res.status(404).json({ error: "Event not found" });
         }

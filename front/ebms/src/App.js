@@ -9,7 +9,7 @@ import EventDetailPage from './pages/EventDetail';
 import CreateEvent from './Origanizer/AddEvent'
 import Layout from './Layout';
 import CalendarView from './components/Calender';
-// import { useGetCurrentUserQuery } from './features/api/authApi';
+import { useGetCurrentUserQuery } from './features/api/authApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from './features/slices/authSlice';
 import { useEffect } from 'react';
@@ -31,11 +31,14 @@ import ForgotPassword from './auth/forgotPassword';
 import NotificationsPage from './pages/NotificationsPage';
 import { setupSocket } from './features/middleware/socketMiddleware';
 import { HelmetProvider } from "react-helmet-async";
-// import SkeletonLoader from './layout/SkeletonLoader';
+import GetAllVendor from './Vendorpage/GetAllvendor';
+import VendorProfile from './Vendorpage/VendorProfile';
+import SkeletonLoader from './layout/SkeletonLoader';
+import OrganizerDetails from './Origanizer/OrganizerDetails';
 
 function App() {
-  const user=useSelector((state) => state.auth.user);
-  // const { data: user, isLoading } = useGetCurrentUserQuery();
+  // const user=useSelector((state) => state.auth.user);
+  const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -50,12 +53,12 @@ function App() {
     }
   }, [user]);
 
-//   if (isLoading) {
-// <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-//         {[...Array(10)].map((_, i) => (
-//           <SkeletonLoader key={i} />
-//         ))}
-//       </div>  }
+  if (isLoading) {
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {[...Array(10)].map((_, i) => (
+          <SkeletonLoader key={i} />
+        ))}
+      </div>  }
 
   return (
     <Router>
@@ -90,7 +93,11 @@ function App() {
             <Route path='/:id/booking-summary' element={<BookingSummary />} />
             <Route path='/:id/booking-summary' element={<BookingSummary />} />
             <Route path='/success' element={<SuccessPage />} />
-            <Route path='/scanQR' element={<ScanQR />} />
+              <Route path='/scanQR' element={<ScanQR />} />
+              <Route path='/vendors' element={<GetAllVendor />} />
+              <Route path="/vendors/:id" element={<VendorProfile />} />
+              <Route path="/organizers/:id" element={<OrganizerDetails />} />
+
 
           </Route>
           </Routes>

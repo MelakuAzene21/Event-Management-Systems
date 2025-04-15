@@ -810,7 +810,6 @@ import SkeletonLoader from "../layout/SkeletonLoader";
 import { useSelector, useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 import { setPendingBooking } from "../features/slices/bookingSlice";
-import ReviewComponent from "../components/Reviews";
 import Title from "../layout/Title";
 import EventMap from "../components/EventMap";
 import { Carousel } from "react-responsive-carousel";
@@ -819,6 +818,7 @@ import { FaExclamationTriangle } from "react-icons/fa";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import OrganizerFollowCard from "../Origanizer/OrganizerInfo";
 import { useGetEventDetailsQuery,useGetAllEventsQuery } from "../features/api/eventApi";
+import ShowEditDeleteReview from "../components/ShowEditDeleteReview";
 
 export default function EventPage() {
     const { id } = useParams();
@@ -1135,7 +1135,7 @@ export default function EventPage() {
 
             {/* Reviews */}
             <div className="mb-8">
-                <ReviewComponent eventId={event?._id} attendeeId={user?._id} />
+                <ShowEditDeleteReview eventId={event?._id} attendeeId={user?._id} />
             </div>
 
             {/* Share with Friends */}

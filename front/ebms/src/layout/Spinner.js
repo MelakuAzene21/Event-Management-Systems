@@ -4,7 +4,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 
 function Spinner() {
     const [loading, setLoading] = useState(true);
-    const [color, setColor] = useState("black"); // Set default color to a Tailwind blue
+    const [color, setColor] = useState("#4F46E5"); // Set default color to a Tailwind blue
 
     return (
         <div >

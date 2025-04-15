@@ -236,6 +236,7 @@
 // };
 
 // export default OrganizerFollowCard;
+
 import { FaCheckCircle } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -314,7 +315,7 @@ const OrganizerFollowCard = ({ event }) => {
                     <Link to={`/organizers/${organizerId}`} className="hover:opacity-80 transition">
                         {event.organizer.avatar ? (
                             <img
-                                src={event.organizer.avatar}
+                                src={event.organizer?.avatar}
                                 alt={event.organizer.name}
                                 className="w-12 h-12 rounded-full border border-gray-300"
                             />
@@ -326,8 +327,11 @@ const OrganizerFollowCard = ({ event }) => {
                     </Link>
 
                     <div>
+                       
                         <h3 className="text-lg font-semibold text-gray-800">{event.organizer.name}</h3>
-                        <p className="text-sm text-gray-500">Organizing tech conferences since 2010</p>
+                        <p className="text-sm text-gray-500">
+                            {event.organizer.organizationName ? event.organizer.organizationName : "Tech conferences organizing since 2010"}
+                        </p>
                         <p className="text-gray-500 text-sm sm:text-base">
                             {followersCount} followers
                         </p>

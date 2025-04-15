@@ -4,47 +4,208 @@ const jwt = require('jsonwebtoken');
 const sendEmail = require('../helpers/Send-Email')
 const crypto = require('crypto');
 const {deleteOldAvatar}=require('../utils/avatarUpdate')
+// exports.register = async (req, res) => {
+//     try {
+//         const { name, email, password } = req.body;
+
+//         // Validate required fields
+//         if (!name || !email || !password) {
+//             return res.status(400).json({ message: 'All fields are required' });
+//         }
+
+//         // Validate email format (basic regex)
+//         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//         if (!emailRegex.test(email)) {
+//             return res.status(400).json({ message: 'Invalid email format' });
+//         }
+
+//         // Check if email is already registered
+//         const existingUser = await User.findOne({ email });
+//         if (existingUser) {
+//             return res.status(400).json({ message: 'User already exists with this email' });
+//         }
+
+//         // Create new user
+//         const user = await User.create({ name, email, password });
+//         // Send Welcome Email
+//         await sendEmail(email, "Welcome to EMS!", "welcomeEmail", { name });
+        
+//         // Exclude password from the response
+//         const { password: _, ...userWithoutPassword } = user._doc;
+
+//         res.status(201).json({ message: 'User registered successfully', user: userWithoutPassword });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Error registering user', error: error.message });
+//     }
+// };
+
+
+
+
 exports.register = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        console.log('Request body:', req.body);
+        console.log('Request files:', req.files);
+
+        const {
+            name,
+            email,
+            password,
+            role,
+            serviceProvided,
+            price,
+            description,
+            availability,
+            location,
+            portfolio,
+            phoneNumber,
+            organizationName,
+            website,
+            socialLinks,
+            about,
+            experience,
+        } = req.body;
 
         // Validate required fields
         if (!name || !email || !password) {
-            return res.status(400).json({ message: 'All fields are required' });
+            console.error('Missing required fields:', { name, email, password });
+            return res.status(400).json({ message: 'Name, email, and password are required' });
         }
 
-        // Validate email format (basic regex)
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
+            console.error('Invalid email:', email);
             return res.status(400).json({ message: 'Invalid email format' });
         }
 
-        // Check if email is already registered
+        if (!['user', 'vendor', 'organizer'].includes(role)) {
+            console.error('Invalid role:', role);
+            return res.status(400).json({ message: 'Invalid role. Must be "user", "vendor", or "organizer"' });
+        }
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
+            console.error('Email already exists:', email);
             return res.status(400).json({ message: 'User already exists with this email' });
         }
 
-        // Create new user
-        const user = await User.create({ name, email, password });
-        // Send Welcome Email
-        await sendEmail(email, "Welcome to EMS!", "welcomeEmail", { name });
-        
-        // Exclude password from the response
+        let avatarUrl = 'default.jpg';
+        let docUrls = [];
+
+        if (req.files) {
+            if (req.files.avatar && req.files.avatar.length > 0) {
+                avatarUrl = req.files.avatar[0].path;
+                console.log('Avatar URL:', avatarUrl);
+            }
+            if (req.files.docs && req.files.docs.length > 0) {
+                docUrls = req.files.docs.map((file) => {
+                    let url = file.path;
+                    console.log('Processing doc:', {
+                        originalname: file.originalname,
+                        mimetype: file.mimetype,
+                        path: url,
+                        format: file.format,
+                        public_id: file.public_id,
+                    });
+                    if (file.mimetype === 'application/pdf') {
+                        if (!url.includes('/raw/upload/')) {
+                            url = url.replace('/image/upload/', '/raw/upload/');
+                        }
+                        if (!url.endsWith('.pdf')) {
+                            url = `${url}.pdf`;
+                        }
+                    }
+                    return url;
+                });
+                console.log('Final doc URLs:', docUrls);
+            }
+        }
+
+        let parsedPortfolio = [];
+        if (portfolio && role === 'vendor') {
+            try {
+                parsedPortfolio = typeof portfolio === 'string' ? JSON.parse(portfolio) : portfolio;
+            } catch (error) {
+                console.error('Invalid portfolio format:', portfolio);
+                return res.status(400).json({ message: 'Invalid portfolio format' });
+            }
+        }
+
+        let parsedSocialLinks = [];
+        if (socialLinks && role === 'organizer') {
+            try {
+                parsedSocialLinks = typeof socialLinks === 'string' ? JSON.parse(socialLinks) : socialLinks;
+            } catch (error) {
+                console.error('Invalid socialLinks format:', socialLinks);
+                return res.status(400).json({ message: 'Invalid social links format' });
+            }
+        }
+
+        // Validate Organizer-specific required fields
+        if (role === 'organizer') {
+            if (!phoneNumber || !organizationName || !location || !about) {
+                console.error('Missing organizer required fields:', { phoneNumber, organizationName, location, about });
+                return res.status(400).json({ message: 'Phone number, organization name, location, and about are required for organizers' });
+            }
+            if (!req.files || !req.files.docs || req.files.docs.length === 0) {
+                console.error('No legal documents provided for organizer');
+                return res.status(400).json({ message: 'At least one legal document is required for organizers' });
+            }
+        }
+
+        const userData = {
+            name,
+            email,
+            password,
+            role: role || 'user',
+            avatar: avatarUrl,
+            status: 'active',
+            ...(role === 'vendor' && {
+                serviceProvided: serviceProvided || 'photographer',
+                docs: docUrls,
+                rating: 0,
+                price: price || '50 birr per hour',
+                portfolio: parsedPortfolio,
+                description,
+                availability: availability || 'As needed',
+                location,
+            }),
+            ...(role === 'organizer' && {
+                phoneNumber,
+                organizationName,
+                location,
+                website,
+                socialLinks: parsedSocialLinks,
+                about,
+                experience,
+                docs: docUrls,
+            }),
+        };
+
+        const user = await User.create(userData);
+        console.log('Saved user:', {
+            email: user.email,
+            role: user.role,
+            docs: user.docs,
+            avatar: user.avatar,
+        });
+
+        await sendEmail(email, 'Welcome to EMS!', 'welcomeEmail', { name });
+
         const { password: _, ...userWithoutPassword } = user._doc;
 
         res.status(201).json({ message: 'User registered successfully', user: userWithoutPassword });
     } catch (error) {
+        console.error('Registration error:', error);
         res.status(500).json({ message: 'Error registering user', error: error.message });
     }
 };
 
 
-
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
-
+   
         // Validate required fields
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password are required' });
@@ -129,6 +290,41 @@ exports.getProfile = async (req, res) => {
     }
 };
 
+exports.getAllVendors = async (req, res) => {
+    try {
+        const vendors = await User.find({ role: 'vendor' })
+            .select('name email role avatar serviceProvided rating price status') // only fields you need
+            .sort({ createdAt: -1 }); // optional: recent first
+
+        res.status(200).json({
+            success: true,
+            count: vendors.length,
+            vendors,
+        });
+    } catch (error) {
+        console.error('Error fetching vendors:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch vendors',
+            error: error.message,
+        });
+    }
+};
+
+exports.getVendorById = async (req, res) => {
+    try {
+        console.log('Fetching vendor with ID:', req.params.id);
+
+        const vendor = await User.findOne({ _id: req.params.id, role: 'vendor' });
+
+        if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
+
+        res.status(200).json(vendor);
+    } catch (err) {
+        console.error(err); // Optional debug
+        res.status(500).json({ error: 'Server error' });
+    }
+};
 
 // Upload Avatar Handler
 exports.uploadAvatar = async (req, res) => {
@@ -136,17 +332,17 @@ exports.uploadAvatar = async (req, res) => {
         const userId = req.user.id;
 
         // Check if a file was uploaded
-        if (!req.file) {
-            return res.status(400).json({ message: 'No file uploaded' });
+        if (!req.files || !req.files.avatar || req.files.avatar.length === 0) {
+            return res.status(400).json({ message: "No file uploaded" });
         }
 
         // Get the secure URL from Cloudinary
-        const avatarUrl = req.file.path; // Cloudinary returns the URL in path property
+        const avatarUrl = req.files.avatar[0].path; // Cloudinary URL from the first avatar file
 
         // Find the user to get the old avatar URL (if any)
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: "User not found" });
         }
 
         // Delete the old avatar from Cloudinary if it exists
@@ -162,17 +358,17 @@ exports.uploadAvatar = async (req, res) => {
         );
 
         if (!updatedUser) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: "User not found" });
         }
 
         res.status(200).json({
-            message: 'Avatar uploaded successfully',
-            avatar: avatarUrl,
+            message: "Avatar uploaded successfully",
+            avatarUrl: avatarUrl, // Consistent with frontend expectation
         });
     } catch (error) {
-        console.error('Error uploading avatar:', error);
+        console.error("Error uploading avatar:", error);
         res.status(500).json({
-            message: 'Error uploading avatar',
+            message: "Error uploading avatar",
             error: error.message,
         });
     }
@@ -267,7 +463,20 @@ exports.getAllUsers = async (req, res) => {
 };
 
 
-
+exports.getOrganizerDEtails = async (req, res) => {
+    try {
+        const organizer = await User.findById(req.params.id).select(
+            "name organizationName about website socialLinks eventCategories phoneNumber address experience logo avatar"
+        );
+        if (!organizer) {
+            return res.status(404).json({ message: "Organizer not found" });
+        }
+        res.status(200).json(organizer);
+    } catch (error) {
+        console.error("Error fetching organizer:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
 
 exports.forgotPassword = async (req, res) => {
     const { email } = req.body;

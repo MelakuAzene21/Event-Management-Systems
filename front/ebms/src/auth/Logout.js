@@ -6,6 +6,7 @@ import { BsFillCaretDownFill } from 'react-icons/bs';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useLogoutMutation } from '../features/api/authApi';
+import { FaUsers } from "react-icons/fa";
 export default function Logout() {
     const dispatch = useDispatch();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,6 +34,13 @@ export default function Logout() {
             {/* Right Side: Notifications + User Menu */}
             {user && (
                 <div className="flex items-center gap-4 sm:gap-6">
+                    <div >
+                        <Link to='/vendors'>
+                        <FaUsers/>
+                        </Link>
+                    </div>
+                    
+                    
                     {/* Notifications */}
                     <div className="relative">
                         <Link to="/show-not" className="text-gray-700 hover:text-black">
