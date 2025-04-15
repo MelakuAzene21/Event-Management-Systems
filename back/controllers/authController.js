@@ -99,7 +99,7 @@ exports.register = async (req, res) => {
             }
             if (req.files.docs && req.files.docs.length > 0) {
                 docUrls = req.files.docs.map((file) => {
-                    let url = file.path;
+                    const url = file.path; // Use the original Cloudinary URL
                     console.log('Processing doc:', {
                         originalname: file.originalname,
                         mimetype: file.mimetype,
@@ -107,15 +107,12 @@ exports.register = async (req, res) => {
                         format: file.format,
                         public_id: file.public_id,
                     });
-                    if (file.mimetype === 'application/pdf') {
-                        if (!url.includes('/raw/upload/')) {
-                            url = url.replace('/image/upload/', '/raw/upload/');
-                        }
-                        if (!url.endsWith('.pdf')) {
-                            url = `${url}.pdf`;
-                        }
-                    }
-                    return url;
+                    // Optionally store additional metadata for PDFs
+                    return {
+                        url,
+                        type: file.mimetype === 'application/pdf' ? 'pdf' : 'image',
+                        previewUrl: file.mimetype === 'application/pdf' ? `${url}/pg_1.jpg` : url, // For thumbnails
+                    };
                 });
                 console.log('Final doc URLs:', docUrls);
             }

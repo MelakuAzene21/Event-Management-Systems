@@ -53,7 +53,13 @@ const userSchema = new mongoose.Schema({
     resetPasswordExpire: { type: Date },
     // Vendor-specific fields from vendorSchema
     serviceProvided: { type: String, required: false, default: 'photographer' }, // Service offered
-    docs: [{ type: String, required: false }], // Array of file URLs (e.g., licenses,certificate)
+    docs: [
+        {
+            url: { type: String, required: true },
+            type: { type: String, enum: ['pdf', 'image'], required: true },
+            previewUrl: { type: String }
+        }
+    ],
     rating: { type: Number, default: 0, min: 0, max: 5 }, // Vendor rating
     price: { type: String, required: false, default: '50 birr per hour' }, // Price
     portfolio: [

@@ -8,6 +8,7 @@ import { useGetAttendeeBookingsQuery,useDeleteBookingMutation } from "../feature
 const BookingsTable = () => {
     const { data: bookings = [], loading } = useGetAttendeeBookingsQuery();
     const [deleteBooking] = useDeleteBookingMutation();
+    const validBookings = bookings.filter(booking => booking.user !== null);
 
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
@@ -32,12 +33,12 @@ const BookingsTable = () => {
 
     return (
         <div className="container mx-auto p-6 min-h-[50vh]">
-            <h2 className="text-center text-2xl font-bold mb-4">Total Bookings: {bookings.length}</h2>
+            <h2 className="text-center text-2xl font-bold mb-4">Total Bookings: {validBookings.length}</h2>
             <Title title={"Booking History"} />
 
             {loading ? (
                <SkeletonLoader/>
-            ) : bookings.length === 0 ? (
+            ) : validBookings.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center py-12">
                     <svg
                         className="w-24 h-24 text-gray-400 mb-4"
@@ -81,7 +82,7 @@ const BookingsTable = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {bookings.map((booking) => (
+                                    {validBookings.map((booking) => (
                                 <tr key={booking._id} className="border-b hover:bg-gray-50">
                                     <td className="p-3">{booking.event?.title}</td>
                                     <td className="p-3">{booking.user?.name}</td>

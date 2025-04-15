@@ -74,13 +74,12 @@ const VendorProfile = () => {
         }
     };
 
-    const openModal = async (doc) => {
-        const type = await detectFileType(doc);
-        console.log('Opening modal for:', doc, 'Type:', type);
+    const openModal = (doc) => {
         setSelectedDoc(doc);
-        setDocType(type);
+        setDocType(doc.type); // Optional if needed elsewhere
         setIsModalOpen(true);
     };
+
 
     const closeModal = () => {
         setIsModalOpen(false);
@@ -266,57 +265,48 @@ const VendorProfile = () => {
             </div>
 
             <AnimatePresence>
-                {isModalOpen && (
+                {isModalOpen && selectedDoc && (
                     <motion.div
                         className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3 }}
                     >
                         <motion.div
-                            className="bg-white rounded-2xl p-8 max-w-4xl w-full mx-4 relative shadow-2xl overflow-hidden"
-                            initial={{ scale: 0.8, opacity: 0 }}
+                            className="relative bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6"
+                            initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.8, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: 'easeOut' }}
+                            exit={{ scale: 0.9, opacity: 0 }}
                         >
                             <button
+                                className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition"
                                 onClick={closeModal}
-                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors duration-200"
                             >
-                                <FaTimes className="h-6 w-6" />
+                                <FaTimes className="w-5 h-5" />
                             </button>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-6">Document Preview</h3>
-                            <div className="relative w-full h-[70vh] bg-gray-50 rounded-xl overflow-auto p-4">
-                                {selectedDoc && docType ? (
-                                    docType === 'image' ? (
-                                        <img
-                                            src={selectedDoc}
-                                            alt="Document Preview"
-                                            className="max-w-full max-h-full object-contain mx-auto rounded-lg shadow-md"
-                                            onError={(e) => console.error(`Image load error: ${selectedDoc}`, e)}
-                                        />
-                                    ) : docType === 'pdf' ? (
-                                        <iframe
-                                            src={`${selectedDoc}?inline=true#toolbar=0&navpanes=0&scrollbar=0`}
-                                            className="w-full h-full rounded-lg border border-gray-200"
-                                            title="Document Preview"
-                                            onError={(e) => console.error(`PDF load error: ${selectedDoc}`, e)}
-                                        />
-                                    ) : (
-                                        <p className="text-gray-600 text-center">
-                                            Preview not available for this file type.
-                                        </p>
-                                    )
-                                ) : (
-                                    <p className="text-gray-600 text-center">Unable to load document.</p>
-                                )}
-                            </div>
+
+                            <h2 className="text-xl font-semibold text-gray-800 mb-4">Document Preview</h2>
+
+                            {selectedDoc.type === 'image' ? (
+                                <img
+                                    src={selectedDoc.url}
+                                    alt="Document"
+                                    className="w-full max-h-[70vh] object-contain rounded-md border"
+                                />
+                            ) : selectedDoc.type === 'pdf' ? (
+                                <iframe
+                                    src={selectedDoc.url}
+                                    title="PDF Viewer"
+                                    className="w-full h-[70vh] border rounded-md"
+                                ></iframe>
+                            ) : (
+                                <p className="text-gray-600">Unsupported document type.</p>
+                            )}
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
+
         </div>
     );
 };
