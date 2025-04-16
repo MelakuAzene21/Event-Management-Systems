@@ -4,6 +4,13 @@ const jwt = require('jsonwebtoken');
 const sendEmail = require('../helpers/Send-Email')
 const crypto = require('crypto');
 const {deleteOldAvatar}=require('../utils/avatarUpdate')
+const Booking = require('../models/Booking');
+const Ticket = require('../models/Ticket');
+const Bookmark = require('../models/Bookmark');
+const Notification =require('../models/Notification')
+
+
+
 // exports.register = async (req, res) => {
 //     try {
 //         const { name, email, password } = req.body;
@@ -323,7 +330,6 @@ exports.getVendorById = async (req, res) => {
     }
 };
 
-// Upload Avatar Handler
 exports.uploadAvatar = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -579,27 +585,55 @@ exports.resetPassword = async (req, res) => {
 
 
 
+// // Delete User by ID
+// exports.deleteUser = async (req, res) => {
+//     try {
+//         const { id } = req.params;
+//         const user = await User.findById(id);
+
+//         if (!user) {
+//             return res.status(404).json({ message: "User not found" });
+//         }
+
+//         await User.findByIdAndDelete(id);
+
+//         res.json({ message: "User deleted successfully" });
+//     } catch (error) {
+//         res.status(500).json({ message: "Internal Server Error", error: error.message });
+//     }
+// };
+
+
+
 // Delete User by ID
 exports.deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User.findById(id);
 
+        const user = await User.findById(id);
+        const userId = user._id.toString(); // Convert ObjectId to string for comparison
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        await User.findByIdAndDelete(id);
+        // Delete associated data
+        await Promise.all([
+            Booking.deleteMany({ user: id }),
+            Ticket.deleteMany({ user: id }),
+            Bookmark.deleteMany({ userId: id }),
+            Notification.deleteMany({ userId: id }),
+            // Add more if you have other models tied to this user
+        ]);
 
-        res.json({ message: "User deleted successfully" });
+        // Delete the user
+        await User.findByIdAndDelete(id);
+console.log('User deleted succssfully:', userId);
+        res.json({ message: "User and associated data deleted successfully" });
     } catch (error) {
+        console.error(error);
         res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
-
-
-
-
 // Update user role or status
 exports.updateUser = async (req, res) => {
     try {

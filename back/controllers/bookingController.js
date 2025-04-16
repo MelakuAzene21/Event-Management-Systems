@@ -175,17 +175,34 @@ exports.FetchBookingForOrganizer = async (req, res) => {
     }
 }
 
-exports.AttendeBooking= async (req, res) => {
+exports.AttendeBooking = async (req, res) => {
     try {
-        const bookings = await Booking.find({ user: req.user._id })
-            .populate("user", "name") // Only fetch the 'name' field from the User model
-            .populate("event", "title eventDate"); // Fetch 'title' and 'eventDate' from Event model
+        const bookings = await Booking.find({
+            user: req.user._id,
+            // Ensure user and event fields are not null
+            $and: [{ user: { $ne: null } }, { event: { $ne: null } }],
+        })
+            .populate({
+                path: "user",
+                select: "name",
+                match: { _id: { $exists: true } }, // Ensure populated user exists
+            })
+            .populate({
+                path: "event",
+                select: "title eventDate",
+                match: { _id: { $exists: true } }, // Ensure populated event exists
+            });
 
-        res.json(bookings);
+        // Filter out bookings where user or event is null after population
+        const validBookings = bookings.filter(
+            booking => booking.user && booking.event
+        );
+
+        res.json(validBookings);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+};
 exports.deleteBooking=async (req, res) => {
     try {
         const booking = await Booking.findById(req.params.id);
