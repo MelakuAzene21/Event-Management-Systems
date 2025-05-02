@@ -79,59 +79,140 @@ const sendEmail =require("../helpers/Send-Email")
 
 const axios = require("axios");
 
-// // Function to get coordinates from OpenStreetMap
-// async function getCoordinates(location) {
-//     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-//         location
-//     )}&format=json&limit=1`;
-
-//     try {
-//         const response = await axios.get(url);
-//         if (response.data.length === 0) return null; // No results found
-
-//         const { lat, lon } = response.data[0];
-//         return { latitude: parseFloat(lat), longitude: parseFloat(lon) };
-//     } catch (error) {
-//         console.error("Error fetching coordinates:", error);
-//         return null;
-//     }
-// }
-
-
-// Function to get coordinates from OpenStreetMap and ensure location is in Ethiopia
+// Helper function to fetch coordinates from Nominatim
 async function getCoordinates(location) {
     const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
         location
-    )}&format=json&limit=5&addressdetails=1`; // Request multiple results with address details
+    )}&format=json&limit=5&addressdetails=1`;
 
     try {
-        const response = await axios.get(url);
-        if (response.data.length === 0) return null; // No results found
+        const response = await axios.get(url, {
+            headers: {
+                'User-Agent': 'EventBookingApp/1.0 (your-email@example.com)' // Required by Nominatim
+            }
+        });
 
-        // Filter results to only those in Ethiopia (country_code = "et")
-        const ethiopiaLocations = response.data.filter(
-            place => place.address && place.address.country_code === "et"
-        );
-
-        if (ethiopiaLocations.length === 0) {
-            return null; // No Ethiopian locations found
+        if (response.data.length === 0) {
+            console.log(`No results found for location: ${location}`);
+            return null;
         }
 
-        // Take the first Ethiopian location
-        const { lat, lon, display_name } = ethiopiaLocations[0];
+        // Take the first location result
+        const { lat, lon, display_name } = response.data[0];
         return {
-            name: display_name, // Full Ethiopian place name
-            latitude: parseFloat(lat),
-            longitude: parseFloat(lon),
+            type: "Point",
+            coordinates: [parseFloat(lon), parseFloat(lat)], // [longitude, latitude]
+            name: display_name
         };
     } catch (error) {
-        console.error("Error fetching coordinates:", error);
+        console.error(`Error fetching coordinates for ${location}:`, error.message);
         return null;
     }
 }
 
+// // Event creation handler with multiple image uploads
+// exports.createEvent = async (req, res) => {
+//     try {
+//         const {
+//             title,
+//             description,
+//             category,
+//             eventDate,
+//             eventTime,
+//             location,
+//             tickets // Expecting an array of { name, price, limit }
+//         } = req.body;
 
-// Event creation handler with multiple image uploads
+//         // Get coordinates using Nominatim
+//         console.log("Location name of event:", location);
+//         const coordinates = await getCoordinates(location);
+//         console.log("Coordinates for location:", coordinates);
+//         if (!coordinates) {
+//             return res.status(400).json({ message: "Invalid location or no results found" });
+//         }
+
+//         // Ensure tickets are provided
+//         if (!tickets || tickets.length === 0) {
+//             return res.status(400).json({ message: 'At least one ticket type is required' });
+//         }
+
+//         // Ensure at least one image is uploaded
+//         if (!req.files || req.files.length === 0) {
+//             return res.status(400).json({ message: 'At least one event image is required' });
+//         }
+
+//         // Ensure no more than 5 images are uploaded
+//         if (req.files.length > 5) {
+//             return res.status(400).json({ message: 'You can upload up to 5 images only' });
+//         }
+
+//         // Process images from Cloudinary
+//         const images = req.files.map(file => file.path); // file.path gives the Cloudinary URL
+
+//         // Ensure tickets are parsed correctly (handle both JSON and array cases)
+//         const parsedTickets = typeof tickets === "string" ? JSON.parse(tickets) : tickets;
+
+//         // Validate ticket details and ensure name exists
+//         const formattedTickets = parsedTickets.map(ticket => ({
+//             name: ticket.name?.trim(),
+//             price: Number(ticket.price),
+//             limit: Number(ticket.limit),
+//         }));
+
+//         // Check for missing ticket names
+//         if (formattedTickets.some(ticket => !ticket.name)) {
+//             return res.status(400).json({ message: "Each ticket type must have a name" });
+//         }
+
+//         // Create new event
+//         const newEvent = new Event({
+//             title,
+//             description,
+//             category,
+//             eventDate,
+//             eventTime,
+//             location: coordinates, // Save as GeoJSON Point
+//             organizer: req.user._id,
+//             ticketTypes: formattedTickets,
+//             images,
+//         });
+
+//         // Save to DB
+//         const savedEvent = await newEvent.save();
+//         const io = getIO();
+//         const message = `🔔 New event "${newEvent.title}" created by ${req.user.name}, awaiting approval.`;
+
+//         // Fetch all admins
+//         const admins = await User.find({ role: "admin" });
+
+//         for (const admin of admins) {
+//             const newNotification = new Notification({
+//                 userId: admin._id,
+//                 eventId: newEvent._id,
+//                 message,
+//             });
+//             await newNotification.save();
+
+//             console.log(`📩 Sending notification to admin ${admin._id}`);
+//             // Emit real-time notification if admin is online
+//             if (io.sockets.adapter.rooms.get(admin._id.toString())) {
+//                 io.to(admin._id.toString()).emit("event-approval-request", {
+//                     _id: newNotification._id,
+//                     message: newNotification.message,
+//                     eventId: newNotification.eventId,
+//                     isRead: newNotification.isRead,
+//                 });
+//             }
+//         }
+
+//         res.status(201).json(savedEvent);
+//     } catch (error) {
+//         console.error('Error creating event:', error.message, error.stack);
+//         res.status(500).json({ message: 'Error creating event', error: error.message });
+//     }
+// };
+
+
 exports.createEvent = async (req, res) => {
     try {
         const {
@@ -141,18 +222,22 @@ exports.createEvent = async (req, res) => {
             eventDate,
             eventTime,
             location,
-            tickets // Expecting an array of { name, price, limit }
-        } = req.body;        // Get latitude & longitude using Nominatim
-        console.log("location name of event",location)
-        const coordinates = await getCoordinates(location);
-        console.log("Coordinate for location",coordinates)
-        if (!coordinates) return res.status(400).json({ message: "Invalid location" });
+            tickets, // Expecting an array of { name, price, limit } or undefined for free events
+            isFree, // Extract isFree from request body
+        } = req.body;
 
+        // Convert isFree to boolean (handles string "true"/"false" from FormData)
+        const isFreeEvent = isFree === "true" || isFree === true;
 
-        // Ensure tickets are provided
-        if (!tickets || tickets.length === 0) {
-            return res.status(400).json({ message: 'At least one ticket type is required' });
-        }
+        // // Get coordinates using Nominatim
+        // console.log("Location name of event:", location);
+        // const coordinates = await getCoordinates(location);
+        // console.log("Coordinates for location:", coordinates);
+        // if (!coordinates) {
+        //     return res.status(400).json({ message: "Invalid location or no results found" });
+        // }
+
+        const parsedLocation = JSON.parse(location); // Parse JSON string
 
         // Ensure at least one image is uploaded
         if (!req.files || req.files.length === 0) {
@@ -164,29 +249,31 @@ exports.createEvent = async (req, res) => {
             return res.status(400).json({ message: 'You can upload up to 5 images only' });
         }
 
-        // // Save images (Cloudinary or local storage)
-        // const images = req.files.map(file => `/uploads/events/${file.filename}`);
-        
-        
-        // Get Cloudinary URLs from uploaded files
         // Process images from Cloudinary
         const images = req.files.map(file => file.path); // file.path gives the Cloudinary URL
 
-        // Ensure tickets are parsed correctly (handle both JSON and array cases)
-        const parsedTickets = typeof tickets === "string" ? JSON.parse(tickets) : tickets;
+        let formattedTickets = [];
+        if (!isFreeEvent) {
+            // Ensure tickets are provided for non-free events
+            if (!tickets || (Array.isArray(tickets) && tickets.length === 0)) {
+                return res.status(400).json({ message: 'At least one ticket type is required for non-free events' });
+            }
 
-        // Validate ticket details and ensure name exists
-        const formattedTickets = parsedTickets.map(ticket => ({
-            name: ticket.name?.trim(), // Ensure name is not empty
-            price: Number(ticket.price),
-            limit: Number(ticket.limit),
-        }));
+            // Ensure tickets are parsed correctly (handle both JSON string and array cases)
+            const parsedTickets = typeof tickets === "string" ? JSON.parse(tickets) : tickets;
 
-        // Check for missing ticket names before proceeding
-        if (formattedTickets.some(ticket => !ticket.name)) {
-            return res.status(400).json({ message: "Each ticket type must have a name." });
+            // Validate ticket details and ensure name exists
+            formattedTickets = parsedTickets.map(ticket => ({
+                name: ticket.name?.trim(),
+                price: Number(ticket.price),
+                limit: Number(ticket.limit),
+            }));
+
+            // Check for missing ticket names
+            if (formattedTickets.some(ticket => !ticket.name)) {
+                return res.status(400).json({ message: "Each ticket type must have a name" });
+            }
         }
-
 
         // Create new event
         const newEvent = new Event({
@@ -195,10 +282,11 @@ exports.createEvent = async (req, res) => {
             category,
             eventDate,
             eventTime,
-            location: { name: location, ...coordinates },
-            organizer: req.user._id, // Use the logged-in user ID
-            ticketTypes: formattedTickets, // Store ticket details
-            images, // Save array of image paths
+            location: parsedLocation, 
+            organizer: req.user._id,
+            ticketTypes: isFreeEvent ? [] : formattedTickets, // Empty array for free events
+            images,
+            isFree: isFreeEvent, // Set isFree based on request
         });
 
         // Save to DB
@@ -227,16 +315,11 @@ exports.createEvent = async (req, res) => {
                     isRead: newNotification.isRead,
                 });
             }
-        
-
-            // sendEmail(admin.email, "🔔 Event Approval Needed", "eventApproval", {
-            //     eventTitle: newEvent.title,
-            //     organizerName: req.user.name,
-            // });
         }
+
         res.status(201).json(savedEvent);
     } catch (error) {
-        console.error('Error creating event:', error);
+        console.error('Error creating event:', error.message, error.stack);
         res.status(500).json({ message: 'Error creating event', error: error.message });
     }
 };
@@ -257,17 +340,187 @@ exports.getMostNearUpcomingEvent = async (req, res) => {
     }
 };
 
+// exports.getEvents = async (req, res) => {
+//     try {
+//         const events = await Event.find({status:"approved"}).populate('organizer', 'avatar name email');
+//         res.status(200).json(events);
+//     } catch (error) {
+//         res.status(500).json({ message: 'Error fetching events', error });
+//     }
+// };
+
+
+// Fetch events near a location
 exports.getEvents = async (req, res) => {
     try {
-        const events = await Event.find({status:"approved"}).populate('organizer', 'avatar name email');
-        res.status(200).json(events);
+        // Extract query parameters and user ID
+        let { latitude, longitude } = req.query;
+        const userId = req.user?._id; // Optional: from authentication middleware
+
+        // Log incoming parameters
+        console.log('Query parameters:', { latitude, longitude, userId });
+
+        // Initialize userLocation
+        let userLocation = null;
+        let useGeoNear = true;
+
+        // Try to get user location from query parameters
+        if (latitude && longitude) {
+            latitude = parseFloat(latitude);
+            longitude = parseFloat(longitude);
+            userLocation = [longitude, latitude]; // MongoDB expects [longitude, latitude]
+
+            // Validate coordinates
+            if (isNaN(latitude) || isNaN(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+                console.log('Invalid query coordinates, will fetch all events');
+                userLocation = null;
+                useGeoNear = false;
+            } else {
+                console.log('Valid query coordinates:', userLocation);
+            }
+        }
+
+        // If no valid query coordinates, try user profile if authenticated
+        if (!userLocation && userId) {
+            const user = await User.findById(userId).select('location');
+            if (user && user.location?.coordinates && user.location.coordinates.length === 2 && user.location.coordinates[0] !== 0 && user.location.coordinates[1] !== 0) {
+                userLocation = user.location.coordinates;
+                console.log('Using user location from profile:', userLocation);
+            } else {
+                console.log('User location invalid or missing, will fetch all events');
+                useGeoNear = false;
+            }
+        }
+
+        // If no valid location, fetch all approved events without geo sorting
+        let events;
+        if (!userLocation || !useGeoNear) {
+            console.log('Fetching all approved events without location sorting');
+            events = await Event.aggregate([
+                {
+                    $match: {
+                        status: "approved",
+                        "location.coordinates": { $exists: true, $ne: [] }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "organizer",
+                        foreignField: "_id",
+                        as: "organizer"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$organizer",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: {
+                        title: 1,
+                        description: 1,
+                        category: 1,
+                        eventDate: 1,
+                        eventTime: 1,
+                        location: 1,
+                        organizer: {
+                            _id: "$organizer._id",
+                            avatar: "$organizer.avatar",
+                            name: "$organizer.name",
+                            email: "$organizer.email"
+                        },
+                        ticketTypes: 1,
+                        images: 1,
+                        status: 1,
+                        isFree:1,
+                        likes: 1,
+                        usersLiked: 1,
+                        bookmarkedBy: 1,
+                        createdAt: 1,
+                        updatedAt: 1
+                    }
+                },
+                {
+                    $sort: { eventDate: 1 } // Sort by event date as fallback
+                }
+            ]).catch((err) => {
+                throw new Error(`MongoDB query error: ${err.message}`);
+            });
+        } else {
+            // Use $geoNear to fetch approved events sorted by distance
+            console.log('Executing MongoDB query with userLocation:', userLocation);
+            events = await Event.aggregate([
+                {
+                    $geoNear: {
+                        near: {
+                            type: "Point",
+                            coordinates: userLocation
+                        },
+                        distanceField: "distance", // Add distance field (in meters)
+                        spherical: true,
+                        query: {
+                            status: "approved",
+                            "location.coordinates": { $exists: true, $ne: [] }
+                        }
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "organizer",
+                        foreignField: "_id",
+                        as: "organizer"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$organizer",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: {
+                        title: 1,
+                        description: 1,
+                        category: 1,
+                        eventDate: 1,
+                        eventTime: 1,
+                        location: 1,
+                        organizer: {
+                            _id: "$organizer._id",
+                            avatar: "$organizer.avatar",
+                            name: "$organizer.name",
+                            email: "$organizer.email"
+                        },
+                        ticketTypes: 1,
+                        images: 1,
+                        status: 1,
+                        isFree: 1,
+                        likes: 1,
+                        usersLiked: 1,
+                        bookmarkedBy: 1,
+                        createdAt: 1,
+                        updatedAt: 1,
+                        distance: 1 // Include distance in response
+                    }
+                }
+            ]).catch((err) => {
+                throw new Error(`MongoDB query error: ${err.message}`);
+            });
+        }
+
+        // Log the number of events found
+        console.log(`Found ${events.length} events`);
+
+        // Return events (empty array if none found)
+        res.status(200).json(events || []);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching events', error });
+        console.error('Error in getEvents:', error.message, error.stack);
+        res.status(500).json({ message: 'Error fetching events', error: error.message });
     }
 };
-
-
-
 
 exports.eventDetails = async (req, res) => {
     const { id } = req.params;

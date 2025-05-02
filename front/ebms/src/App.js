@@ -59,14 +59,12 @@ function App() {
           <SkeletonLoader key={i} />
         ))}
       </div>  }
-
   return (
     <Router>
       <ToastContainer position="top-center" />
-
       <div>
         <HelmetProvider>
-         <Routes>
+          <Routes  >
           <Route path="/" element={<Layout />}>
           <Route index element={<EventPage />} />
           {/* <Route path="/" element={<EventPage />} /> */}
@@ -90,8 +88,7 @@ function App() {
             <Route path='/booked' element={<BookingsTable />} />
             <Route path='/show-not' element={<NotificationsPage />} />
 
-            <Route path='/:id/booking-summary' element={<BookingSummary />} />
-            <Route path='/:id/booking-summary' element={<BookingSummary />} />
+            <Route path='/:id/booking-summary' element={<BookingSummary />} />            
             <Route path='/success' element={<SuccessPage />} />
               <Route path='/scanQR' element={<ScanQR />} />
               <Route path='/vendors' element={<GetAllVendor />} />

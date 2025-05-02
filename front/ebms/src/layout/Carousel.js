@@ -192,7 +192,7 @@ const EventCarousel = () => {
         <div className="carousel-item w-full flex flex-col items-center justify-center h-full">
           <img
             className="object-cover h-96 w-full rounded-lg shadow-xl"
-            src={`http://localhost:5000${events[currentIndex]?.images[0]}`}
+            src={events[currentIndex]?.images[0]}
             alt={events[currentIndex]?.title || 'Event'}
           />
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 p-6 rounded-lg text-center">

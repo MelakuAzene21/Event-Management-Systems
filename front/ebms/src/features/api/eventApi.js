@@ -11,8 +11,17 @@ export const eventApi = createApi({
     tagTypes: ['Event'], // Tag for cache invalidation
     endpoints: (builder) => ({
         // Fetch all events
+        // getAllEvents: builder.query({
+        //     query: () => '/getEvent',
+        //     providesTags: ['Event'],
+        // }),
+
+        // Fetch all events, optionally with location parameters
         getAllEvents: builder.query({
-            query: () => '/getEvent',
+            query: ({ latitude, longitude } = {}) => ({
+                url: '/getEvent',
+                params: latitude && longitude ? { latitude, longitude } : undefined,
+            }),
             providesTags: ['Event'],
         }),
         // Fetch details of a single event

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { BsArrowRightShort } from "react-icons/bs";
-import { BiLike } from "react-icons/bi";
+import {  BiLike } from "react-icons/bi";
 import { FaHeart } from "react-icons/fa";
-import { MdLocationPin } from "react-icons/md";
+import {  MdLocationPin } from "react-icons/md";
 import { Users, Calendar } from "lucide-react";
 import BookmarkButton from "../UserPage/BookMarkEvent";
 import ShareEventModal from "../UserPage/ShareEvent";
@@ -15,15 +15,30 @@ function EventCard({ event, user, handleLike }) {
             <Link to={`/events/${event._id}`}>
                 <div className="relative">
                     <img
-                        src={`http://localhost:5000${event.images[0]}`}
+                        src={event.images[0]}
                         alt={event.title}
                         className="w-full h-40 object-cover transition-transform duration-300 hover:scale-105"
                     />
-                    {event.ticketPrice === 0 && (
-                        <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
-                            <FaHeart className="w-3 h-3" /> Free
+                    <div className="absolute top-2 left-2 px-3 py-1 rounded-full flex items-center gap-2 text-white text-sm font-semibold backdrop-blur-md bg-black/50 shadow-md ring-1 ring-white/10">
+                        <span className="capitalize">{event.category}</span>
+                    </div>
+
+
+                    {event.isFree && (
+                        <div className="absolute top-2 left-2 flex flex-col gap-2 z-10">
+                            {/* FREE Badge */}
+                            <div className="px-3 py-1 rounded-full flex items-center gap-2 text-white text-sm font-semibold bg-gradient-to-r from-pink-500 to-red-500 shadow-md ring-1 ring-white/10">
+                                <FaHeart className="w-4 h-4" />
+                                Free
+                            </div>
+
+                            {/* Category Badge */}
+                            <div className="px-3 py-1 rounded-full flex items-center gap-2 text-white text-sm font-semibold backdrop-blur-md bg-black/50 shadow-md ring-1 ring-white/10">
+                                <span className="capitalize">{event.category}</span>
+                            </div>
                         </div>
                     )}
+
                 </div>
             </Link>
 
@@ -47,10 +62,18 @@ function EventCard({ event, user, handleLike }) {
                         <MdLocationPin className="w-6 h-6 text-blue-600" />
                         {event.location?.name?.split(", ")[0]}
                     </p>
-                    <p className="text-sm text-gray-600 flex items-center gap-1">
-                        <Users className="w-4 h-4 text-gray-600" />
-                        <p>{totalBooked} Tickets Booked</p>
-                    </p>
+                    {event.isFree ? (
+                        <div className="inline-flex items-center gap-2 text-green-600 font-semibold text-sm bg-green-50 border border-green-200 px-3 py-1 rounded-md shadow-sm">
+                            <FaHeart className="w-4 h-4 text-green-500" />
+                            Free Event
+                        </div>
+                    ) : (
+                        <div className="inline-flex items-center gap-2 text-gray-700 font-medium text-sm bg-gray-100 border border-gray-200 px-3 py-1 rounded-md shadow-sm">
+                            <Users className="w-4 h-4 text-gray-600" />
+                            {totalBooked} Tickets Booked
+                        </div>
+                    )}
+
                 </div>
                 <div className="flex justify-between items-center mb-4">
                     <button
@@ -68,7 +91,7 @@ function EventCard({ event, user, handleLike }) {
 
                 <Link to={`/events/${event._id}`} className="block">
                     <button className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center gap-2">
-                      View Details
+                        View Details
                         <BsArrowRightShort className="w-5 h-5" />
                     </button>
                 </Link>

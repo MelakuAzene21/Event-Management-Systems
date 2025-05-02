@@ -10,7 +10,7 @@ const router = express.Router();
 const upload=require('../utils/multer')
 
 router.post('/creatEvent', verifyToken,  upload, createEvent);
-router.get('/getEvent',  getEvents);
+router.get('/getEvent', getEvents);
 router.get('/nearUpcoming', getMostNearUpcomingEvent);
 router.put("/:eventId/status", approveOrRejectEvent);
 router.get('/myEvent', verifyToken, checkRole('organizer'), getMyEvent);

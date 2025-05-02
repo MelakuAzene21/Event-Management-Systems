@@ -71,8 +71,10 @@ const userSchema = new mongoose.Schema({
     ], // Array of portfolio items
     description: { type: String, required: false }, // Vendor description
     availability: { type: String, default: 'As needed' }, // Availability status
-    location: { type: String, required: false }, // Vendor location
-
+    location: {
+        type: { type: String, enum: ['Point'], default: 'Point' },
+        coordinates: { type: [Number], default: [0, 0] } // [longitude, latitude]
+    },
     // Organizer-specific fields
     phoneNumber: { type: String },
     organizationName: { type: String },

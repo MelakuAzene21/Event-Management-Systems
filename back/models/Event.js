@@ -7,10 +7,15 @@ const eventSchema = new mongoose.Schema(
         category: { type: String },
         eventDate: { type: Date, required: true }, // If 'date' is the same as 'eventDate', you can remove one of them
         eventTime: { type: String, required: true },
+        // location: {
+        //     name: { type: String, required: false }, // e.g., "New York"
+        //     latitude: { type: Number, required: false }, // Latitude
+        //     longitude: { type: Number, required: false }, // Longitude
+        // },
         location: {
-            name: { type: String, required: false }, // e.g., "New York"
-            latitude: { type: Number, required: false }, // Latitude
-            longitude: { type: Number, required: false }, // Longitude
+            type: { type: String, enum: ['Point'], default: 'Point' },
+            coordinates: { type: [Number], required: true }, // [longitude, latitude]
+            name: { type: String, required: false } // e.g., "Addis Ababa"
         },
         organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the user organizing the event
         user: { // Ensure this field exists
@@ -18,7 +23,8 @@ const eventSchema = new mongoose.Schema(
             ref: "User",
             required: false
         },
-        
+        isFree: { type: Boolean, default: false }, // New field to indicate if event is free
+
         ticketTypes: [
             {
                 name: { type: String, required: true }, // e.g., "VIP", "Regular", "Student"
