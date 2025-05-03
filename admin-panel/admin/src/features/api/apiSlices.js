@@ -60,6 +60,29 @@ export const authApi = createApi({
             query: () => "/events/getEvent",
             providesTags: ["Event"],
         }),
+        getCategories: builder.query({
+            query: () => '/categories',
+        }),
+        createCategory: builder.mutation({
+            query: (category) => ({
+                url: '/categories',
+                method: 'POST',
+                body: category,
+            }),
+        }),
+        updateCategory: builder.mutation({
+            query: ({ id, ...category }) => ({
+                url: `/categories/${id}`,
+                method: 'PUT',
+                body: category,
+            }),
+        }),
+        deleteCategory: builder.mutation({
+            query: (id) => ({
+                url: `/categories/${id}`,
+                method: 'DELETE',
+            }),
+        }),
         //get eevnt details
         getEventDetails: builder.query({
             query: (id) => `/events/${id}`,
@@ -116,4 +139,8 @@ export const {
     useGetUpcomingEventsQuery,
     useGetBookingsQuery,
     useGetMonthlyRevenueQuery,
+    useGetCategoriesQuery,
+    useCreateCategoryMutation,
+    useUpdateCategoryMutation,
+    useDeleteCategoryMutation,    
 } = authApi;

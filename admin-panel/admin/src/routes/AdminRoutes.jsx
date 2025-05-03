@@ -11,6 +11,7 @@ import MonthlyRevenueChart from "../pages/MonthlyRevenueChart.jsx";
 import EventApproval from "../pages/EventApproval.jsx";
 import ForgotPassword from "../components/forgot-password.jsx";
 import NotFoundPage from "../components/NotFoundPage.jsx";
+import CategoryManagement from "../pages/CategoryManagement.jsx";
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -24,6 +25,7 @@ const AdminRoutes = () => {
         <Route path="events" element={<Events />} />
         <Route path="profile" element={<Profile />} />
         <Route path="report" element={<MonthlyRevenueChart />} />
+        <Route path="category" element={<CategoryManagement />} />
       </Route>
       <Route path="/admin/events/:eventId" element={<EventApproval />} />
       <Route path="/events/:id" element={<EventDetails />} />

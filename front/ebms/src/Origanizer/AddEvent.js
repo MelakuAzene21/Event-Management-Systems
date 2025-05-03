@@ -404,9 +404,8 @@
 
 // export default CreateEvent;
 
-
 import React, { useState } from "react";
-import { useCreateEventMutation } from "../features/api/eventApi";
+import { useCreateEventMutation, useGetCategoriesQuery } from "../features/api/eventApi";
 import { toast } from "react-toastify";
 import Title from "../layout/Title";
 import EventLocationInput from "../components/EventLocationInput";
@@ -419,7 +418,7 @@ const CreateEvent = () => {
         category: "",
         eventDate: "",
         eventTime: "",
-        location: null, // Changed to null to store object { type, coordinates, name }
+        location: null,
         images: [],
         tickets: [],
         isFree: false,
@@ -430,6 +429,7 @@ const CreateEvent = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     const [createEvent] = useCreateEventMutation();
+    const { data: categories = [], isLoading: categoriesLoading, error: categoriesError } = useGetCategoriesQuery();
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -503,6 +503,11 @@ const CreateEvent = () => {
         e.preventDefault();
         setIsLoading(true);
 
+        if (!formData.category) {
+            toast.error("Please select a category.");
+            setIsLoading(false);
+            return;
+        }
         if (formData.images.length === 0) {
             toast.error("Please upload at least one image.");
             setIsLoading(false);
@@ -530,7 +535,7 @@ const CreateEvent = () => {
             } else if (key === "isFree") {
                 data.append("isFree", formData.isFree);
             } else if (key === "location") {
-                data.append("location", JSON.stringify(formData.location)); // Stringify location object
+                data.append("location", JSON.stringify(formData.location));
             } else {
                 data.append(key, formData[key]);
             }
@@ -597,20 +602,28 @@ const CreateEvent = () => {
                 {/* Category */}
                 <div className="bg-white p-4 rounded-lg shadow-sm">
                     <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                    <select
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                    >
-                        <option value="">Select a category</option>
-                        <option value="music">Music</option>
-                        <option value="graduation">Graduation</option>
-                        <option value="education">Educational</option>
-                        <option value="workshop">Workshop</option>
-                        <option value="entertainment">Entertainment</option>
-                    </select>
+                    {categoriesLoading ? (
+                        <p className="text-gray-500">Loading categories...</p>
+                    ) : categoriesError ? (
+                        <p className="text-red-500">Error loading categories</p>
+                    ) : categories.length === 0 ? (
+                        <p className="text-gray-500">No categories available</p>
+                    ) : (
+                        <select
+                            name="category"
+                            value={formData.category}
+                            onChange={handleInputChange}
+                            required
+                            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                        >
+                            <option value="">Select a category</option>
+                            {categories.map((category) => (
+                                <option key={category._id} value={category._id}>
+                                    {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                 </div>
 
                 {/* Event Date and Time */}
@@ -807,8 +820,9 @@ const CreateEvent = () => {
                 {/* Submit Button with Loader */}
                 <button
                     type="submit"
-                    disabled={isLoading}
-                    className={`w-full py-3 rounded-lg text-white font-semibold flex items-center justify-center ${isLoading ? "bg-gray-500 cursor-not-allowed" : "bg-black hover:bg-gray-800"}`}
+                    disabled={isLoading || categoriesLoading}
+                    className={`w-full py-3 rounded-lg text-white font-semibold flex items-center justify-center ${isLoading || categoriesLoading ? "bg-gray-500 cursor-not-allowed" : "bg-black hover:bg-gray-800"
+                        }`}
                 >
                     {isLoading ? (
                         <>
@@ -820,11 +834,11 @@ const CreateEvent = () => {
                             >
                                 <circle
                                     className="opacity-25"
-                                    cx="12"
+                                    cx="12ier"
                                     cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
                                 />
                                 <path
                                     className="opacity-75"

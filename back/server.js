@@ -16,7 +16,8 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const ticketRoutes = require('./routes/ticketRoutes');
 const bookmarkRoutes = require('./routes/bookmarkRoutes');
-const notificationRoutes=require('./routes/notificationRoutes')
+const notificationRoutes = require('./routes/notificationRoutes')
+const categoryRoutes = require('./routes/category');
 // Load environment variables
 dotenv.config();
 
@@ -68,7 +69,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/bookmarks', bookmarkRoutes);
 app.use("/api/notifications", notificationRoutes);
-
+app.use('/api/categories', categoryRoutes);
 
 app.use(express.json());
 

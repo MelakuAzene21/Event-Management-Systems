@@ -9,7 +9,9 @@ import ShareEventModal from "../UserPage/ShareEvent";
 
 function EventCard({ event, user, handleLike }) {
     const totalBooked = event?.ticketTypes?.reduce((sum, ticket) => sum + ticket.booked, 0) || 0;
-
+    const categoryName = event.category?.name
+        ? event.category.name.charAt(0).toUpperCase() + event.category.name.slice(1)
+        : 'Uncategorized';
     return (
         <div className="bg-white w-full rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col">
             <Link to={`/events/${event._id}`}>
@@ -20,7 +22,7 @@ function EventCard({ event, user, handleLike }) {
                         className="w-full h-40 object-cover transition-transform duration-300 hover:scale-105"
                     />
                     <div className="absolute top-2 left-2 px-3 py-1 rounded-full flex items-center gap-2 text-white text-sm font-semibold backdrop-blur-md bg-black/50 shadow-md ring-1 ring-white/10">
-                        <span className="capitalize">{event.category}</span>
+                        {categoryName}
                     </div>
 
 
@@ -34,7 +36,7 @@ function EventCard({ event, user, handleLike }) {
 
                             {/* Category Badge */}
                             <div className="px-3 py-1 rounded-full flex items-center gap-2 text-white text-sm font-semibold backdrop-blur-md bg-black/50 shadow-md ring-1 ring-white/10">
-                                <span className="capitalize">{event.category}</span>
+                                <span className="capitalize">{event.category?.name}</span>
                             </div>
                         </div>
                     )}

@@ -4,14 +4,9 @@ const eventSchema = new mongoose.Schema(
     {
         title: { type: String, required: true },
         description: { type: String },
-        category: { type: String },
-        eventDate: { type: Date, required: true }, // If 'date' is the same as 'eventDate', you can remove one of them
+        category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }, // Reference to Category        eventDate: { type: Date, required: true }, // If 'date' is the same as 'eventDate', you can remove one of them
         eventTime: { type: String, required: true },
-        // location: {
-        //     name: { type: String, required: false }, // e.g., "New York"
-        //     latitude: { type: Number, required: false }, // Latitude
-        //     longitude: { type: Number, required: false }, // Longitude
-        // },
+        eventDate: { type: Date, required: true }, // Date of the event
         location: {
             type: { type: String, enum: ['Point'], default: 'Point' },
             coordinates: { type: [Number], required: true }, // [longitude, latitude]

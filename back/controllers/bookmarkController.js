@@ -50,12 +50,18 @@ const getBookmarkedEvents = async (req, res) => {
         const bookmarkedEvents = await Bookmark.find({ userId }).populate({
             path: "eventId",
             populate: { path: "user", select: "name" } // Populate event owner details
-        });
+        }).populate({
+            path: 'eventId',
+            populate: [
+                { path: 'user', select: 'name' }, // Populate event owner details
+                { path: 'category', select: '_id name' }, // Populate category details
+            ],
+        })
+            .lean();;
         if (!bookmarkedEvents.length) {
             return res.status(404).json({ success: false, message: "No bookmarks found" });
         }
-        const events = bookmarkedEvents.map(bookmark => bookmark.eventId);
-
+        const events = bookmarkedEvents.map(bookmark => bookmark.eventId).filter(event => event)
         res.status(200).json(events);
     } catch (error) {
         console.error("Error fetching bookmarked events:", error);

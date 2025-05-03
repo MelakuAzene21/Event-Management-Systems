@@ -76,7 +76,7 @@ const Notification = require("../models/Notification");
 const io = require("../config/socket"); // Import WebSocket instance
 const { getIO } = require("../config/socket");
 const sendEmail =require("../helpers/Send-Email")
-
+const Category = require('../models/Category');
 const axios = require("axios");
 
 // Helper function to fetch coordinates from Nominatim
@@ -226,6 +226,12 @@ exports.createEvent = async (req, res) => {
             isFree, // Extract isFree from request body
         } = req.body;
 
+        console.log('event date', eventDate);
+        // Validate category ID
+        const categoryExists = await Category.findById(category);
+        if (!categoryExists) {
+            return res.status(400).json({ message: 'Invalid category ID' });
+        }
         // Convert isFree to boolean (handles string "true"/"false" from FormData)
         const isFreeEvent = isFree === "true" || isFree === true;
 
@@ -350,7 +356,180 @@ exports.getMostNearUpcomingEvent = async (req, res) => {
 // };
 
 
-// Fetch events near a location
+// // Fetch events near a location
+// exports.getEvents = async (req, res) => {
+//     try {
+//         // Extract query parameters and user ID
+//         let { latitude, longitude } = req.query;
+//         const userId = req.user?._id; // Optional: from authentication middleware
+
+//         // Log incoming parameters
+//         console.log('Query parameters:', { latitude, longitude, userId });
+
+//         // Initialize userLocation
+//         let userLocation = null;
+//         let useGeoNear = true;
+
+//         // Try to get user location from query parameters
+//         if (latitude && longitude) {
+//             latitude = parseFloat(latitude);
+//             longitude = parseFloat(longitude);
+//             userLocation = [longitude, latitude]; // MongoDB expects [longitude, latitude]
+
+//             // Validate coordinates
+//             if (isNaN(latitude) || isNaN(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+//                 console.log('Invalid query coordinates, will fetch all events');
+//                 userLocation = null;
+//                 useGeoNear = false;
+//             } else {
+//                 console.log('Valid query coordinates:', userLocation);
+//             }
+//         }
+
+//         // If no valid query coordinates, try user profile if authenticated
+//         if (!userLocation && userId) {
+//             const user = await User.findById(userId).select('location');
+//             if (user && user.location?.coordinates && user.location.coordinates.length === 2 && user.location.coordinates[0] !== 0 && user.location.coordinates[1] !== 0) {
+//                 userLocation = user.location.coordinates;
+//                 console.log('Using user location from profile:', userLocation);
+//             } else {
+//                 console.log('User location invalid or missing, will fetch all events');
+//                 useGeoNear = false;
+//             }
+//         }
+
+//         // If no valid location, fetch all approved events without geo sorting
+//         let events;
+//         if (!userLocation || !useGeoNear) {
+//             console.log('Fetching all approved events without location sorting');
+//             events = await Event.aggregate([
+//                 {
+//                     $match: {
+//                         status: "approved",
+//                         "location.coordinates": { $exists: true, $ne: [] }
+//                     }
+//                 },
+//                 {
+//                     $lookup: {
+//                         from: "users",
+//                         localField: "organizer",
+//                         foreignField: "_id",
+//                         as: "organizer"
+//                     }
+//                 },
+//                 {
+//                     $unwind: {
+//                         path: "$organizer",
+//                         preserveNullAndEmptyArrays: true
+//                     }
+//                 },
+//                 {
+//                     $project: {
+//                         title: 1,
+//                         description: 1,
+//                         category: 1,
+//                         eventDate: 1,
+//                         eventTime: 1,
+//                         location: 1,
+//                         organizer: {
+//                             _id: "$organizer._id",
+//                             avatar: "$organizer.avatar",
+//                             name: "$organizer.name",
+//                             email: "$organizer.email"
+//                         },
+//                         ticketTypes: 1,
+//                         images: 1,
+//                         status: 1,
+//                         isFree:1,
+//                         likes: 1,
+//                         usersLiked: 1,
+//                         bookmarkedBy: 1,
+//                         createdAt: 1,
+//                         updatedAt: 1
+//                     }
+//                 },
+//                 {
+//                     $sort: { eventDate: 1 } // Sort by event date as fallback
+//                 }
+//             ]).catch((err) => {
+//                 throw new Error(`MongoDB query error: ${err.message}`);
+//             });
+//         } else {
+//             // Use $geoNear to fetch approved events sorted by distance
+//             console.log('Executing MongoDB query with userLocation:', userLocation);
+//             events = await Event.aggregate([
+//                 {
+//                     $geoNear: {
+//                         near: {
+//                             type: "Point",
+//                             coordinates: userLocation
+//                         },
+//                         distanceField: "distance", // Add distance field (in meters)
+//                         spherical: true,
+//                         query: {
+//                             status: "approved",
+//                             "location.coordinates": { $exists: true, $ne: [] }
+//                         }
+//                     }
+//                 },
+//                 {
+//                     $lookup: {
+//                         from: "users",
+//                         localField: "organizer",
+//                         foreignField: "_id",
+//                         as: "organizer"
+//                     }
+//                 },
+//                 {
+//                     $unwind: {
+//                         path: "$organizer",
+//                         preserveNullAndEmptyArrays: true
+//                     }
+//                 },
+//                 {
+//                     $project: {
+//                         title: 1,
+//                         description: 1,
+//                         category: 1,
+//                         eventDate: 1,
+//                         eventTime: 1,
+//                         location: 1,
+//                         organizer: {
+//                             _id: "$organizer._id",
+//                             avatar: "$organizer.avatar",
+//                             name: "$organizer.name",
+//                             email: "$organizer.email"
+//                         },
+//                         ticketTypes: 1,
+//                         images: 1,
+//                         status: 1,
+//                         isFree: 1,
+//                         likes: 1,
+//                         usersLiked: 1,
+//                         bookmarkedBy: 1,
+//                         createdAt: 1,
+//                         updatedAt: 1,
+//                         distance: 1 // Include distance in response
+//                     }
+//                 }
+//             ]).catch((err) => {
+//                 throw new Error(`MongoDB query error: ${err.message}`);
+//             });
+//         }
+
+//         // Log the number of events found
+//         console.log(`Found ${events.length} events`);
+
+//         // Return events (empty array if none found)
+//         res.status(200).json(events || []);
+//     } catch (error) {
+//         console.error('Error in getEvents:', error.message, error.stack);
+//         res.status(500).json({ message: 'Error fetching events', error: error.message });
+//     }
+// };
+
+
+
 exports.getEvents = async (req, res) => {
     try {
         // Extract query parameters and user ID
@@ -418,10 +597,27 @@ exports.getEvents = async (req, res) => {
                     }
                 },
                 {
+                    $lookup: {
+                        from: "categories",
+                        localField: "category",
+                        foreignField: "_id",
+                        as: "category"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$category",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
                     $project: {
                         title: 1,
                         description: 1,
-                        category: 1,
+                        category: {
+                            _id: "$category._id",
+                            name: "$category.name"
+                        },
                         eventDate: 1,
                         eventTime: 1,
                         location: 1,
@@ -434,7 +630,7 @@ exports.getEvents = async (req, res) => {
                         ticketTypes: 1,
                         images: 1,
                         status: 1,
-                        isFree:1,
+                        isFree: 1,
                         likes: 1,
                         usersLiked: 1,
                         bookmarkedBy: 1,
@@ -481,10 +677,27 @@ exports.getEvents = async (req, res) => {
                     }
                 },
                 {
+                    $lookup: {
+                        from: "categories",
+                        localField: "category",
+                        foreignField: "_id",
+                        as: "category"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$category",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
                     $project: {
                         title: 1,
                         description: 1,
-                        category: 1,
+                        category: {
+                            _id: "$category._id",
+                            name: "$category.name"
+                        },
                         eventDate: 1,
                         eventTime: 1,
                         location: 1,
@@ -520,8 +733,7 @@ exports.getEvents = async (req, res) => {
         console.error('Error in getEvents:', error.message, error.stack);
         res.status(500).json({ message: 'Error fetching events', error: error.message });
     }
-};
-
+}; 
 exports.eventDetails = async (req, res) => {
     const { id } = req.params;
     try {

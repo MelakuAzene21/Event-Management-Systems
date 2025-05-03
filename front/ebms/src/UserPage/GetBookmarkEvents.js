@@ -4,21 +4,19 @@ import Title from "../layout/Title";
 import { toast } from "react-toastify";
 import { IoBookmark, IoLocationOutline, IoTimeOutline, IoCalendarOutline } from "react-icons/io5";
 import SkeletonLoader from "../layout/SkeletonLoader";
-import { useGetBookmarkedEventsQuery } from "../features/api/bookingApi";
-import { useUnbookmarkEventMutation } from "../features/api/bookingApi";
+import { useGetBookmarkedEventsQuery, useUnbookmarkEventMutation } from "../features/api/bookingApi";
+
 const BookmarkedEvents = () => {
     const {
         data: bookmarkedEvents = [],
-        loading,        
+        isLoading: loading,
     } = useGetBookmarkedEventsQuery();
     const [filteredEvents, setFilteredEvents] = useState([]);
-
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [showUnbookmarkModal, setShowUnbookmarkModal] = useState(false);
     const [eventToUnbookmark, setEventToUnbookmark] = useState(null);
 
-    
     // Filter events based on search query and category
     useEffect(() => {
         let filtered = bookmarkedEvents;
@@ -35,7 +33,7 @@ const BookmarkedEvents = () => {
         }
 
         if (selectedCategory !== "All") {
-            filtered = filtered.filter((event) => (event?.category || "") === selectedCategory);
+            filtered = filtered.filter((event) => event?.category?.name === selectedCategory);
         }
 
         setFilteredEvents(filtered);
@@ -58,19 +56,32 @@ const BookmarkedEvents = () => {
         }
     };
 
-
     const confirmUnbookmark = (eventId) => {
         setEventToUnbookmark(eventId);
         setShowUnbookmarkModal(true);
     };
 
-    const categories = ["All", ...new Set(bookmarkedEvents.map((event) => event?.category || ""))];
+    // Create categories list, excluding null/undefined and capitalizing names
+    const categories = [
+        "All",
+        ...new Set(
+            bookmarkedEvents
+                .filter((event) => event?.category?.name)
+                .map((event) => event.category.name.charAt(0).toUpperCase() + event.category.name.slice(1))
+        ),
+    ];
 
-    if (loading) return <div className="text-center text-gray-600 py-12"><div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[...Array(8)].map((_, i) => (
-              <SkeletonLoader key={i} />
-            ))}
-          </div> </div>;
+    if (loading) {
+        return (
+            <div className="text-center text-gray-600 py-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {[...Array(8)].map((_, i) => (
+                        <SkeletonLoader key={i} />
+                    ))}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-6xl mx-auto px-4 py-8">
@@ -117,7 +128,7 @@ const BookmarkedEvents = () => {
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                     {categories.map((category) => (
-                        <option key={category} value={category}>
+                        <option key={category} value={category === "All" ? "All" : category}>
                             {category} {category === "All" ? "Categories" : ""}
                         </option>
                     ))}
@@ -128,85 +139,22 @@ const BookmarkedEvents = () => {
             {filteredEvents.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredEvents
-                        .filter(event => event && event._id) // filter out null or invalid ones
-
+                        .filter((event) => event && event._id) // Filter out null or invalid events
                         .map((event) => (
-                        <div
-                            key={event._id}
-                            className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200"
-                        >
-                            <div className="relative w-full h-48 bg-gray-200 flex items-center justify-center">
-                                {event?.images?.[0] ? (
-                                    <img
-                                        src={`http://localhost:5000${event.images[0]}`}
-                                        alt={event.title || "Event"}
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <svg
-                                        className="w-12 h-12 text-gray-400"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth="2"
-                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            <div
+                                key={event._id}
+                                className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200"
+                            >
+                                <div className="relative w-full h-48 bg-gray-200 flex items-center justify-center">
+                                    {event?.images?.[0] ? (
+                                        <img
+                                            src={event.images[0]}
+                                            alt={event.title || "Event"}
+                                            className="w-full h-full object-cover"
                                         />
-                                    </svg>
-                                )}
-                                <span className="absolute top-2 left-2 bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded-full">
-                                    {event?.category || "Uncategorized"}
-                                </span>
-                            </div>
-                            <div className="p-4">
-                                <h3 className="text-lg font-semibold text-gray-800 mb-2">{event?.title || "Untitled Event"}</h3>
-                                <div className="space-y-1 text-sm text-gray-600">
-                                    <div className="flex items-center gap-2">
-                                        <IoCalendarOutline />
-                                        <span>
-                                            {event?.eventDate
-                                                ? new Date(event.eventDate).toLocaleDateString()
-                                                : "Date TBD"}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <IoTimeOutline />
-                                        <span>
-                                            {event?.eventDate
-                                                ? new Date(event.eventDate).toLocaleTimeString([], {
-                                                    hour: "2-digit",
-                                                    minute: "2-digit",
-                                                })
-                                                : "Time TBD"}{" "}
-                                            -{" "}
-                                            {event?.eventDate
-                                                ? new Date(
-                                                    new Date(event.eventDate).getTime() + 9 * 60 * 60 * 1000
-                                                ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                                                : "Time TBD"}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <IoLocationOutline />
-                                        <span>{event?.location?.name?.split(',')[1] || "Location TBD"}</span>
-                                    </div>
-                                </div>
-                                <div className="flex gap-3 mt-4">
-                                    <Link
-                                        to={`/events/${event._id}`}
-                                        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-center hover:bg-gray-200 transition-colors"
-                                    >
-                                        View Details
-                                    </Link>
-                                    <button
-                                        onClick={() => confirmUnbookmark(event._id)}
-                                        className="flex items-center justify-center gap-1 px-4 py-2 bg-white text-red-500 border border-red-500 rounded-lg hover:bg-red-50 transition-colors"
-                                    >
+                                    ) : (
                                         <svg
-                                            className="w-4 h-4"
+                                            className="w-12 h-12 text-gray-400"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -215,15 +163,81 @@ const BookmarkedEvents = () => {
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"
                                                 strokeWidth="2"
-                                                d="M5 13l4 4L19 7"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                                             />
                                         </svg>
-                                        Unbookmark
-                                    </button>
+                                    )}
+                                    <span className="absolute top-2 left-2 bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded-full">
+                                        {event?.category?.name
+                                            ? event.category.name.charAt(0).toUpperCase() + event.category.name.slice(1)
+                                            : "Uncategorized"}
+                                    </span>
+                                </div>
+                                <div className="p-4">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                                        {event?.title || "Untitled Event"}
+                                    </h3>
+                                    <div className="space-y-1 text-sm text-gray-600">
+                                        <div className="flex items-center gap-2">
+                                            <IoCalendarOutline />
+                                            <span>
+                                                {event?.eventDate
+                                                    ? new Date(event.eventDate).toLocaleDateString()
+                                                    : "Date TBD"}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <IoTimeOutline />
+                                            <span>
+                                                {event?.eventDate
+                                                    ? new Date(event.eventDate).toLocaleTimeString([], {
+                                                        hour: "2-digit",
+                                                        minute: "2-digit",
+                                                    })
+                                                    : "Time TBD"}{" "}
+                                                -{" "}
+                                                {event?.eventDate
+                                                    ? new Date(
+                                                        new Date(event.eventDate).getTime() + 9 * 60 * 60 * 1000
+                                                    ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                                                    : "Time TBD"}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <IoLocationOutline />
+                                            <span>{event?.location?.name?.split(",")[1] || "Location TBD"}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-3 mt-4">
+                                        <Link
+                                            to={`/events/${event._id}`}
+                                            className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-center hover:bg-gray-200 transition-colors"
+                                        >
+                                            View Details
+                                        </Link>
+                                        <button
+                                            onClick={() => confirmUnbookmark(event._id)}
+                                            className="flex items-center justify-center gap-1 px-4 py-2 bg-white text-red-500 border border-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                                        >
+                                            <svg
+                                                className="w-4 h-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M5 13l4 4L19 7"
+                                                />
+                                            </svg>
+                                            Unbookmark
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
                 </div>
             ) : (
                 <div className="text-center text-gray-500 text-lg py-12">
@@ -263,7 +277,8 @@ const BookmarkedEvents = () => {
                         </div>
                         <div className="mb-6">
                             <p className="text-gray-600">
-                                Are you sure you want to remove this event from your bookmarks? You can always bookmark it again later.
+                                Are you sure you want to remove this event from your bookmarks? You can always bookmark
+                                it again later.
                             </p>
                         </div>
                         <div className="flex justify-end gap-4">

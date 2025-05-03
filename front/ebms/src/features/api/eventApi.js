@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: 'http://localhost:5000/api/events', // Base URL for event-related API
+    baseUrl: 'http://localhost:5000/api', // Base URL for event-related API
     credentials: 'include', // Include cookies for authentication
 });
 
@@ -19,25 +19,25 @@ export const eventApi = createApi({
         // Fetch all events, optionally with location parameters
         getAllEvents: builder.query({
             query: ({ latitude, longitude } = {}) => ({
-                url: '/getEvent',
+                url: '/events/getEvent',
                 params: latitude && longitude ? { latitude, longitude } : undefined,
             }),
             providesTags: ['Event'],
         }),
         // Fetch details of a single event
         getEventDetails: builder.query({
-            query: (id) => `/${id}`,
+            query: (id) => `/events/${id}`,
             providesTags: ['Event'],
         }),
         // Fetch events created by the current organizer
         getMyEvents: builder.query({
-            query: () => '/myEvent',
+            query: () => '/events/myEvent',
             providesTags: ['Event'],
         }),
         // Create a new event
         createEvent: builder.mutation({
             query: (eventData) => ({
-                url: '/creatEvent',
+                url: '/events/creatEvent',
                 method: 'POST',
                 body: eventData,
             }),
@@ -46,7 +46,7 @@ export const eventApi = createApi({
         // Update an existing event
         updateEvent: builder.mutation({
             query: ({ id, eventData }) => ({
-                url: `/update/${id}`,
+                url: `/events/update/${id}`,
                 method: 'PUT',
                 body: eventData,
             }),
@@ -55,7 +55,7 @@ export const eventApi = createApi({
        //user like the events
         likeEvent: builder.mutation({
             query: ({ eventId, userId }) => ({
-                url: `/userLike/${eventId}`,
+                url: `/events/userLike/${eventId}`,
                 method: 'POST',
                 body: { userId },
             }),
@@ -64,13 +64,15 @@ export const eventApi = createApi({
         // Delete an event
         deleteEvent: builder.mutation({
             query: (id) => ({
-                url: `/delete/${id}`,
+                url: `/events/delete/${id}`,
                 method: 'DELETE',
             }),
             invalidatesTags: ['Event'],
         }),
-
-        
+        getCategories: builder.query({
+            query: () => '/categories',
+        }),
+                
     }),
 });
 
@@ -81,5 +83,6 @@ export const {
     useCreateEventMutation,
     useUpdateEventMutation,
     useDeleteEventMutation,
-    useLikeEventMutation
+    useLikeEventMutation,
+    useGetCategoriesQuery,
 } = eventApi;
