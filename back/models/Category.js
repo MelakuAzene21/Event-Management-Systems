@@ -12,7 +12,18 @@ const categorySchema = new mongoose.Schema(
         description: {
             type: String,
             trim: true
+        },
+        icon: {
+            url: {
+                type: String,
+                trim: true
+            },
+            public_id: {
+                type: String,
+                trim: true
+            }
         }
+
     },
     { timestamps: true }
 );
