@@ -40,7 +40,7 @@ const EventDetails = () => {
           <CardMedia
             component="img"
             height="300"
-            image={`http://localhost:5000${event.images[0]}`}
+            image={event.images[0]}
             alt={event.title}
           />
           <CardContent>

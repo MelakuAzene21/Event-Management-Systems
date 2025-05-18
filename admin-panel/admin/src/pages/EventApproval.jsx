@@ -82,7 +82,7 @@ toast.error("Failed to update event status.");}
                 }}
               >
                 <img
-                  src={`http://localhost:5000${imgUrl}`}
+                  src={imgUrl}
                   alt={event.title}
                   style={{
                     width: "100%",
@@ -117,7 +117,7 @@ toast.error("Failed to update event status.");}
               📍 Location: {event.location.name}
             </Typography>
             <Typography variant="body2" color="textSecondary">
-              🏷️ Category: {event.category}
+              🏷️ Category: {event.category?.name}
             </Typography>
           </Grid>
         </Grid>

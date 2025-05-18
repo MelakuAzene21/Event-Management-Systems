@@ -35,7 +35,7 @@ import GetAllVendor from './Vendorpage/GetAllvendor';
 import VendorProfile from './Vendorpage/VendorProfile';
 import SkeletonLoader from './layout/SkeletonLoader';
 import OrganizerDetails from './Origanizer/OrganizerDetails';
-
+import CategoryEvents from './layout/CategoryEvents';
 function App() {
   // const user=useSelector((state) => state.auth.user);
   const { data: user, isLoading } = useGetCurrentUserQuery();
@@ -94,6 +94,7 @@ function App() {
               <Route path='/vendors' element={<GetAllVendor />} />
               <Route path="/vendors/:id" element={<VendorProfile />} />
               <Route path="/organizers/:id" element={<OrganizerDetails />} />
+              <Route path="/categories/:id/events" element={<CategoryEvents />} />
 
 
           </Route>
