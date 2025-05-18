@@ -84,6 +84,7 @@ const Category = require('../models/Category');
 const Event = require('../models/Event');
 const verifyToken = require('../middlewares/verifyToken');
 const cloudinary = require('cloudinary').v2;
+const mongoose = require('mongoose');
 const uploadMiddleware = require('../utils/uploadAavatar');
 // Get all categories
 router.get('/', async (req, res) => {
@@ -94,6 +95,49 @@ router.get('/', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+// Get events by category
+router.get('/events', async (req, res) => {
+    try {
+        const categoryId = req.query.category;
+        // Validate category ID
+        if (!mongoose.isValidObjectId(categoryId)) {
+            return res.status(400).json({ message: 'Invalid category ID' });
+        }
+
+        // Check if category exists
+        const category = await Category.findById(categoryId);
+        if (!category) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+
+        // Fetch events
+        const events = await Event.find({ category: categoryId }).populate('category');
+        res.json(events);
+    } catch (err) {
+        console.error('Error fetching events:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+});
+
+// Get category by ID
+router.get('/:id', async (req, res) => {
+    try {
+        const categoryId = req.params.id;
+        // Validate category ID
+        if (!mongoose.isValidObjectId(categoryId)) {
+            return res.status(400).json({ message: 'Invalid category ID' });
+        }
+
+        const category = await Category.findById(categoryId);
+        if (!category) return res.status(404).json({ message: 'Category not found' });
+        res.json(category);
+    } catch (err) {
+        console.error('Error fetching category:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+});
+
 
 // Create a new category (Admin only)
 router.post('/', verifyToken, uploadMiddleware, async (req, res) => {

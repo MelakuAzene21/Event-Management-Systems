@@ -1025,7 +1025,8 @@ export default function IndexPage() {
                     <CategoryTags
                         categories={categories.map(cat => ({
                             id: cat._id,
-                            name: cat.name.charAt(0).toUpperCase() + cat.name.slice(1)
+                            name: cat.name.charAt(0).toUpperCase() + cat.name.slice(1),
+                            icon: cat.icon
                         }))}
                         selectedCategory={selectedCategories.length === 1 ? selectedCategories[0] : ''}
                         onCategorySelect={toggleCategory}
