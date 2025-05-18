@@ -435,7 +435,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import OrganizerFollowCard from "../Origanizer/OrganizerInfo";
 import { useGetEventDetailsQuery, useGetAllEventsQuery } from "../features/api/eventApi";
 import ShowEditDeleteReview from "../components/ShowEditDeleteReview";
-
+import OrganizersList from "../layout/OrganizersList";
 export default function EventPage() {
     const { id } = useParams();
     const [selectedTicket, setSelectedTicket] = useState(null);
@@ -887,6 +887,7 @@ export default function EventPage() {
                     <p className="text-gray-500">No related events found.</p>
                 )}
             </div>
+            <OrganizersList />
         </div>
     );
 }

@@ -694,6 +694,19 @@ exports.totalFollowerOfOrganizer = async (req, res) => {
     }
 };
 
+// Fetch all organizers
+exports.getAllOrganizers = async (req, res) => {
+    try { 
+        // Fetch all users who are organizers (adjust query if there's a specific field like role: 'organizer')
+        const organizers = await User.find().select(
+            "name organizationName about website socialLinks eventCategories phoneNumber address experience logo avatar"
+        );
+        res.status(200).json(organizers);
+    } catch (error) {
+        console.error("Error fetching all organizers:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};
 
 
 

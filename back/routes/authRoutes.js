@@ -3,7 +3,8 @@ const { register, login, logout, getProfile, updateProfile,
     getAllUsers, googleCallback, logoutGoogle, deleteUser,
     forgotPassword, resetPassword, updateUser, followedOrganizers,
     totalFollowerOfOrganizer, uploadAvatar, getAllVendors, getVendorById, 
-    getOrganizerDEtails} = require('../controllers/authController');
+    getOrganizerDEtails,
+    getAllOrganizers} = require('../controllers/authController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
@@ -21,7 +22,7 @@ router.post('/forgot-password', forgotPassword);
 router.put('/reset-password/:token', resetPassword);
 router.get('/vendors', getAllVendors)
 router.get('/vendor/:id', getVendorById);
-
+router.get('/organizers',getAllOrganizers)
 // // Google OAuth Login
 // router.get("/google", passport.authenticate("google",
 
