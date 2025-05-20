@@ -20,7 +20,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Spinner from "../layout/Spinner";
 import Title from "../layout/Title";
-import BackButton from "../layout/BackButton";
+// import BackButton from "../layout/BackButton";
 
 const UserProfile = () => {
     const { data: user, isLoading, isError, error } = useGetCurrentUserQuery();
@@ -161,9 +161,9 @@ const UserProfile = () => {
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
                 {/* Back Button */}
-                <div className="mb-6">
+                {/* <div className="mb-6">
                     <BackButton />
-                </div>
+                </div> */}
 
                 {/* Title */}
                 <Title

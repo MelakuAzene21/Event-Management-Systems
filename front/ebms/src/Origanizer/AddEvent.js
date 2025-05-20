@@ -409,7 +409,6 @@ import { useCreateEventMutation, useGetCategoriesQuery } from "../features/api/e
 import { toast } from "react-toastify";
 import Title from "../layout/Title";
 import EventLocationInput from "../components/EventLocationInput";
-import BackButton from "../layout/BackButton";
 
 const CreateEvent = () => {
     const [formData, setFormData] = useState({
@@ -565,7 +564,7 @@ const CreateEvent = () => {
 
     return (
         <div className="max-w-2xl mx-auto mt-10 p-6 bg-gray-50">
-            <BackButton />
+            
             <Title title="Create event" />
             <h2 className="text-3xl font-bold text-gray-800 mb-2">Create New Event</h2>
             <p className="text-gray-500 mb-6">Fill in the details below to create your event</p>

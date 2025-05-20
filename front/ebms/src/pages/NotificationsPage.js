@@ -71,7 +71,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Bell, CheckCircle, Calendar, User, Ticket } from "lucide-react";
 import { formatDistanceToNow, parseISO } from "date-fns";
 import Title from "../layout/Title";
-import BackButton from "../layout/BackButton";
+// import BackButton from "../layout/BackButton";
 import { useMarkAllAsReadMutation } from "../features/api/notificationsApi";
 import { useEffect, useState } from "react";
 import { setNotifications } from "../features/slices/notificationSlice";
@@ -115,9 +115,9 @@ const NotificationsPage = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-10">
-            <div className="max-w-4xl mx-auto px-4">
+            <div className="max-w-4xl  px-4">
                 {/* Header */}
-                <BackButton />
+                {/* <BackButton /> */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}

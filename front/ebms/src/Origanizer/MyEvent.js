@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { MdEdit, MdDelete } from "react-icons/md";
 import {
@@ -9,6 +9,7 @@ import {
 import * as Dialog from "@radix-ui/react-dialog";
 import { toast } from "react-toastify";
 import Title from "../layout/Title";
+import { FaSearch } from "react-icons/fa";
 
 export default function MyEventsPage() {
     const { data, isLoading, error } = useGetMyEventsQuery();
@@ -17,6 +18,11 @@ export default function MyEventsPage() {
 
     const [isOpen, setIsOpen] = useState(false);
     const [eventToDelete, setEventToDelete] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [dateFilter, setDateFilter] = useState("all");
+    const [currentPage, setCurrentPage] = useState(1);
+    const eventsPerPage = 10;
 
     const openDeleteModal = (eventId) => {
         setEventToDelete(eventId);
@@ -27,26 +33,74 @@ export default function MyEventsPage() {
         if (eventToDelete) {
             try {
                 await deleteEvent(eventToDelete).unwrap();
-                toast.success("Event Deleted Successfully")
+                toast.success("Event Deleted Successfully");
             } catch (err) {
                 console.error("Error deleting event:", err);
-                toast.error("error deleting Event")
+                toast.error("Error deleting Event");
             } finally {
                 setIsOpen(false);
+                setEventToDelete(null);
             }
         }
     };
 
+    // Filter and search logic
+    const filteredEvents = useMemo(() => {
+        let filtered = myEvents;
+
+        // Search by title or location
+        if (searchTerm) {
+            filtered = filtered.filter(
+                (event) =>
+                    event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    event.location?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // Filter by status
+        if (statusFilter !== "all") {
+            filtered = filtered.filter((event) => event.status === statusFilter);
+        }
+
+        // Filter by date
+        const today = new Date();
+        const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        if (dateFilter === "today") {
+            filtered = filtered.filter(
+                (event) => new Date(event.eventDate) >= startOfDay
+            );
+        } else if (dateFilter === "week") {
+            filtered = filtered.filter(
+                (event) => new Date(event.eventDate) >= startOfWeek
+            );
+        } else if (dateFilter === "month") {
+            filtered = filtered.filter(
+                (event) => new Date(event.eventDate) >= startOfMonth
+            );
+        }
+
+        return filtered;
+    }, [myEvents, searchTerm, statusFilter, dateFilter]);
+
+    // Pagination logic
+    const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+    const paginatedEvents = filteredEvents.slice(
+        (currentPage - 1) * eventsPerPage,
+        currentPage * eventsPerPage
+    );
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
     return (
-        <div className="flex flex-col mx-5 xl:mx-32 md:mx-10 mt-5">
-           <Title title={"My Event page"}/>
-            <div className="flex justify-end mb-4">
-                <Link to="/create-event">
-                    <button className="px-6 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition duration-300">
-                        Create New Event
-                    </button>
-                </Link>
-            </div>
+        <div className="flex flex-col p-4">
+            <Title title="My Event Page" />
 
             {isLoading ? (
                 <p className="text-gray-500 text-center text-lg">Loading events...</p>
@@ -57,31 +111,106 @@ export default function MyEventsPage() {
                     You haven't created any events yet.
                 </p>
             ) : (
-                <div className="overflow-x-auto shadow-lg rounded-lg">
-                    <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
-                        Total Events: {myEvents.length}
-                    </h1>
+                <div className="space-y-6">
+                    {/* Search and Filter Controls */}
+                    <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                        {/* Search Bar */}
+                        <div className="flex-1 relative">
+                            <input
+                                type="text"
+                                placeholder="Search by event name or location..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                            />
+                            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        </div>
 
-                    <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                        <thead className="bg-gray-100 text-gray-700 uppercase text-sm">
-                            <tr>
-                                <th className="py-3 px-4 text-left border-b">Event Name</th>
-                                <th className="py-3 px-4 text-left border-b">Date</th>
-                                <th className="py-3 px-4 text-left border-b">Location</th>
-                                <th className="py-3 px-4 text-center border-b">Status</th>
+                        {/* Status Filter */}
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                        >
+                            <option value="all">All Status</option>
+                            <option value="approved">Approved</option>
+                            <option value="pending">Pending</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
 
-                                <th className="py-3 px-4 text-center border-b">Registered Attendees</th>
-                                <th className="py-3 px-4 text-center border-b">Tickets Available</th>
-                                <th className="py-3 px-4 text-center border-b">Tickets Booked</th>
-                                <th className="py-3 px-4 text-center border-b">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {myEvents.map((event) => (
-                                <EventRow key={event._id} event={event} openDeleteModal={openDeleteModal} />
+                        {/* Date Filter */}
+                        <select
+                            value={dateFilter}
+                            onChange={(e) => setDateFilter(e.target.value)}
+                            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                        >
+                            <option value="all">All Dates</option>
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                        </select>
+                    </div>
+
+                    {/* Events Table */}
+                    {filteredEvents.length === 0 ? (
+                        <p className="text-gray-500 text-center text-lg">
+                            No events match your search or filter criteria.
+                        </p>
+                    ) : (
+                        <div className="overflow-x-auto shadow-lg rounded-lg">
+                            <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                                <thead className="bg-gray-100 text-gray-700 uppercase text-sm">
+                                    <tr>
+                                        <th className="py-3 px-4 text-left border-b">Event Name</th>
+                                        <th className="py-3 px-4 text-left border-b">Date</th>
+                                        <th className="py-3 px-4 text-left border-b">Location</th>
+                                        <th className="py-3 px-4 text-center border-b">Status</th>
+                                        <th className="py-3 px-4 text-center border-b">Registered Attendees</th>
+                                        <th className="py-3 px-4 text-center border-b">Tickets Available</th>
+                                        <th className="py-3 px-4 text-center border-b">Tickets Booked</th>
+                                        <th className="py-3 px-4 text-center border-b">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {paginatedEvents.map((event) => (
+                                        <EventRow key={event._id} event={event} openDeleteModal={openDeleteModal} />
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                        <div className="flex justify-center items-center gap-2 mt-4">
+                            <button
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Previous
+                            </button>
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                <button
+                                    key={page}
+                                    onClick={() => handlePageChange(page)}
+                                    className={`px-3 py-1 rounded-md ${currentPage === page
+                                            ? "bg-blue-500 text-white"
+                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                        }`}
+                                >
+                                    {page}
+                                </button>
                             ))}
-                        </tbody>
-                    </table>
+                            <button
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className="px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -124,10 +253,14 @@ const EventRow = ({ event, openDeleteModal }) => {
             <td className="py-3 px-4">{event.title}</td>
             <td className="py-3 px-4">{new Date(event.eventDate).toLocaleDateString()}</td>
             <td className="py-3 px-4">{event.location?.name?.split(', ')[0] || "N/A"}</td>
-            <td className={`py-3 px-4 ${event.status === 'approved' ? 'text-green-500' :
-                    event.status === 'rejected' ? 'text-red-500' :
-                        'text-gray-500'
-                }`}>
+            <td
+                className={`py-3 px-4 text-center ${event.status === "approved"
+                        ? "text-green-500"
+                        : event.status === "rejected"
+                            ? "text-red-500"
+                            : "text-gray-500"
+                    }`}
+            >
                 {event.status}
             </td>
             <td className="py-3 px-4 text-center">

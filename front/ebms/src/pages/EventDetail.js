@@ -436,6 +436,7 @@ import OrganizerFollowCard from "../Origanizer/OrganizerInfo";
 import { useGetEventDetailsQuery, useGetAllEventsQuery } from "../features/api/eventApi";
 import ShowEditDeleteReview from "../components/ShowEditDeleteReview";
 import OrganizersList from "../layout/OrganizersList";
+import ExploreCategories from "../layout/ExploreCategories";
 export default function EventPage() {
     const { id } = useParams();
     const [selectedTicket, setSelectedTicket] = useState(null);
@@ -888,6 +889,8 @@ export default function EventPage() {
                 )}
             </div>
             <OrganizersList />
+
+            <ExploreCategories/>
         </div>
     );
 }
