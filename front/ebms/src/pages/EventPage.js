@@ -747,6 +747,7 @@ import EventCard from '../components/EventCard';
 import NoEventsFound from '../components/NoEventsFound';
 import { ArrowLeft, ArrowRight, MapPin, Calendar, X } from 'lucide-react';
 import { useGetAllEventsQuery, useLikeEventMutation, useGetCategoriesQuery } from '../features/api/eventApi';
+import TopDestinations from '../UserPage/TopDestinations';
 
 export default function IndexPage() {
     const user = useSelector((state) => state.auth.user);
@@ -1188,6 +1189,11 @@ export default function IndexPage() {
                         className='w-full h-full object-cover rounded-lg shadow-md'
                     />
                 </div>
+
+                <div>
+                    <TopDestinations/>
+                 </div>
+
             </div>
         </>
     );

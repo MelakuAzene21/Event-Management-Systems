@@ -984,3 +984,48 @@ exports. getEventAttendeeCount = async (req, res) => {
     }
 };
 
+
+
+exports.getTopCities = async (req, res) => {
+    try {
+        console.log("Fetching top cities...");
+        // Aggregate events by city (location.name), count them, and sort by count
+        const topCities = await Event.aggregate([
+            { $match: { 'location.name': { $ne: null } } }, // Exclude events with no city name
+            { $group: { _id: '$location.name', eventCount: { $sum: 1 } } },
+            { $sort: { eventCount: -1 } }, // Sort by event count in descending order
+        ]);
+
+        // Map cities with placeholder images (you can replace these with real images)
+        const citiesWithImages = topCities.map((city, index) => ({
+            name: city._id,
+            eventCount: city.eventCount,
+            image: [
+                'https://images.unsplash.com/photo-1496442226666-8d4d0e62f116?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80', // New York
+                'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80', // San Francisco
+                'https://images.unsplash.com/photo-1596436889106-be35e843f974?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80', // Chicago
+                'https://images.unsplash.com/photo-1594819046782-0a5e9c9f7c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80', // Nashville
+            ][index % 5] || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80'
+        }));
+
+        res.status(200).json(citiesWithImages);
+    } catch (error) {
+        console.error('Error fetching top cities:', error);
+        res.status(500).json({ message: 'Failed to fetch top cities.' });
+    }
+};
+
+exports.getEventsByCity = async (req, res) => {
+    try {
+        const { city } = req.params;
+        const events = await Event.find({ 'location.name': city })
+            .populate('category')
+            .populate('organizer')
+            .exec();
+
+        res.status(200).json(events);
+    } catch (error) {
+        console.error('Error fetching events by city:', error);
+        res.status(500).json({ message: 'Failed to fetch events for this city.' });
+    }
+};
