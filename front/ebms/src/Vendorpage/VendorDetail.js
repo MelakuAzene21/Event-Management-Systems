@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { FaStar, FaArrowLeft, FaTimes } from 'react-icons/fa';
 import { FiMapPin, FiCalendar } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDispatch, useSelector } from 'react-redux';
+import { addChat } from '../features/slices/chatSlice';
+import { toast } from 'react-toastify';
 
-const VendorProfile = () => {
+const VendorDetail = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const chats = useSelector((state) => state.chats.chats);
+    const { user } = useSelector((state) => state.auth);
     const [vendor, setVendor] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('about');
@@ -16,7 +23,9 @@ const VendorProfile = () => {
     useEffect(() => {
         const fetchVendor = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/auth/vendor/${id}`);
+                const response = await fetch(`http://localhost:5000/api/auth/vendor/${id}`, {
+                    credentials: 'include'
+                });
                 const data = await response.json();
                 if (response.ok) {
                     setVendor(data);
@@ -32,59 +41,69 @@ const VendorProfile = () => {
         fetchVendor();
     }, [id]);
 
-    const detectFileType = async (url) => {
-        console.log('Detecting file type for:', url);
-        if (/\.(jpg|jpeg|png|webp|avif)$/i.test(url)) {
-            console.log('Detected as image by extension');
-            return 'image';
-        }
-        if (/\.pdf$/i.test(url)) {
-            console.log('Detected as PDF by extension');
-            return 'pdf';
-        }
-
-        // Test with .pdf for raw/upload URLs
-        if (url.includes('/raw/upload/')) {
-            const testUrl = url.endsWith('.pdf') ? url : `${url}.pdf`;
-            try {
-                const response = await fetch(testUrl, { method: 'HEAD' });
-                const contentType = response.headers.get('Content-Type');
-                console.log('Content-Type for test URL:', contentType);
-                if (contentType && contentType.includes('pdf')) {
-                    return 'pdf';
-                }
-            } catch (error) {
-                console.error('Error testing PDF URL:', error);
-            }
-        }
-
-        // Fallback to original URL
-        try {
-            const response = await fetch(url, { method: 'HEAD' });
-            const contentType = response.headers.get('Content-Type');
-            console.log('Content-Type for original URL:', contentType);
-            if (contentType) {
-                if (contentType.includes('image')) return 'image';
-                if (contentType.includes('pdf')) return 'pdf';
-            }
-            return 'unknown';
-        } catch (error) {
-            console.error('Error detecting file type:', error);
-            return 'unknown';
-        }
-    };
-
     const openModal = (doc) => {
         setSelectedDoc(doc);
-        setDocType(doc.type); // Optional if needed elsewhere
+        setDocType(doc.type);
         setIsModalOpen(true);
     };
-
 
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedDoc(null);
         setDocType(null);
+    };
+
+    const handleContactVendor = async () => {
+
+        if (!user) {
+            toast.error('Please log in to start chatting');
+            navigate('/login');
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:5000/api/chats/newchat', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    receiverId: id,
+                }),
+            });
+        
+            const data = await response.json();
+            console.log(data);
+        
+            if (response.ok) {
+                // Handle both new and existing chat correctly
+                const chat = data._id ? data : data.chat;
+        
+                // ✅ Check if chat already exists in Redux store
+                const existingChat = chats.find((c) => c._id === chat._id);
+        
+                if (!existingChat) {
+                    // If not exists, add to the Redux store
+                    dispatch(addChat(chat));
+                }
+        
+                // Always navigate to it
+                navigate(`/organizer-dashboard?tab=chatting&chatId=${chat._id}`);
+                if (!existingChat) {
+                    toast.success('Chat started successfully');
+                }
+            } else {
+                console.error('Failed to create chat:', data.message || data.error);
+                toast.error(data.message || 'Failed to start chat');
+            }
+        } catch (error) {
+            console.error('Error creating chat:', error);
+            toast.error('Connection error. Please try again.');
+        }
+        
+
+        
     };
 
     if (loading) return <p className="text-center py-8 text-gray-600">Loading...</p>;
@@ -202,113 +221,70 @@ const VendorProfile = () => {
                     {activeTab === 'documents' && (
                         <div className="bg-white rounded-xl p-6 shadow-sm">
                             <h2 className="text-2xl font-semibold text-gray-900 mb-6">Documents</h2>
-                            {vendor.docs && vendor.docs.length > 0 ? (
-                                <div className="space-y-4">
-                                    {vendor.docs.map((doc, index) => (
-                                        <div
-                                            key={index}
-                                            className="flex justify-between items-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
-                                        >
-                                            <span className="font-medium text-gray-700">
-                                                Document {index + 1}
-                                            </span>
+                            <div className="space-y-4">
+                                {vendor.documents && vendor.documents.length > 0 ? (
+                                    vendor.documents.map((doc, index) => (
+                                        <div key={index} className="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-xl">
+                                            <span className="text-gray-600">{doc.name}</span>
                                             <button
+                                                className="text-indigo-600 hover:text-indigo-800"
                                                 onClick={() => openModal(doc)}
-                                                className="text-indigo-600 hover:text-indigo-800 font-medium px-4 py-2 rounded-md hover:bg-indigo-50 transition-colors duration-200"
                                             >
                                                 View
                                             </button>
                                         </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-gray-500">No documents uploaded.</p>
-                            )}
+                                    ))
+                                ) : (
+                                    <p className="text-gray-500">No documents uploaded.</p>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
 
-                <div className="md:w-1/3 space-y-6">
-                    <div className="border border-gray-200 rounded-lg p-6 shadow-sm bg-white">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Contact Information</h3>
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between text-gray-600">
-                                <span className="font-medium">Email:</span>
-                                <span>{vendor.email}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-gray-600">
-                                <span className="font-medium">Role:</span>
-                                <span>{vendor.role || 'Vendor'}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-gray-600">
-                                <span className="font-medium">Status:</span>
-                                <span className="inline-flex items-center px-2 py-1 bg-indigo-100 text-indigo-700 text-sm rounded-full">
-                                    {vendor.status || 'Active'}
-                                </span>
-                            </div>
-                        </div>
-                        <button className="w-full mt-6 bg-indigo-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-200">
-                            Contact Vendor
-                        </button>
-                    </div>
-                    <div className="border border-gray-200 rounded-lg p-6 shadow-sm bg-white">
-                        <h3 className="text-xl font-semibold text-gray-900 mb-4">Pricing</h3>
-                        <p className="text-2xl font-bold text-gray-900 mb-2">
-                            {vendor.price || '2,500 birr per session'}
-                        </p>
-                        <p className="text-gray-600 mb-4">{vendor.serviceProvided || 'Service Provider'}</p>
-                        <button className="w-full bg-indigo-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors duration-200">
-                            Book Now
+                <div className="md:w-1/3">
+                    <div className="bg-indigo-600 text-white rounded-xl p-6">
+                        <h3 className="text-xl font-semibold">Contact Vendor</h3>
+                        <p className="text-gray-200 my-4">Message {vendor.name} directly for more details.</p>
+                        <button
+                            onClick={handleContactVendor}
+                            className="bg-indigo-700 hover:bg-indigo-800 text-white font-semibold py-2 px-4 rounded-full w-full"
+                        >
+                            Start Chat
                         </button>
                     </div>
                 </div>
             </div>
 
             <AnimatePresence>
-                {isModalOpen && selectedDoc && (
+                {isModalOpen && (
                     <motion.div
-                        className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50"
                     >
-                        <motion.div
-                            className="relative bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6"
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                        >
-                            <button
-                                className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition"
-                                onClick={closeModal}
-                            >
-                                <FaTimes className="w-5 h-5" />
-                            </button>
-
-                            <h2 className="text-xl font-semibold text-gray-800 mb-4">Document Preview</h2>
-
-                            {selectedDoc.type === 'image' ? (
-                                <img
+                        <div className="bg-white p-8 rounded-xl max-w-xl w-full">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-2xl font-semibold">View {docType === 'image' ? 'Image' : 'Document'}</h2>
+                                <button onClick={closeModal} className="text-gray-600">
+                                    <FaTimes />
+                                </button>
+                            </div>
+                            {docType === 'image' && <img src={selectedDoc.url} alt={selectedDoc.name} className="w-full" />}
+                            {docType === 'pdf' && (
+                                <embed
                                     src={selectedDoc.url}
-                                    alt="Document"
-                                    className="w-full max-h-[70vh] object-contain rounded-md border"
+                                    type="application/pdf"
+                                    className="w-full h-96"
                                 />
-                            ) : selectedDoc.type === 'pdf' ? (
-                                <iframe
-                                    src={selectedDoc.url}
-                                    title="PDF Viewer"
-                                    className="w-full h-[70vh] border rounded-md"
-                                ></iframe>
-                            ) : (
-                                <p className="text-gray-600">Unsupported document type.</p>
                             )}
-                        </motion.div>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
-
         </div>
     );
 };
 
-export default VendorProfile;
+export default VendorDetail;

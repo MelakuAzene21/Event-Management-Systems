@@ -4,6 +4,8 @@ import { logout as logoutAction } from '../features/slices/authSlice';
 import { RxExit, RxPerson } from 'react-icons/rx';
 import { BsFillCaretDownFill } from 'react-icons/bs';
 import { useState } from 'react';
+
+import socket,{ stopPing} from '../lib/socket'; // ✅ Import your socket instance
 import { toast } from 'react-toastify';
 import { useLogoutMutation } from '../features/api/authApi';
 import { FaUsers } from "react-icons/fa";
@@ -20,6 +22,8 @@ export default function Logout() {
             await logouting().unwrap(); 
             dispatch(logoutAction());
             toast.success('Logged out successfully');
+            socket.disconnect();
+            stopPing();
             navigate('/login');
         } catch (err) {
             console.error('Failed to log out:', err);

@@ -19,6 +19,17 @@ import NotificationsPage from "../pages/NotificationsPage";
 import UserProfile from "../UserPage/Getprofiles";
 import CreateEvent from "./AddEvent";
 import DashboardOverview from "./DashBoardOverView";
+import ChatInterface from '../components/ChatInterface';
+import { useSearchParams } from "react-router-dom";
+
+
+const OrganizerDashboard = () => {
+    const [searchParams] = useSearchParams();
+   const tabFromQuery = searchParams.get("tab");
+    // const [activeTab, setActiveTab] = useState("events");
+    const [activeTab, setActiveTab] = useState(tabFromQuery || "events");
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // For mobile sidebar toggle
 
 const OrganizerDashboard = () => {
     const [activeTab, setActiveTab] = useState("Dashboard");
@@ -52,19 +63,12 @@ const OrganizerDashboard = () => {
             case "reports": return <Reports events={myEvents} />;
             case "notifications": return <NotificationsPage />;
             case "reviews": return <OrganizerEventReviews />;
-            case "chatting": return (
-                <div className="bg-white p-6 rounded-xl shadow-sm">
-                    <h2 className="text-lg font-semibold text-indigo-900">Chatting</h2>
-                    <p className="text-gray-600 mt-2">Adjust your chatting settings here.</p>
-                </div>
-            );
+            
             case "vendors": return <GetAllVendor />;
             case "profile": return <UserProfile />;
-            default: return (
-                <div className="bg-white p-6 rounded-xl shadow-sm">
-                    <p className="text-gray-600">Select a tab from the sidebar.</p>
-                </div>
-            );
+            
+            case "chatting": return <div className="p-6 text-gray-700"><ChatInterface /></div>;
+            default: return <div className="p-6 text-gray-700">Select a tab from the sidebar.</div>;
         }
     };
 
@@ -269,5 +273,5 @@ const OrganizerDashboard = () => {
         </div>
     );
 };
-
+}
 export default OrganizerDashboard;
