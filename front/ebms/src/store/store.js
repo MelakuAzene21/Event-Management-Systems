@@ -22,12 +22,10 @@
 //             .concat(eventApi.middleware) // Include middleware for APIs
 //             .concat(bookingApi.middleware) // Add booking middleware
 // });
-
-
 import { configureStore } from '@reduxjs/toolkit';
 import { authApi } from '../features/api/authApi';
 import { eventApi } from '../features/api/eventApi';
-import{reportApi} from '../features/api/reportApi';
+import { reportApi } from '../features/api/reportApi';
 import { bookingApi } from '../features/api/bookingApi';
 import authReducer from '../features/slices/authSlice';
 import eventReducer from '../features/slices/eventSlice';
@@ -38,38 +36,40 @@ import storage from 'redux-persist/lib/storage'; // Default: localStorage for we
 import { reviewApi } from '../features/api/reviewApi';
 import { eventsApi } from '../features/api/myEventApi';
 import { notificationsApi } from '../features/api/notificationsApi';
-import notificationReducer,{setNotifications} from "../features/slices/notificationSlice";
+import notificationReducer, { setNotifications } from "../features/slices/notificationSlice";
 import { socketMiddleware } from "../features/middleware/socketMiddleware";
 import { ticketApi } from '../features/api/ticketApi';
-//  Create persist configs for the slices you want to persist
+import chatReducer from '../features/slices/chatSlice';
+
+// Persist config for booking slice
 const bookingPersistConfig = {
     key: 'booking',
     storage,
 };
 
-// Wrap the bookingReducer with persistReducer
+// Wrap booking reducer with persistReducer
 const persistedBookingReducer = persistReducer(bookingPersistConfig, bookingReducer);
 
 export const store = configureStore({
     reducer: {
-        auth: authReducer,               // Authentication state
-        event: eventReducer,             // Event state
-        booking: persistedBookingReducer, // Persisted booking state
+        auth: authReducer,
+        event: eventReducer,
+        booking: persistedBookingReducer, // Persisted booking
         review: reviewReducer,
         notifications: notificationReducer,
-        [authApi.reducerPath]: authApi.reducer, // Auth API
-        [eventApi.reducerPath]: eventApi.reducer, // Event API
-        [bookingApi.reducerPath]: bookingApi.reducer, // Booking API
+        chats: chatReducer, // No persistence for chats
+        [authApi.reducerPath]: authApi.reducer,
+        [eventApi.reducerPath]: eventApi.reducer,
+        [bookingApi.reducerPath]: bookingApi.reducer,
         [reviewApi.reducerPath]: reviewApi.reducer,
         [reportApi.reducerPath]: reportApi.reducer,
         [eventsApi.reducerPath]: eventsApi.reducer,
         [ticketApi.reducerPath]: ticketApi.reducer,
         [notificationsApi.reducerPath]: notificationsApi.reducer,
-
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
-            serializableCheck: false, // Disable warning for non-serializable data
+            serializableCheck: false,
         })
             .concat(authApi.middleware)
             .concat(eventApi.middleware)
@@ -80,9 +80,8 @@ export const store = configureStore({
             .concat(ticketApi.middleware)
             .concat(notificationsApi.middleware)
             .concat(socketMiddleware)
-    
-          
 });
+
 // Fetch notifications when user logs in
 store.dispatch(notificationsApi.endpoints.getUnreadNotifications.initiate())
     .then(({ data }) => {
@@ -90,5 +89,6 @@ store.dispatch(notificationsApi.endpoints.getUnreadNotifications.initiate())
             store.dispatch(setNotifications(data));
         }
     });
+
 // Create persistor for your store
 export const persistor = persistStore(store);

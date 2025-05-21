@@ -32,8 +32,10 @@ export const authApi = createApi({
 
         // Get Current User Profile
         getCurrentUser: builder.query({
-            query: () => '/auth/profile', // Profile endpoint
+            query: () => '/profile', // Profile endpoint
             providesTags: ['User'],
+            skip: (state) => !state.auth.user,  // Skip if no user exists in the state
+
         }),
 
         // Logout Endpoint
@@ -44,6 +46,21 @@ export const authApi = createApi({
             }),
             invalidatesTags: ['User'], // Clear user data
         }),
+        
+      uploadProfilePhoto: builder.mutation({
+          query: ({ userId, file }) => {
+           const formData = new FormData();
+           formData.append("photo", file);
+
+        return {
+            url: `/uploads/upload-avatar/${userId}`, // Your backend API endpoint
+            method: "PUT",
+            body: formData,
+            formData: true,
+        };
+         },
+          invalidatesTags: ["User"], // Ensure UI updates after upload
+         }),
 
         updateProfile: builder.mutation({
             query: ({ userId, updatedData }) => ({
@@ -101,6 +118,7 @@ export const {
     useLoginMutation,
     useGetCurrentUserQuery,
     useLogoutMutation,
+    useUploadProfilePhotoMutation,
     useUpdateProfileMutation,
     useForgotPasswordMutation,
     useResetPasswordMutation,

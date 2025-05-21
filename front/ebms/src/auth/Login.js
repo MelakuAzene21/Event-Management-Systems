@@ -113,9 +113,8 @@
 // };
 
 // export default Login;
-
-
-import React, { useState } from 'react';
+import { setUserOnline, setUserOffline, setOnlineUsers } from "../features/slices/chatSlice";
+import React, { useState ,useEffect } from 'react';
 import { useLoginMutation } from '../features/api/authApi';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -125,6 +124,8 @@ import Title from '../layout/Title';
 import { FaGoogle } from 'react-icons/fa';
 import { toast } from "react-toastify";
 import login_illustration from '../assets/login_illustration.svg'; // Adjust the path as necessary
+import { fetchUserChats } from '../features/slices/chatSlice'; // adjust path if needed
+import socket,{ startPing} from '../lib/socket'; // ✅ Import your socket instance
 
 const Login = () => {
     const [login, { isLoading }] = useLoginMutation();
@@ -154,16 +155,44 @@ const Login = () => {
         try {
             const userData = await login(formData).unwrap();
             dispatch(setUser(userData.user));
+            dispatch(fetchUserChats());
             console.log('Login user data:', userData.user);
             console.log('User role:', userData.user.role);
 
+            // ✅ Connect the socket after login
+            // socket.auth = { token: userData.user.token }; // Set token before connecting
+            // socket.connect();
+            
+            // socket.on("connect", () => {
+            //   console.log("✅ Socket connected after login");
+            //   startPing(); // 🔁 Start pinging the server
+            // });
+
             if (userData.user.role === 'organizer') {
+                socket.auth = { token: userData.user.token }; // Set token before connecting
+                socket.connect();
+                
+                socket.on("connect", () => {
+                  console.log("✅ Socket connected after login");
+                  startPing(); // 🔁 Start pinging the server
+                });
                 navigate('/organizer-dashboard', { replace: true });
                 toast.success("Login Successfully");
             } else if (userData.user.role === 'user') {
                 navigate('/', { replace: true });
                 toast.success("Login Successfully");
-            } else {
+            } else if(userData.user.role === 'vendor') {
+                socket.auth = { token: userData.user.token }; // Set token before connecting
+                socket.connect();
+                
+                socket.on("connect", () => {
+                  console.log("✅ Socket connected after login");
+                  startPing(); // 🔁 Start pinging the server
+                });
+                navigate('/vendor-dashboard', { replace: true });
+                toast.success("Login Successfully");
+            } 
+            else {
                 setErrorMessage('Unknown role. Please contact support.');
             }
             setErrorMessage('');
