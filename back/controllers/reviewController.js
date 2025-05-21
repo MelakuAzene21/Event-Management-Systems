@@ -1,5 +1,6 @@
+const mongoose = require("mongoose");
 const Review = require("../models/Review");
-
+const Event = require("../models/Event");
 // Create a review
 exports.createReview = async (req, res) => {
     try {
@@ -55,5 +56,83 @@ exports.deleteReview = async (req, res) => {
         res.json({ message: "Review deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+
+
+exports.getRatingTrends = async (req, res) => {
+    try {
+        const eventId = req.params.eventId;
+        if (!mongoose.Types.ObjectId.isValid(eventId)) {
+            return res.status(400).json({ error: "Invalid eventId format" });
+        }
+
+        const reviews = await Review.aggregate([
+            {
+                $match: {
+                    eventId: new mongoose.Types.ObjectId(eventId), // Use 'new'
+                    rating: { $exists: true, $ne: null },
+                    createdAt: { $exists: true, $ne: null }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
+                    avgRating: { $avg: "$rating" }
+                }
+            },
+            { $sort: { "_id": 1 } }
+        ]);
+
+        if (reviews.length === 0) {
+            return res.json({ labels: [], data: [], message: "No reviews found" });
+        }
+
+        const labels = reviews.map(r => r._id);
+        const data = reviews.map(r => parseFloat(r.avgRating.toFixed(1)));
+
+        res.json({ labels, data });
+    } catch (error) {
+        console.error("Error in getRatingTrends:", error);
+        res.status(500).json({ error: "Error fetching rating trends", details: error.message });
+    }
+};
+
+exports.getRatingDistribution = async (req, res) => {
+    try {
+        const eventId = req.params.eventId;
+        if (!mongoose.Types.ObjectId.isValid(eventId)) {
+            return res.status(400).json({ error: "Invalid eventId format" });
+        }
+
+        const reviews = await Review.aggregate([
+            {
+                $match: {
+                    eventId: new mongoose.Types.ObjectId(eventId), // Use 'new'
+                    rating: { $exists: true, $ne: null }
+                }
+            },
+            {
+                $group: {
+                    _id: "$rating",
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id": 1 } }
+        ]);
+
+        const labels = ["1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars"];
+        const data = [0, 0, 0, 0, 0];
+        reviews.forEach(r => {
+            if (r._id >= 1 && r._id <= 5) {
+                data[r._id - 1] = r.count;
+            }
+        });
+
+        res.json({ labels, data });
+    } catch (error) {
+        console.error("Error in getRatingDistribution:", error);
+        res.status(500).json({ error: "Error fetching rating distribution", details: error.message });
     }
 };

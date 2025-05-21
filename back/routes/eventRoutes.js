@@ -33,7 +33,8 @@
 const express = require('express');
 const { createEvent, getEvents, eventDetails, getMyEvent, UpdateEvent, deleteEvent,
     getMostNearUpcomingEvent, userLike, getEventAttendeeCount, approveOrRejectEvent,
-    getTopCities, getEventsByCity } = require('../controllers/eventController');
+    getTopCities, getEventsByCity, 
+    getDashboardData} = require('../controllers/eventController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
@@ -45,7 +46,8 @@ router.get('/nearUpcoming', getMostNearUpcomingEvent);
 router.get('/myEvent', verifyToken, checkRole('organizer'), getMyEvent);
 router.get('/top-cities', getTopCities); // Moved up
 router.get('/by-city/:city', getEventsByCity); // Moved up, but still after static routes
-
+router.get('/dashboard', verifyToken, getDashboardData)
+ 
 // Dynamic routes after static routes
 router.post('/creatEvent', verifyToken, upload, createEvent);
 router.put("/:eventId/status", approveOrRejectEvent);
@@ -54,5 +56,4 @@ router.put('/update/:id', verifyToken, checkRole('organizer'), UpdateEvent);
 router.delete('/delete/:id', verifyToken, checkRole('organizer', 'admin'), deleteEvent);
 router.post('/userLike/:eventId', verifyToken, userLike);
 router.get('/:eventId/attendeeCount', getEventAttendeeCount);
-
 module.exports = router;

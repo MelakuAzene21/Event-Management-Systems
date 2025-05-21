@@ -78,6 +78,8 @@ const { getIO } = require("../config/socket");
 const sendEmail =require("../helpers/Send-Email")
 const Category = require('../models/Category');
 const axios = require("axios");
+const Ticket = require('../models/Ticket');
+
 
 // Helper function to fetch coordinates from Nominatim
 async function getCoordinates(location) {
@@ -1027,5 +1029,123 @@ exports.getEventsByCity = async (req, res) => {
     } catch (error) {
         console.error('Error fetching events by city:', error);
         res.status(500).json({ message: 'Failed to fetch events for this city.' });
+    }
+};
+
+
+
+
+// Helper to get the start of the current month
+const getStartOfMonth = () => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+};
+
+// Helper to get revenue per month for the organizer
+const getRevenuePerMonth = async (organizerId, year) => {
+    const revenueByMonth = Array(12).fill(0);
+    const bookings = await Booking.find({
+        event: { $in: await Event.find({ organizer: organizerId }).distinct('_id') },
+        createdAt: { $gte: new Date(year, 0, 1), $lte: new Date(year, 11, 31) },
+    });
+
+    bookings.forEach((booking) => {
+        const month = booking.createdAt.getMonth();
+        revenueByMonth[month] += booking.totalAmount;
+    });
+
+    return revenueByMonth;
+};
+
+// Helper to get ticket sales over time
+const getTicketSalesOverTime = async (organizerId, startDate, endDate) => {
+    const bookings = await Booking.find({
+        event: { $in: await Event.find({ organizer: organizerId }).distinct('_id') },
+        createdAt: { $gte: startDate, $lte: endDate },
+    });
+
+    const salesByDate = {};
+    bookings.forEach((booking) => {
+        const date = booking.createdAt.toISOString().split('T')[0];
+        salesByDate[date] = (salesByDate[date] || 0) + booking.ticketCount;
+    });
+
+    return Object.entries(salesByDate).map(([date, count]) => ({ date, count }));
+};
+
+// Main dashboard controller
+exports.getDashboardData = async (req, res) => {
+    try {
+        if (!req.user || !req.user._id) {
+            return res.status(400).json({ message: 'Organizer ID is required' });
+        }
+        const organizerId = req.user._id;
+
+        // Total Events
+        const totalEvents = await Event.countDocuments({ organizer: organizerId });
+        const lastMonthEvents = await Event.countDocuments({
+            organizer: organizerId,
+            createdAt: { $gte: getStartOfMonth() },
+        });
+
+        // Ticket Sales
+        const bookings = await Booking.find({
+            event: { $in: await Event.find({ organizer: organizerId }).distinct('_id') },
+        });
+        const totalTicketSales = bookings.reduce((sum, booking) => sum + booking.totalAmount, 0);
+        const lastMonthSales = bookings
+            .filter((booking) => booking.createdAt >= getStartOfMonth())
+            .reduce((sum, booking) => sum + booking.totalAmount, 0);
+        const ticketSalesChange = lastMonthSales > 0 ? ((totalTicketSales - lastMonthSales) / lastMonthSales) * 100 : 0;
+
+        // Total Attendees (Sum of booked tickets across all events)
+        const events = await Event.find({ organizer: organizerId });
+        let totalAttendees = 0;
+        let lastMonthAttendees = 0;
+
+        events.forEach((event) => {
+            const bookedTickets = event.ticketTypes.reduce((sum, ticket) => sum + ticket.booked, 0);
+            totalAttendees += bookedTickets;
+
+            // Check if the event's date is within the last month for lastMonthAttendees
+            if (event.eventDate >= getStartOfMonth()) {
+                lastMonthAttendees += bookedTickets;
+            }
+        });
+
+        // Upcoming Events (next 30 days)
+        const upcomingEvents = await Event.find({
+            organizer: organizerId,
+            eventDate: { $gte: new Date(), $lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
+        }).populate('ticketTypes');
+
+        // Recent Events (last 30 days)
+        const recentEvents = await Event.find({
+            organizer: organizerId,
+            eventDate: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), $lte: new Date() },
+        }).populate('ticketTypes');
+
+        // Revenue Overview (by month for the current year)
+        const revenueByMonth = await getRevenuePerMonth(organizerId, new Date().getFullYear());
+
+        // Ticket Sales Over Time (last 6 months)
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const ticketSalesOverTime = await getTicketSalesOverTime(organizerId, sixMonthsAgo, new Date());
+
+        res.status(200).json({
+            totalEvents,
+            eventsChange: totalEvents - lastMonthEvents,
+            totalTicketSales,
+            ticketSalesChange: ticketSalesChange.toFixed(2),
+            totalAttendees,
+            attendeesChange: totalAttendees - lastMonthAttendees,
+            upcomingEvents,
+            recentEvents,
+            revenueByMonth,
+            ticketSalesOverTime,
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };

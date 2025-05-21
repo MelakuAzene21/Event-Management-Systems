@@ -72,6 +72,9 @@ export const eventApi = createApi({
         getCategories: builder.query({
             query: () => '/categories',
         }),
+        getDashboardData: builder.query({
+            query: () => '/events/dashboard',
+        }),
                 
     }),
 });
@@ -85,4 +88,5 @@ export const {
     useDeleteEventMutation,
     useLikeEventMutation,
     useGetCategoriesQuery,
+    useGetDashboardDataQuery,
 } = eventApi;
