@@ -37,17 +37,18 @@ import { Settings2Icon } from "lucide-react";
 const socket = io("http://localhost:5000", {
   transports: ["websocket", "polling"],
 });
-const drawerWidth = 220;
+const drawerWidth = 200;
 
 const menuItems = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
   { text: "Users", icon: <PeopleIcon />, path: "/admin/users" },
   { text: "Events", icon: <EventIcon />, path: "/admin/events" },
+  { text: "Analytic", icon: <BarChartIcon />, path: "/admin/analytic" },
   { text: "Reports", icon: <BarChartIcon />, path: "/admin/report" },
-  { text: "Chats", icon: <ChatIcon />, path: "/admin/chats" },
-  { text: "Vendors", icon: <BusinessIcon />, path: "/admin/vendors" },
-  { text: "Settings", icon: <SettingsIcon />, path: "/admin/settings" },
-  { text: "Category", icon: < Settings2Icon/>, path: "/admin/category" },
+  // { text: "Chats", icon: <ChatIcon />, path: "/admin/chats" },
+  // { text: "Vendors", icon: <BusinessIcon />, path: "/admin/vendors" },
+  // { text: "Settings", icon: <SettingsIcon />, path: "/admin/settings" },
+  { text: "Category", icon: <Settings2Icon />, path: "/admin/category" },
 ];
 
 const AdminLayout = () => {
@@ -256,21 +257,7 @@ const AdminLayout = () => {
                 </Badge>
               </IconButton>
 
-              {/* Notification Menu
-              <Menu
-                anchorEl={notifAnchor}
-                open={Boolean(notifAnchor)}
-                onClose={handleNotifClose}
-              >
-                {notifications.length === 0 ? (
-                  <MenuItem disabled>No new notifications</MenuItem>
-                ) : (
-                  notifications.map((notif, index) => (
-                    <MenuItem key={index}>{notif.message}</MenuItem>
-                  ))
-                )}
-              </Menu> */}
-
+              
               {/* // Modify the Notification Menu */}
               <Menu
                 anchorEl={notifAnchor}

@@ -35,11 +35,10 @@ const AdminDashboard = () => {
     useGetBookingsQuery();
 
   // Calculate Metrics
-  const totalUsers = users?.users?.length || 0;
-  const totalEvents = events?.length || 0;
-  const totalVendors = 20; // Placeholder number
+  const totalUsers = users?.users?.filter(user => user.role === "user")?.length || 0;
+  const totalVendors = users?.users?.filter(user => user.role === "vendor")?.length || 0;
+  const totalOrganizers = users?.users?.filter(user => user.role === "organizer")?.length || 0;  const totalEvents = events?.length || 0;
   const revenue = bookingsData?.totalRevenue || 0;
-
   // Loading State
   if (usersLoading || eventsLoading || upcomingLoading || bookingsLoading) {
     return (
@@ -103,6 +102,23 @@ const AdminDashboard = () => {
             <BusinessIcon fontSize="large" />
             <Typography variant="h6">Total Vendors</Typography>
             <Typography variant="h5">{totalVendors}</Typography>
+          </Card>
+        </Grid>
+
+        {/* Total Vendors */}
+        <Grid item xs={12} sm={6} md={3}>
+          <Card
+            sx={{
+              backgroundColor: "#F57C00",
+              color: "white",
+              boxShadow: 3,
+              textAlign: "center",
+              p: 2,
+            }}
+          >
+            <BusinessIcon fontSize="large" />
+            <Typography variant="h6">Total Event Organizer</Typography>
+            <Typography variant="h5">{totalOrganizers}</Typography>
           </Card>
         </Grid>
 

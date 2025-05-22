@@ -41,7 +41,6 @@ const UserProfile = () => {
     const [avatarPreview, setAvatarPreview] = useState(null);
     const [selectedAvatar, setSelectedAvatar] = useState(null);
     const [loading, setLoading] = useState(false);
-    // Track loading state for all document previews
     const [imageLoadedStates, setImageLoadedStates] = useState({});
 
     useEffect(() => {
@@ -58,7 +57,6 @@ const UserProfile = () => {
                 experience: user.experience || "",
             });
             setAvatarPreview(user.avatar || null);
-            // Initialize loading states for documents
             setImageLoadedStates(
                 user.docs?.reduce((acc, _, index) => ({ ...acc, [index]: false }), {}) || {}
             );
@@ -95,13 +93,12 @@ const UserProfile = () => {
     const handleSave = async () => {
         try {
             setLoading(true);
-            let avatarUrl = user.avatar;
+            let avatarUrl = user?.avatar;
 
-            // Upload avatar if changed
             if (selectedAvatar) {
                 const formData = new FormData();
                 formData.append("avatar", selectedAvatar);
-                formData.append("userId", user._id);
+                formData.append("userId", user?._id);
 
                 const { data } = await axios.post("http://localhost:5000/api/auth/upload-avatar", formData, {
                     headers: { "Content-Type": "multipart/form-data" },
@@ -111,7 +108,7 @@ const UserProfile = () => {
             }
 
             await updateProfile({
-                userId: user._id,
+                userId: user?._id,
                 updatedData: {
                     ...editedData,
                     avatar: avatarUrl,
@@ -157,17 +154,23 @@ const UserProfile = () => {
         );
     }
 
+    if (!user) {
+        return (
+            <div className="flex justify-center items-center h-screen bg-gray-50">
+                <div className="text-center p-6 bg-white rounded-xl shadow-lg border border-yellow-100">
+                    <p className="text-yellow-600 text-lg font-semibold">No User Data</p>
+                    <p className="text-gray-600 mt-2">User data is not available.</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
-                {/* Back Button */}
-                {/* <div className="mb-6">
-                    <BackButton />
-                </div> */}
-
                 {/* Title */}
                 <Title
-                    title={user.role === "organizer" ? "Organizer Profile" : "My Profile"}
+                    title={user?.role === "organizer" ? "Organizer Profile" : "My Profile"}
                     className="text-4xl font-bold text-gray-800 mb-8 text-center"
                 />
 
@@ -176,7 +179,7 @@ const UserProfile = () => {
                     {/* Header Section */}
                     <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 flex justify-between items-center">
                         <h2 className="text-2xl font-semibold text-white">
-                            {user.role === "organizer" ? "Organizer Details" : "Your Profile"}
+                            {user?.role === "organizer" ? "Organizer Details" : "Your Profile"}
                         </h2>
                         {!isEditing && (
                             <button
@@ -297,7 +300,7 @@ const UserProfile = () => {
                         </div>
 
                         {/* Organizer Details (Conditional) */}
-                        {user.role === "organizer" && (
+                        {user?.role === "organizer" && (
                             <div className="mt-10 border-t border-gray-200 pt-8">
                                 <h3 className="text-xl font-semibold text-gray-800 mb-6">Organization Details</h3>
                                 <div className="space-y-6">
@@ -309,7 +312,6 @@ const UserProfile = () => {
                                             {user.docs && user.docs.length > 0 ? (
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
                                                     {user.docs.map((doc, index) => {
-                                                        // Generate fallback previewUrl for PDFs if not provided
                                                         const pdfPreviewUrl =
                                                             doc.type === "pdf"
                                                                 ? doc.previewUrl || `${doc.url.replace(/\.pdf$/, "")}/pg_1.jpg`
@@ -332,8 +334,7 @@ const UserProfile = () => {
                                                                     <img
                                                                         src={doc.type === "image" ? doc.url : pdfPreviewUrl}
                                                                         alt={`Document ${index + 1}`}
-                                                                        className={`w-full h-32 object-cover rounded-t-lg ${imageLoadedStates[index] ? "block" : "hidden"
-                                                                            }`}
+                                                                        className={`w-full h-32 object-cover rounded-t-lg ${imageLoadedStates[index] ? "block" : "hidden"}`}
                                                                         onLoad={() =>
                                                                             setImageLoadedStates((prev) => ({
                                                                                 ...prev,

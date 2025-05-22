@@ -32,7 +32,7 @@ export const authApi = createApi({
 
         // Get Current User Profile
         getCurrentUser: builder.query({
-            query: () => '/profile', // Profile endpoint
+            query: () => '/auth/profile', // Profile endpoint
             providesTags: ['User'],
             skip: (state) => !state.auth.user,  // Skip if no user exists in the state
 

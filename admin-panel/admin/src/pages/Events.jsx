@@ -1,99 +1,10 @@
-// import React from "react";
-// import { useGetEventsQuery } from "../features/api/apiSlices";
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableContainer,
-//   TableHead,
-//   TableRow,
-//   Paper,
-//   CircularProgress,
-//   Alert,
-//   Typography,
-// } from "@mui/material";
-// import EventIcon from "@mui/icons-material/Event";
-
-// const Events = () => {
-//   const { data, error, isLoading } = useGetEventsQuery();
-//   const events = Array.isArray(data) ? data : data?.events || [];
-
-//   if (isLoading) {
-//     return (
-//       <div
-//         style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
-//       >
-//         <CircularProgress />
-//       </div>
-//     );
-//   }
-
-//   if (error) {
-//     return (
-//       <Alert severity="error">
-//         Failed to load events. Please try again later.
-//       </Alert>
-//     );
-//   }
-
-//   return (
-//     <Paper elevation={3} sx={{ padding: 3, borderRadius: 3 }}>
-//       <Typography variant="h5" align="center" gutterBottom>
-//         <EventIcon fontSize="large" style={{ marginRight: "10px" }} />
-//         Event List
-//       </Typography>
-
-//       <TableContainer component={Paper}>
-//         <Table>
-//           <TableHead sx={{ backgroundColor: "#f4f4f4" }}>
-//             <TableRow>
-//               <TableCell>
-//                 <strong>Event Name</strong>
-//               </TableCell>
-//               <TableCell>
-//                 <strong>Date</strong>
-//               </TableCell>
-//               <TableCell>
-//                 <strong>Time</strong>
-//               </TableCell>
-//               <TableCell>
-//                 <strong>Location</strong>
-//               </TableCell>
-//               <TableCell>
-//                 <strong>Organizer</strong>
-//               </TableCell>
-//             </TableRow>
-//           </TableHead>
-//           <TableBody>
-//             {events.map((event) => (
-//               <TableRow key={event._id}>
-//                 <TableCell>{event.title}</TableCell>
-//                 <TableCell>
-//                   {new Date(event.eventDate).toLocaleDateString()}
-//                 </TableCell>
-//                 <TableCell>{event.eventTime}</TableCell>
-//                 <TableCell>{event.location}</TableCell>
-//                 <TableCell>
-                 
-//                   {event.organizer?.name} <br />
-//                   <Typography variant="caption" color="textSecondary">
-//                     {event.organizer?.email}
-//                   </Typography>
-//                 </TableCell>
-//               </TableRow>
-//             ))}
-//           </TableBody>
-//         </Table>
-//       </TableContainer>
-//     </Paper>
-//   );
-// };
-
-// export default Events;
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useGetEventsQuery } from "../features/api/apiSlices";
+import {
+  useGetEventsAdminQuery,
+  useUpdateEventStatusMutation,
+} from "../features/api/apiSlices";
+import { toast } from "react-toastify";
 import {
   Table,
   TableBody,
@@ -105,75 +16,123 @@ import {
   CircularProgress,
   Alert,
   Typography,
+  Tabs,
+  Tab,
+  Box,
   Button,
 } from "@mui/material";
 import EventIcon from "@mui/icons-material/Event";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import RestoreIcon from "@mui/icons-material/Restore";
 
 const Events = () => {
-  const { data, error, isLoading } = useGetEventsQuery();
+  const { data, error, isLoading } = useGetEventsAdminQuery();
+  const [updateEventStatus] = useUpdateEventStatusMutation();
   const events = Array.isArray(data) ? data : data?.events || [];
   const today = new Date();
 
+  // State for tabs and filtered events
+  const [tabValue, setTabValue] = useState("all");
+  const [filteredEvents, setFilteredEvents] = useState([]);
+
+  // Filter events based on tab selection
+  useEffect(() => {
+    let result = [...events];
+    if (tabValue !== "all") {
+      result = result.filter((event) => event.status === tabValue);
+    }
+    setFilteredEvents(result);
+  }, [tabValue, events]);
+
+  // Handlers
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
+  };
+
+  const handleApproval = async (eventId, status) => {
+    try {
+      await updateEventStatus({ eventId, status }).unwrap();
+      toast.success(
+        `Event ${status === "pending" ? "restored" : status} successfully!`
+      );
+    } catch (error) {
+      console.error("Error updating event status:", error);
+      toast.error("Failed to update event status.");
+    }
+  };
+
   if (isLoading) {
     return (
-      <div
-        style={{ display: "flex", justifyContent: "center", marginTop: "20px" }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
         <CircularProgress />
-      </div>
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <Alert severity="error">
+      <Alert severity="error" sx={{ m: 2 }}>
         Failed to load events. Please try again later.
       </Alert>
     );
   }
 
   return (
-    <Paper elevation={3} sx={{ padding: 3, borderRadius: 3 }}>
-      <Typography variant="h5" align="center" gutterBottom>
-        <EventIcon fontSize="large" style={{ marginRight: "10px" }} />
+    <Paper
+      elevation={3}
+      sx={{ p: 3, borderRadius: 3, maxWidth: "1200px", mx: "auto", mt: 4 }}
+    >
+      <Typography
+        variant="h5"
+        align="center"
+        gutterBottom
+        sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      >
+        <EventIcon fontSize="large" sx={{ mr: 1 }} />
         Event List
       </Typography>
 
-      <TableContainer component={Paper}>
+      {/* Tabs */}
+      <Box sx={{ mb: 3, borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            "& .MuiTab-root": { textTransform: "none", fontWeight: "bold" },
+          }}
+        >
+          <Tab label="All" value="all" />
+          <Tab label="Pending" value="pending" />
+          <Tab label="Approved" value="approved" />
+          <Tab label="Rejected" value="rejected" />
+        </Tabs>
+      </Box>
+
+      <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 1 }}>
         <Table>
           <TableHead sx={{ backgroundColor: "#f4f4f4" }}>
             <TableRow>
-              <TableCell>
-                <strong>Event Name</strong>
-              </TableCell>
-              <TableCell>
-                <strong>Date</strong>
-              </TableCell>
-              <TableCell>
-                <strong>Time</strong>
-              </TableCell>
-              <TableCell>
-                <strong>Location</strong>
-              </TableCell>
-              <TableCell>
-                <strong>Organizer</strong>
-              </TableCell>
-              <TableCell>
-                <strong>Status</strong>
-              </TableCell>
-              <TableCell>
-                <strong>Total Attendees</strong>
-              </TableCell>
-
-              <TableCell>
-                <strong>Action</strong>
-              </TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Event Name</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Date</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Time</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Location</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Organizer</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Total Attendees</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {events.map((event) => {
+            {filteredEvents.map((event) => {
               const eventDate = new Date(event.eventDate);
-              const status = eventDate < today ? "Completed" : "Upcoming";
+              const status =
+                eventDate < today
+                  ? "Completed"
+                  : event.status.charAt(0).toUpperCase() +
+                    event.status.slice(1);
               const totalAttendees =
                 event.ticketTypes?.reduce(
                   (sum, ticket) => sum + ticket.limit,
@@ -181,7 +140,10 @@ const Events = () => {
                 ) || 0;
 
               return (
-                <TableRow key={event._id}>
+                <TableRow
+                  key={event._id}
+                  sx={{ "&:hover": { backgroundColor: "#f9f9f9" } }}
+                >
                   <TableCell>{event.title}</TableCell>
                   <TableCell>
                     {eventDate.toLocaleDateString("en-US", {
@@ -191,7 +153,7 @@ const Events = () => {
                     })}
                   </TableCell>
                   <TableCell>{event.eventTime}</TableCell>
-                  <TableCell>{event.location.name?.split(',')[0]}</TableCell>
+                  <TableCell>{event.location.name?.split(",")[0]}</TableCell>
                   <TableCell>
                     {event.organizer?.name} <br />
                     <Typography variant="caption" color="textSecondary">
@@ -200,24 +162,74 @@ const Events = () => {
                   </TableCell>
                   <TableCell>
                     <Typography
-                      color={status === "Completed" ? "error" : "primary"}
+                      color={
+                        status === "Completed"
+                          ? "error"
+                          : status === "Approved"
+                          ? "success"
+                          : status === "Pending"
+                          ? "warning"
+                          : "error"
+                      }
                     >
                       {status}
                     </Typography>
                   </TableCell>
                   <TableCell>{totalAttendees}</TableCell>
-
                   <TableCell>
-                    <Link
-                      to={`/events/${event._id}`}
-                      style={{
-                        textDecoration: "none",
-                        fontWeight: "bold",
-                        color: "#1E88E5",
-                      }}
-                    >
-                      View Details →
-                    </Link>
+                    <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                      <Link
+                        to={`/events/${event._id}`}
+                        style={{
+                          textDecoration: "none",
+                          fontWeight: "bold",
+                          color: "#1E88E5",
+                        }}
+                      >
+                        View Details →
+                      </Link>
+                      {tabValue === "pending" && event.status === "pending" && (
+                        <>
+                          <Button
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            startIcon={<CheckCircleIcon />}
+                            onClick={() =>
+                              handleApproval(event._id, "approved")
+                            }
+                            sx={{ textTransform: "none" }}
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            startIcon={<CancelIcon />}
+                            onClick={() =>
+                              handleApproval(event._id, "rejected")
+                            }
+                            sx={{ textTransform: "none" }}
+                          >
+                            Reject
+                          </Button>
+                        </>
+                      )}
+                      {tabValue === "rejected" &&
+                        event.status === "rejected" && (
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            size="small"
+                            startIcon={<RestoreIcon />}
+                            onClick={() => handleApproval(event._id, "pending")}
+                            sx={{ textTransform: "none" }}
+                          >
+                            Restore
+                          </Button>
+                        )}
+                    </Box>
                   </TableCell>
                 </TableRow>
               );
@@ -225,6 +237,15 @@ const Events = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Empty State */}
+      {filteredEvents.length === 0 && (
+        <Typography
+          sx={{ textAlign: "center", py: 4, color: "text.secondary" }}
+        >
+          No events found for the selected status.
+        </Typography>
+      )}
     </Paper>
   );
 };

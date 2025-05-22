@@ -348,14 +348,14 @@ exports.getMostNearUpcomingEvent = async (req, res) => {
     }
 };
 
-// exports.getEvents = async (req, res) => {
-//     try {
-//         const events = await Event.find({status:"approved"}).populate('organizer', 'avatar name email');
-//         res.status(200).json(events);
-//     } catch (error) {
-//         res.status(500).json({ message: 'Error fetching events', error });
-//     }
-// };
+exports.getEventsAdmin = async (req, res) => {
+    try {
+        const events = await Event.find().populate('organizer', 'avatar name email');
+        res.status(200).json(events);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching events', error });
+    }
+};
 
 
 // // Fetch events near a location
@@ -1046,6 +1046,7 @@ const getRevenuePerMonth = async (organizerId, year) => {
     const revenueByMonth = Array(12).fill(0);
     const bookings = await Booking.find({
         event: { $in: await Event.find({ organizer: organizerId }).distinct('_id') },
+        status: 'booked',
         createdAt: { $gte: new Date(year, 0, 1), $lte: new Date(year, 11, 31) },
     });
 
@@ -1091,6 +1092,7 @@ exports.getDashboardData = async (req, res) => {
         // Ticket Sales
         const bookings = await Booking.find({
             event: { $in: await Event.find({ organizer: organizerId }).distinct('_id') },
+            status: 'booked',
         });
         const totalTicketSales = bookings.reduce((sum, booking) => sum + booking.totalAmount, 0);
         const lastMonthSales = bookings
@@ -1147,5 +1149,94 @@ exports.getDashboardData = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+
+// Get analytics data for attendees, vendors, and events by month
+exports.getAnalyticsData = async (req, res) => {
+    try {
+        // Aggregate attendees (users with role 'user') by month
+        const attendeeData = await User.aggregate([
+            { $match: { role: 'user' } },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: '$createdAt' },
+                        month: { $month: '$createdAt' }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { '_id.year': 1, '_id.month': 1 } },
+            {
+                $project: {
+                    month: '$_id.month',
+                    year: '$_id.year',
+                    count: 1,
+                    _id: 0
+                }
+            }
+        ]);
+
+        // Aggregate vendors (users with role 'vendor') by month
+        const vendorData = await User.aggregate([
+            { $match: { role: 'vendor' } },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: '$createdAt' },
+                        month: { $month: '$createdAt' }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { '_id.year': 1, '_id.month': 1 } },
+            {
+                $project: {
+                    month: '$_id.month',
+                    year: '$_id.year',
+                    count: 1,
+                    _id: 0
+                }
+            }
+        ]);
+
+        // Aggregate events by month
+        const eventData = await Event.aggregate([
+            {
+                $group: {
+                    _id: {
+                        year: { $year: '$createdAt' },
+                        month: { $month: '$createdAt' }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { '_id.year': 1, '_id.month': 1 } },
+            {
+                $project: {
+                    month: '$_id.month',
+                    year: '$_id.year',
+                    count: 1,
+                    _id: 0
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                attendees: attendeeData,
+                vendors: vendorData,
+                events: eventData
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching analytics data:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while fetching analytics data'
+        });
     }
 };

@@ -24,8 +24,9 @@ const OrganizerEventReviews = () => {
         const fetchEvents = async () => {
             try {
                 const response = await axios.get(`${BASE_URL}/api/events/myEvent`, { withCredentials: true });
-                setEvents(response.data);
-
+                // Ensure response.data is an array; fallback to empty array if not
+                const eventsData = Array.isArray(response.data) ? response.data : [];
+                setEvents(eventsData);
                 const reviewPromises = response.data.map(event =>
                     axios.get(`${BASE_URL}/api/reviews/${event._id}`)
                 );

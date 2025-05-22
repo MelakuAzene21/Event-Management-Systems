@@ -23,16 +23,18 @@ import ChatInterface from '../components/ChatInterface';
 import { useSearchParams } from "react-router-dom";
 
 
+// const OrganizerDashboard = () => {
+//     const [searchParams] = useSearchParams();
+//    const tabFromQuery = searchParams.get("tab");
+//     // const [activeTab, setActiveTab] = useState("events");
+//     const [activeTab, setActiveTab] = useState(tabFromQuery || "events");
+
+//     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // For mobile sidebar toggle
+
 const OrganizerDashboard = () => {
     const [searchParams] = useSearchParams();
-   const tabFromQuery = searchParams.get("tab");
-    // const [activeTab, setActiveTab] = useState("events");
-    const [activeTab, setActiveTab] = useState(tabFromQuery || "events");
-
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // For mobile sidebar toggle
-
-const OrganizerDashboard = () => {
-    const [activeTab, setActiveTab] = useState("Dashboard");
+       const tabFromQuery = searchParams.get("tab");
+    const [activeTab, setActiveTab] = useState(tabFromQuery || "Dashboard");
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
@@ -273,5 +275,5 @@ const OrganizerDashboard = () => {
         </div>
     );
 };
-}
+
 export default OrganizerDashboard;

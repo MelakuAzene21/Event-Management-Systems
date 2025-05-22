@@ -18,7 +18,7 @@ const ticketRoutes = require('./routes/ticketRoutes');
 const bookmarkRoutes = require('./routes/bookmarkRoutes');
 const notificationRoutes = require('./routes/notificationRoutes')
 const categoryRoutes = require('./routes/category');
-const notificationRoutes=require('./routes/notificationRoutes')
+// const notificationRoutes=require('./routes/notificationRoutes')
 const chatRoutes= require("./routes/chatRoutes")
 
 // Load environment variables

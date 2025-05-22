@@ -34,7 +34,9 @@ const express = require('express');
 const { createEvent, getEvents, eventDetails, getMyEvent, UpdateEvent, deleteEvent,
     getMostNearUpcomingEvent, userLike, getEventAttendeeCount, approveOrRejectEvent,
     getTopCities, getEventsByCity, 
-    getDashboardData} = require('../controllers/eventController');
+    getDashboardData,
+    getEventsAdmin,
+    getAnalyticsData} = require('../controllers/eventController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
@@ -42,6 +44,9 @@ const upload = require('../utils/multer');
 
 // Static routes first
 router.get('/getEvent', getEvents);
+router.get('/AllEventAdmin', getEventsAdmin);
+router.get('/analytics', verifyToken, getAnalyticsData);
+
 router.get('/nearUpcoming', getMostNearUpcomingEvent);
 router.get('/myEvent', verifyToken, checkRole('organizer'), getMyEvent);
 router.get('/top-cities', getTopCities); // Moved up
