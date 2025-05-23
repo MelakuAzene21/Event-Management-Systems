@@ -19,6 +19,10 @@ const BookingSchema = new mongoose.Schema(
          type: String,
          required: true,
       },
+
+      googleEventId: { type: String }, // Google Calendar event ID
+    calendarAccessToken: { type: String }, // OAuth access token for calendar
+    calendarRefreshToken: { type: String }, // OAuth refresh token for calendar
       status: { type: String, enum: ['pending', 'booked', 'canceled'], default: 'pending' },
       createdAt: { type: Date, default: Date.now }, // Booking date
       updatedAt: { type: Date, default: Date.now }, // Last update date

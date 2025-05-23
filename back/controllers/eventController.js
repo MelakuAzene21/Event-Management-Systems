@@ -71,7 +71,7 @@ const mongoose = require("mongoose");
 const User = require('../models/User');
 const { cloudinary } = require('../utils/cloudinaryConfig');
 const Booking = require('../models/Booking');
-const BookMark = require('../models/Bookmark')
+const Bookmark = require('../models/Bookmark')
 const Notification = require("../models/Notification");
 const io = require("../config/socket"); // Import WebSocket instance
 const { getIO } = require("../config/socket");
@@ -990,7 +990,6 @@ exports. getEventAttendeeCount = async (req, res) => {
 
 exports.getTopCities = async (req, res) => {
     try {
-        console.log("Fetching top cities...");
         // Aggregate events by city (location.name), count them, and sort by count
         const topCities = await Event.aggregate([
             { $match: { 'location.name': { $ne: null } } }, // Exclude events with no city name

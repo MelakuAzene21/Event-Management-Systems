@@ -43,7 +43,8 @@ import Vendordashboard from './Vendor/Vendordashboard';
 import ChatInterface from './components/ChatInterface';
 import VendorProfile  from './components/VendorProfile';
 import { setUserOnline, setUserOffline, setOnlineUsers } from "./features/slices/chatSlice";
-import socket,{ startPing} from './lib/socket'; // ✅ Import your socket instance
+import socket, { startPing } from './lib/socket'; // ✅ Import your socket instance
+import CheckCalendarSuccess from './Private/CheckCalendarSuccess';
 function App() {
   // const user=useSelector((state) => state.auth.user);
   const { data: user, isLoading } = useGetCurrentUserQuery();
@@ -129,6 +130,7 @@ socket.on("startPing", () => {
           <Route path='/calendar' element={<CalendarView/>}/>
             <Route path='/booked' element={<BookingsTable />} />
             <Route path='/show-not' element={<NotificationsPage />} />
+              <Route path="/success/calendar" element={<CheckCalendarSuccess />} />
 
             <Route path='/:id/booking-summary' element={<BookingSummary />} />            
             <Route path='/:id/booking-summary' element={<BookingSummary />} />

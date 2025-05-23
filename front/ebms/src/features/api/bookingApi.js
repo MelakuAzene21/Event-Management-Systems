@@ -65,6 +65,10 @@ export const bookingApi = createApi({
             query: (bookingId) => `/bookings/booking/${bookingId}`,
         }),
 
+        checkCalendarEvent: builder.query({
+            query: (bookingId) => `calendar/check-event/${bookingId}`,
+          }),
+
         getAllBookings: builder.query({
             query: () => ({
                 url: "/bookings",
@@ -86,4 +90,5 @@ export const {
     useGetBookingByIdQuery,
     useGetAllBookingsQuery,
     useInitializePaymentMutation,
+    useCheckCalendarEventQuery
 } = bookingApi;

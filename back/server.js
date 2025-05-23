@@ -20,7 +20,7 @@ const notificationRoutes = require('./routes/notificationRoutes')
 const categoryRoutes = require('./routes/category');
 // const notificationRoutes=require('./routes/notificationRoutes')
 const chatRoutes= require("./routes/chatRoutes")
-
+const CalendarRoutes=require("./routes/calendarRoutes")
 // Load environment variables
 dotenv.config();
 
@@ -74,8 +74,7 @@ app.use('/api/bookmarks', bookmarkRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use("/api/chats", chatRoutes);
-
-
+app.use('/api/calendar', CalendarRoutes);
 app.use(express.json());
 
 // Start the server
