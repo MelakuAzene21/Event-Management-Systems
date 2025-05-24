@@ -1239,3 +1239,39 @@ exports.getAnalyticsData = async (req, res) => {
         });
     }
 };
+
+exports.countEventByCategory = async (req, res) => {
+    try {
+        const eventsByCategory = await Event.aggregate([
+            {
+                $group: {
+                    _id: '$category', // Group by category ObjectId
+                    count: { $sum: 1 }, // Count events in each category
+                },
+            },
+            {
+                $lookup: {
+                    from: 'categories', // MongoDB collection name for Category model
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'categoryDetails',
+                },
+            },
+            {
+                $unwind: '$categoryDetails', // Unwind the categoryDetails array
+            },
+            {
+                $project: {
+                    categoryName: '$categoryDetails.name',
+                    count: 1,
+                    _id: 0, // Exclude _id from the result
+                },
+            },
+        ]);
+
+        res.status(200).json(eventsByCategory);
+    } catch (error) {
+        console.error('Error fetching events by category:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+}

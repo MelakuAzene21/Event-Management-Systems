@@ -18,65 +18,38 @@ import {
   Avatar,
   Badge,
   Divider,
+  Fade,
 } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import EventIcon from "@mui/icons-material/Event";
 import BarChartIcon from "@mui/icons-material/BarChart";
-import ChatIcon from "@mui/icons-material/Chat";
 import BusinessIcon from "@mui/icons-material/Business";
-import SettingsIcon from "@mui/icons-material/Settings";
+import CategoryIcon from "@mui/icons-material/Category";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { Settings2Icon } from "lucide-react";
 
 const socket = io("http://localhost:5000", {
   transports: ["websocket", "polling"],
 });
-const drawerWidth = 200;
+const drawerWidth = 240;
 
 const menuItems = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
   { text: "Users", icon: <PeopleIcon />, path: "/admin/users" },
   { text: "Events", icon: <EventIcon />, path: "/admin/events" },
-  { text: "Analytic", icon: <BarChartIcon />, path: "/admin/analytic" },
+  { text: "Analytics", icon: <BarChartIcon />, path: "/admin/analytic" },
   { text: "Reports", icon: <BarChartIcon />, path: "/admin/report" },
-  // { text: "Chats", icon: <ChatIcon />, path: "/admin/chats" },
-  // { text: "Vendors", icon: <BusinessIcon />, path: "/admin/vendors" },
-  // { text: "Settings", icon: <SettingsIcon />, path: "/admin/settings" },
-  { text: "Category", icon: <Settings2Icon />, path: "/admin/category" },
+  { text: "Categories", icon: <CategoryIcon />, path: "/admin/category" },
   { text: "Vendors", icon: <BusinessIcon />, path: "/admin/vendors" },
   { text: "Organizers", icon: <BusinessIcon />, path: "/admin/organizers" },
 ];
 
 const AdminLayout = () => {
-
-  const handleNotificationClick = async(notif) => {
-    if (notif.eventId) {
-      navigate(`/admin/events/${notif.eventId}`);
-      // Mark the notification as read
-  try {
-    await axios.post(
-      "http://localhost:5000/api/notifications/admin/mark-read", // Adjust endpoint
-      { notificationId: notif._id ,adminId: user._id},
-      { withCredentials: true }
-    );
-
-    // Update the state to mark the notification as read locally
-    setNotifications((prev) =>
-      prev.map((n) => (n._id === notif._id ? { ...n, isRead: true } : n))
-    );
-  } catch (error) {
-    console.error("Error marking notification as read:", error);
-  }
-
-    }
-    handleNotifClose();
-  };
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -91,21 +64,19 @@ const AdminLayout = () => {
             `http://localhost:5000/api/notifications/admin/${user._id}`,
             { withCredentials: true }
           );
-
-          setNotifications(res.data); // Set only unread notifications
-          console.log("Notifications from database:", res.data);
+          setNotifications(res.data);
         } catch (error) {
           console.error("Error fetching notifications:", error);
         }
       }
     };
 
-    fetchNotifications(); // Fetch notifications on mount
+    fetchNotifications();
 
     socket.on("connect", () => {
       console.log("Connected to WebSocket:", socket.id);
       if (user && user._id) {
-        socket.emit("join", user._id); // Rejoin on reconnect
+        socket.emit("join", user._id);
       }
     });
 
@@ -113,15 +84,12 @@ const AdminLayout = () => {
       console.warn("Socket disconnected. Attempting to reconnect...");
       setTimeout(() => {
         socket.connect();
-      }, 3000); // Retry in 3 seconds
+      }, 3000);
     });
 
     socket.on("event-approval-request", (data) => {
-      console.log("Received event approval request:", data); // ✅ Add this
-
       setNotifications((prev) => {
         if (!prev.some((n) => n._id === data._id)) {
-          // Avoid duplicate notifications
           return [...prev, data];
         }
         return prev;
@@ -137,53 +105,41 @@ const AdminLayout = () => {
 
   useEffect(() => {
     if (user && user._id) {
-      console.log(`Joining socket room for admin: ${user._id}`);
       socket.emit("join", user._id);
     }
   }, [user]);
 
-
-
-  // Handle Profile Menu
-  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
-  const handleMenuClose = () => setAnchorEl(null);
-
-  // Handle Notification Menu
-  // const handleNotifOpen = (event) => setNotifAnchor(event.currentTarget);
-
-  const handleNotifOpen = async (event) => {
-    setNotifAnchor(event.currentTarget);
-
-//     // Send a request to mark all unread notifications as read
-//     if (notifications.length > 0) {
-//       try {
-//         await axios.post(
-//           "http://localhost:5000/api/notifications/admin/mark-read",
-//           { adminId: user._id },
-//           {
-//             withCredentials: true,
-//           }
-//         );
-// console.log("Notifications marked as read.");
-//         // Update local state to mark all notifications as read
-//         setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-//       } catch (error) {
-//         console.error("Error marking notifications as read:", error);
-//       }
-//     }
+  const handleNotificationClick = async (notif) => {
+    if (notif.eventId) {
+      navigate(`/admin/events/${notif.eventId}`);
+      try {
+        await axios.post(
+          "http://localhost:5000/api/notifications/admin/mark-read",
+          { notificationId: notif._id, adminId: user._id },
+          { withCredentials: true }
+        );
+        setNotifications((prev) =>
+          prev.map((n) => (n._id === notif._id ? { ...n, isRead: true } : n))
+        );
+      } catch (error) {
+        console.error("Error marking notification as read:", error);
+      }
+    }
+    handleNotifClose();
   };
 
-
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+  const handleNotifOpen = async (event) => setNotifAnchor(event.currentTarget);
   const handleNotifClose = () => setNotifAnchor(null);
 
-  // Handle Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
 
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <CssBaseline />
 
       {/* Sidebar Drawer */}
@@ -195,31 +151,65 @@ const AdminLayout = () => {
           [`& .MuiDrawer-paper`]: {
             width: drawerWidth,
             boxSizing: "border-box",
-            backgroundColor: "#0d47a1",
-            color: "white",
+            bgcolor: "grey.200",
+            color: "grey.100",
+            boxShadow: 3,
+            borderRight: "none",
           },
         }}
       >
-        <Toolbar />
+        <Toolbar>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: "bold",
+              color: "black",
+              textTransform: "uppercase",
+              letterSpacing: 1,
+            }}
+          >
+            Admin Panel
+          </Typography>
+        </Toolbar>
+        <Divider sx={{ bgcolor: "grey.700", my: 1 }} />
         <List>
-          {menuItems.map((item) => (
+          {menuItems.map((item, index) => (
             <ListItem
               key={item.text}
               onClick={() => navigate(item.path)}
               sx={{
                 cursor: "pointer",
-                transition: "background-color 0.3s ease",
+                py: 1.5,
+                borderRadius: 1,
+                mx: 1,
+                mb: 0.5,
+                transition: "all 0.3s ease",
                 "&:hover": {
-                  backgroundColor: "rgba(255, 255, 255, 0.2)", // Adjust color as needed
+                  bgcolor: "grey.300",
+                  transform: "translateX(4px)",
                 },
+                "&:hover .MuiListItemIcon-root": {
+                  color: "primary.main",
+                },
+                bgcolor:
+                  window.location.pathname === item.path
+                    ? "grey.300"
+                    : "transparent",
               }}
             >
-              <ListItemIcon sx={{ color: "white" }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
+              <ListItemIcon sx={{ color: "black", minWidth: 40 }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Typography sx={{ fontWeight: "medium", color: "black" }}>
+                    {item.text}
+                  </Typography>
+                }
+              />
             </ListItem>
           ))}
         </List>
-        <Divider sx={{ backgroundColor: "rgba(255,255,255,0.2)", my: 2 }} />
       </Drawer>
 
       {/* Main Content */}
@@ -228,9 +218,9 @@ const AdminLayout = () => {
         sx={{
           flexGrow: 1,
           width: `calc(100% - ${drawerWidth}px)`,
-          overflow: "auto",
+          bgcolor: "grey.100",
+          p: { xs: 2, md: 3 },
           minHeight: "100vh",
-          backgroundColor: "#f5f5f5",
         }}
       >
         {/* Top Navbar */}
@@ -239,65 +229,137 @@ const AdminLayout = () => {
           sx={{
             width: `calc(100% - ${drawerWidth}px)`,
             ml: `${drawerWidth}px`,
-            backgroundColor: "#0d47a1",
+            bgcolor: "white",
+            color: "text.primary",
+            boxShadow: 2,
+            borderBottom: "1px solid",
+            borderColor: "grey.200",
           }}
         >
           <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-            <Typography variant="h6" noWrap>
-              Admin Panel
+            <Typography
+              variant="h6"
+              noWrap
+              sx={{ fontWeight: "bold", color: "primary.main" }}
+            >
+              Admin Control Center
             </Typography>
 
             {/* Notifications and Profile */}
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              {/* Notifications */}
-              <IconButton color="inherit" onClick={handleNotifOpen}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <IconButton
+                onClick={handleNotifOpen}
+                sx={{
+                  color: "grey.600",
+                  "&:hover": { bgcolor: "grey.100" },
+                }}
+              >
                 <Badge
-                  badgeContent={notifications.filter((n) => !n.read).length}
+                  badgeContent={notifications.filter((n) => !n.isRead).length}
                   color="error"
                 >
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
-
-              
-              {/* // Modify the Notification Menu */}
               <Menu
                 anchorEl={notifAnchor}
                 open={Boolean(notifAnchor)}
                 onClose={handleNotifClose}
+                PaperProps={{
+                  sx: {
+                    maxWidth: 300,
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    mt: 1,
+                  },
+                }}
               >
                 {notifications.length === 0 ? (
-                  <MenuItem disabled>No new notifications</MenuItem>
+                  <MenuItem disabled sx={{ py: 2, color: "text.secondary" }}>
+                    No new notifications
+                  </MenuItem>
                 ) : (
                   notifications.map((notif, index) => (
                     <MenuItem
                       key={index}
                       onClick={() => handleNotificationClick(notif)}
+                      sx={{
+                        py: 1.5,
+                        bgcolor: notif.isRead ? "grey.50" : "white",
+                        "&:hover": { bgcolor: "grey.100" },
+                      }}
                     >
-                      {notif.message}
+                      <Box>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: notif.isRead ? "normal" : "bold",
+                            color: "text.primary",
+                          }}
+                        >
+                          {notif.message}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          {new Date(notif.createdAt).toLocaleTimeString()}
+                        </Typography>
+                      </Box>
                     </MenuItem>
                   ))
                 )}
               </Menu>
 
-              {/* Profile */}
-              <IconButton onClick={handleMenuOpen} color="inherit">
-                <Avatar sx={{ width: 30, height: 30, bgcolor: "white" }}>
-                  <AccountCircleIcon color="primary" />
+              <IconButton
+                onClick={handleMenuOpen}
+                sx={{
+                  color: "grey.600",
+                  "&:hover": { bgcolor: "grey.100" },
+                }}
+              >
+                <Avatar
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    bgcolor: "primary.main",
+                    color: "white",
+                  }}
+                >
+                  {user?.name?.charAt(0) || <AccountCircleIcon />}
                 </Avatar>
               </IconButton>
-
-              {/* Profile Menu */}
               <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
+                PaperProps={{
+                  sx: {
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    mt: 1,
+                  },
+                }}
               >
-                <MenuItem onClick={() => navigate("/admin/profile")}>
+                <MenuItem
+                  onClick={() => {
+                    navigate("/admin/profile");
+                    handleMenuClose();
+                  }}
+                  sx={{ py: 1.5 }}
+                >
+                  <AccountCircleIcon sx={{ mr: 1, color: "grey.600" }} />
                   Profile
                 </MenuItem>
-                <MenuItem onClick={handleLogout}>
-                  <LogoutIcon sx={{ mr: 1 }} /> Logout
+                <MenuItem
+                  onClick={() => {
+                    handleLogout();
+                    handleMenuClose();
+                  }}
+                  sx={{ py: 1.5 }}
+                >
+                  <LogoutIcon sx={{ mr: 1, color: "grey.600" }} />
+                  Logout
                 </MenuItem>
               </Menu>
             </Box>
@@ -305,13 +367,17 @@ const AdminLayout = () => {
         </AppBar>
 
         {/* Toast Notification */}
-        <ToastContainer position="top-center" />
+        <ToastContainer position="top-center" autoClose={3000} />
 
         {/* Offset for Fixed Navbar */}
         <Toolbar />
 
         {/* Render the selected page */}
-        <Outlet />
+        <Fade in timeout={600}>
+          <Box sx={{ maxWidth: 1400, mx: "auto" }}>
+            <Outlet />
+          </Box>
+        </Fade>
       </Box>
     </Box>
   );

@@ -166,6 +166,9 @@ export const authApi = createApi({
         getVendorDetails: builder.query({
             query: (id) => `/auth/vendor/${id}`,
         }),
+        getEventsByCategory: builder.query({
+            query: () => '/events/by-category',
+          }),
     }),
 });
 
@@ -195,5 +198,6 @@ export const {
     useDeleteOrganizerMutation,
     useGetAllVendorsQuery,
     useGetVendorDetailsQuery,
+    useGetEventsByCategoryQuery,
 
 } = authApi;

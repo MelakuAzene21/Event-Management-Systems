@@ -36,7 +36,9 @@ const { createEvent, getEvents, eventDetails, getMyEvent, UpdateEvent, deleteEve
     getTopCities, getEventsByCity, 
     getDashboardData,
     getEventsAdmin,
-    getAnalyticsData} = require('../controllers/eventController');
+    getAnalyticsData,
+    countEventByCategory
+} = require('../controllers/eventController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
@@ -52,8 +54,7 @@ router.get('/myEvent', verifyToken, checkRole('organizer'), getMyEvent);
 router.get('/top-cities', getTopCities); // Moved up
 router.get('/by-city/:city', getEventsByCity); // Moved up, but still after static routes
 router.get('/dashboard', verifyToken, getDashboardData)
- 
-// Dynamic routes after static routes
+router.get('/by-category',countEventByCategory)
 router.post('/creatEvent', verifyToken, upload, createEvent);
 router.put("/:eventId/status", approveOrRejectEvent);
 router.get('/:id', eventDetails); // Now this won't intercept /top-cities
