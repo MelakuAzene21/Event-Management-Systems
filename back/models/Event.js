@@ -38,5 +38,5 @@ const eventSchema = new mongoose.Schema(
     },
     { timestamps: true } // Automatically add createdAt and updatedAt fields
 );
-
+eventSchema.index({ location: '2dsphere' }); // Create a 2dsphere index for geospatial queries
 module.exports = mongoose.model('Event', eventSchema)
