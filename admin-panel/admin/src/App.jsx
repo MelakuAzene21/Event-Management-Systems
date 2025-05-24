@@ -6,9 +6,8 @@ import AdminRoutes from "./routes/AdminRoutes";
 function App() {
   return (
     <BrowserRouter>
-      <Container>
         <AdminRoutes />
-      </Container>
+      
     </BrowserRouter>
   ); 
 }

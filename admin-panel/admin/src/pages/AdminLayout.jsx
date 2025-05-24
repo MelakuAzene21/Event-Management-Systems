@@ -49,6 +49,8 @@ const menuItems = [
   // { text: "Vendors", icon: <BusinessIcon />, path: "/admin/vendors" },
   // { text: "Settings", icon: <SettingsIcon />, path: "/admin/settings" },
   { text: "Category", icon: <Settings2Icon />, path: "/admin/category" },
+  { text: "Vendors", icon: <BusinessIcon />, path: "/admin/vendors" },
+  { text: "Organizers", icon: <BusinessIcon />, path: "/admin/organizers" },
 ];
 
 const AdminLayout = () => {

@@ -294,11 +294,31 @@ exports.getProfile = async (req, res) => {
     }
 };
 
+// Get all vendors with filtering and sorting
 exports.getAllVendors = async (req, res) => {
     try {
-        const vendors = await User.find({ role: 'vendor' })
-            .select('name email role avatar serviceProvided rating price status') // only fields you need
-            .sort({ createdAt: -1 }); // optional: recent first
+        const { search, status } = req.query;
+
+        // Build query
+        const query = { role: "vendor" };
+
+        // Add search filter if provided
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } },
+                { serviceProvided: { $regex: search, $options: "i" } },
+            ];
+        }
+
+        // Add status filter if provided
+        if (status && status !== "All Status") {
+            query.status = status;
+        }
+
+        const vendors = await User.find(query)
+            .select("name email serviceProvided rating price location status")
+            .sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,
@@ -306,29 +326,43 @@ exports.getAllVendors = async (req, res) => {
             vendors,
         });
     } catch (error) {
-        console.error('Error fetching vendors:', error);
+        console.error("Error fetching vendors:", error);
         res.status(500).json({
             success: false,
-            message: 'Failed to fetch vendors',
+            message: "Failed to fetch vendors",
             error: error.message,
         });
     }
-};
+  };
 
+// Get a single vendor by ID
 exports.getVendorById = async (req, res) => {
     try {
-        console.log('Fetching vendor with ID:', req.params.id);
+        const vendor = await User.findOne({ _id: req.params.id, role: "vendor" })
+            .select(
+                "name email serviceProvided rating price location status description availability documents portfolio"
+            );
 
-        const vendor = await User.findOne({ _id: req.params.id, role: 'vendor' });
+        if (!vendor) {
+            return res.status(404).json({
+                success: false,
+                message: "Vendor not found",
+            });
+        }
 
-        if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
-
-        res.status(200).json(vendor);
-    } catch (err) {
-        console.error(err); // Optional debug
-        res.status(500).json({ error: 'Server error' });
+        res.status(200).json({
+            success: true,
+            vendor,
+        });
+    } catch (error) {
+        console.error("Error fetching vendor by ID:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
     }
-};
+  };
 
 exports.uploadAvatar = async (req, res) => {
     try {
@@ -466,20 +500,30 @@ exports.getAllUsers = async (req, res) => {
 };
 
 
-exports.getOrganizerDEtails = async (req, res) => {
+exports.getOrganizerDetails = async (req, res) => {
     try {
-        const organizer = await User.findById(req.params.id).select(
-            "name organizationName about website socialLinks eventCategories phoneNumber address experience logo avatar"
+        const organizer = await User.findOne({ _id: req.params.id, role: 'organizer' }).select(
+            "name email organizationName phoneNumber address experience rating status createdAt eventCategories website socialLinks about"
         );
         if (!organizer) {
             return res.status(404).json({ message: "Organizer not found" });
         }
-        res.status(200).json(organizer);
+
+        const organizerWithStats = {
+            ...organizer._doc,
+            events: Math.floor(Math.random() * 300) + 50, // Mocked events count
+            clients: Math.floor(Math.random() * 100) + 20, // Mocked clients count
+            status: organizer.status === 'active' ? 'Approved' : organizer.status === 'blocked' ? 'Rejected' : 'Pending',
+            joined: organizer.createdAt.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
+        };
+
+        res.status(200).json(organizerWithStats);
     } catch (error) {
         console.error("Error fetching organizer:", error);
         res.status(500).json({ message: "Server error" });
     }
-}
+};
+
 
 exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
@@ -694,14 +738,36 @@ exports.totalFollowerOfOrganizer = async (req, res) => {
     }
 };
 
-// Fetch all organizers
 exports.getAllOrganizers = async (req, res) => {
-    try { 
-        // Fetch all users who are organizers (adjust query if there's a specific field like role: 'organizer')
-        const organizers = await User.find().select(
-            "name organizationName about website socialLinks eventCategories phoneNumber address experience logo avatar"
+    try {
+        const { search, status } = req.query;
+        let query = { role: 'organizer' };
+
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { organizationName: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+            ];
+        }
+
+        if (status && status !== 'All Status') {
+            query.status = status.toLowerCase() === 'approved' ? 'active' : 'blocked';
+        }
+
+        const organizers = await User.find(query).select(
+            "name email organizationName phoneNumber address experience rating status createdAt eventCategories website socialLinks about"
         );
-        res.status(200).json(organizers);
+
+        const organizersWithStats = organizers.map(org => ({
+            ...org._doc,
+            events: Math.floor(Math.random() * 300) + 50, // Mocked events count
+            clients: Math.floor(Math.random() * 100) + 20, // Mocked clients count
+            status: org.status === 'active' ? 'Approved' : org.status === 'blocked' ? 'Rejected' : 'Pending', // Map status
+            joined: org.createdAt.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' }),
+        }));
+
+        res.status(200).json(organizersWithStats);
     } catch (error) {
         console.error("Error fetching all organizers:", error);
         res.status(500).json({ message: "Server error" });

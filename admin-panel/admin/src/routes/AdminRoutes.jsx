@@ -13,6 +13,10 @@ import ForgotPassword from "../components/forgot-password.jsx";
 import NotFoundPage from "../components/NotFoundPage.jsx";
 import CategoryManagement from "../pages/CategoryManagement.jsx";
 import AnalyticsDashboard from "../pages/AnalyticPage.jsx";
+import OrganizersList from "../pages/OrganizersList.jsx";
+import OrganizerDetails from "../pages/OrganizerDetails.jsx";
+import VendorList from "../pages/VendorList.jsx";
+import VendorDetails from "../pages/VendorDetails.jsx";
 const AdminRoutes = () => {
   return (
     <Routes>
@@ -27,11 +31,15 @@ const AdminRoutes = () => {
         <Route path="profile" element={<Profile />} />
         <Route path="report" element={<MonthlyRevenueChart />} />
         <Route path="analytic" element={<AnalyticsDashboard />} />
+        <Route path="organizers" element={<OrganizersList />} />
+        <Route path="vendors" element={<VendorList />} />
 
         <Route path="category" element={<CategoryManagement />} />
       </Route>
       <Route path="/admin/events/:eventId" element={<EventApproval />} />
       <Route path="/events/:id" element={<EventDetails />} />
+      <Route path="/admin/organizers/:id" element={<OrganizerDetails />} />
+      <Route path="/admin/vendors/:id" element={<VendorDetails />} />
     </Routes>
   );
 };

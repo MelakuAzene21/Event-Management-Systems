@@ -3,7 +3,7 @@ const { register, login, logout, getProfile, updateProfile,
     getAllUsers, googleCallback, logoutGoogle, deleteUser,
     forgotPassword, resetPassword, updateUser, followedOrganizers,
     totalFollowerOfOrganizer, uploadAvatar, getAllVendors, getVendorById, 
-    getOrganizerDEtails,
+    getOrganizerDetails,
     getAllOrganizers} = require('../controllers/authController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
@@ -93,7 +93,7 @@ router.get('/getAllUser',verifyToken,checkRole('admin'), getAllUsers);
 // router.get('/getAllUser',  getAllUsers);
 router.post('/organizers/follow',verifyToken, followedOrganizers);
 router.get('/organizers/:organizerId/followers',  totalFollowerOfOrganizer)
-router.get('/organizer/:id',getOrganizerDEtails)
+router.get('/organizer/:id', getOrganizerDetails)
 router.post('/upload-avatar', verifyToken, uploadMiddleware, uploadAvatar);
 
 // const multer = require('multer');

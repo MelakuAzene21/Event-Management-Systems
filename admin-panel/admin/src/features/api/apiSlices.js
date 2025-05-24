@@ -138,6 +138,34 @@ export const authApi = createApi({
             }),
             invalidatesTags: ['User'],
         }),
+
+
+        getAllOrganizers: builder.query({
+            query: ({ search, status }) => {
+                const query = new URLSearchParams();
+                if (search) query.set('search', search);
+                if (status && status !== 'All Status') query.set('status', status);
+                return `/auth/organizers?${query.toString()}`;
+            },
+        }),
+        getOrganizerDetails: builder.query({
+            query: (id) => `/auth/organizer/${id}`,
+        }),
+        deleteOrganizer: builder.mutation({
+            query: (id) => ({
+                url: `auth/users/${id}`,
+                method: 'DELETE',
+            }),
+        }),
+        getAllVendors: builder.query({
+            query: ({ search, status }) => ({
+                url: "/auth/vendors",
+                params: { search, status },
+            }),
+        }),
+        getVendorDetails: builder.query({
+            query: (id) => `/auth/vendor/${id}`,
+        }),
     }),
 });
 
@@ -162,4 +190,10 @@ export const {
     useUpdateCategoryMutation,
     useDeleteCategoryMutation,    
     useGetAnalyticsDataQuery,
+    useGetAllOrganizersQuery,
+    useGetOrganizerDetailsQuery,
+    useDeleteOrganizerMutation,
+    useGetAllVendorsQuery,
+    useGetVendorDetailsQuery,
+
 } = authApi;
