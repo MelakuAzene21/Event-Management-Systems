@@ -6,7 +6,7 @@
 //   const [messages, setMessages] = useState([]);
 //   const [newMessage, setNewMessage] = useState('');
 //   const messagesEndRef = useRef(null);
-//   const chatss = useSelector(state => state.chats); 
+//   const chatss = useSelector(state => state.chats);
 
 //   const [chats, setChats] = useState([
 //     {
@@ -49,7 +49,7 @@
 //     setActiveChat(chat);
 //     setMessages(chat.messages);
 //     // Mark as read
-//     setChats(prevChats => prevChats.map(c => 
+//     setChats(prevChats => prevChats.map(c =>
 //       c.id === chat.id ? { ...c, unread: 0 } : c
 //     ));
 //   };
@@ -70,7 +70,7 @@
 //     setMessages([...messages, newMsg]);
     
 //     // Update chat list
-//     setChats(prevChats => prevChats.map(chat => 
+//     setChats(prevChats => prevChats.map(chat =>
 //       chat.id === activeChat.id ? {
 //         ...chat,
 //         lastMessage: newMessage,
@@ -233,58 +233,52 @@
 
 
 // config/initializeSocket.js
+
+
 const { Server } = require("socket.io");
 const verifyToken = require("../middlewares/verifyTokenSocket");
 const {
   savePrivateMessage,
   updatePrivateMessage,
-  countUnreadMessages ,
+  countUnreadMessages,
   deletePrivateMessage
 } = require("../controllers/messageController");
-const Chat    = require("../models/Chat");
+const Chat = require("../models/Chat");
 const Message = require("../models/Message");
 
 let io;
 const activeUsers = new Map(); // socketId → { userId, role, lastActive }
 
 const initializeSocket = (server) => {
-  const isProduction = process.env.NODE_ENV === "production";
-
-  const clientOrigins = isProduction
-    ? [
-      "https://event-hub-vercel.vercel.app",
-      "https://event-hub-admin.vercel.app",
-    ]
-    : [
-      "http://localhost:3000",
-      "http://localhost:5173",
-    ];
+  // Determine environment and set CORS origins
+  const isProduction = process.env.NODE_ENV === 'production';
+  const corsOrigins = isProduction
+    ? ["https://event-hub-vercel.vercel.app", "https://event-hub-admin.vercel.app"]
+    : ["http://localhost:3000", "http://localhost:5173"];
 
   io = new Server(server, {
     cors: {
-      origin: clientOrigins,
+      origin: corsOrigins,
       methods: ["GET", "POST"],
       credentials: true,
     },
     transports: ["websocket", "polling"],
     pingTimeout: 60000, // 60 seconds
-    pingInterval: 25000, // 25 seconds
+    pingInterval: 25000 // 25 seconds    
   });
-};
 
   // Attach JWT-auth middleware
   io.use(verifyToken);
 
   io.on("connection", (socket) => {
-
-    const me = socket.user._id.toString();  // Convert to string early
+    const me = socket.user._id.toString(); // Convert to string early
     console.log("Socket connected:", socket.id, "User:", me, "Role:", socket.user.role);
 
     // Track user & broadcast online
     socket.join(me);
     activeUsers.set(socket.id, { userId: me, role: socket.user.role, lastActive: new Date() });
     socket.broadcast.emit("userOnline", { userId: me });
-    socket.emit("startPing");  // Emitting to the connected client
+    socket.emit("startPing"); // Emitting to the connected client
 
     const findSocketIdByUserId = (userId) => {
       const idStr = userId.toString();
@@ -295,11 +289,10 @@ const initializeSocket = (server) => {
       }
       return null;
     };
-    
+
     const onlineUserIds = Array.from(activeUsers.values()).map(user => user.userId);
-    socket.emit("initialOnlineUsers", onlineUserIds);    
+    socket.emit("initialOnlineUsers", onlineUserIds);
     console.log('Emitting initial online users:', onlineUserIds);
-    
 
     socket.on('messageRead', ({ messageId, chatId, userId }) => {
       console.log('Message read by user:', userId, 'Message ID:', messageId);
@@ -310,56 +303,50 @@ const initializeSocket = (server) => {
 
       // After updating the database, notify the sender and other participants
       const messageReadInfo = {
-          messageId,
-          chatId,
-          userId, // Receiver's user ID
+        messageId,
+        chatId,
+        userId, // Receiver's user ID
       };
 
       // Emit messageReadConfirmed back to the sender and other participants
       io.to(chatId).emit('messageReadConfirmed', messageReadInfo);
-  });
+    });
 
-  // Clean up on disconnect
-  socket.on('disconnect', () => {
+    // Clean up on disconnect
+    socket.on('disconnect', () => {
       console.log('user disconnected');
-  });
+    });
 
+    socket.on("editMessage", async ({ messageId, newText, chatId, receiverId }) => {
+      try {
+        const updated = await Message.findByIdAndUpdate(
+          messageId,
+          { text: newText, edited: true },
+          { new: true }
+        ).lean();
+        if (!updated) return;
+        const payload = {
+          chatId,
+          messageId,
+          text: newText,
+        };
 
-// inside your backend editMessage socket handler
-socket.on("editMessage", async ({ messageId, newText, chatId, receiverId }) => {
-  try {
-    const updated = await Message.findByIdAndUpdate(
-      messageId,
-      { text: newText, edited: true },
-      { new: true }
-    ).lean();
-if (!updated) return;
-    const payload = {
-      chatId,
-      messageId,
-      text: newText,
-    };
-
-    // emit to the editor
-    socket.emit("messageEdited", payload);
-console.log('Active users:', activeUsers);
-    // emit to the opponent if connected
-    
+        // emit to the editor
+        socket.emit("messageEdited", payload);
+        console.log('Active users:', activeUsers);
+        // emit to the opponent if connected
         const receiverSocketId = findSocketIdByUserId(receiverId); // implement this based on your socket-user map
-    console.log('Active users:', receiverId);
-
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("messageEdited", payload);
-    }
-  } catch (err) {
-    console.error("Edit message error:", err);
-  }
-});
-
+        console.log('Active users:', receiverId);
+        if (receiverSocketId) {
+          io.to(receiverSocketId).emit("messageEdited", payload);
+        }
+      } catch (err) {
+        console.error("Edit message error:", err);
+      }
+    });
 
     socket.on("privateMessage", async (messageData, callback) => {
-      const { senderId, receiverId, text, chatId,senderModel } = messageData;
-    
+      const { senderId, receiverId, text, chatId, senderModel } = messageData;
       try {
         // 1. Save the message to DB
         const saved = await savePrivateMessage({
@@ -369,13 +356,11 @@ console.log('Active users:', activeUsers);
           text,
           senderModel
         });
-    
-        const receiverSocketId = findSocketIdByUserId(receiverId); // implement this based on your socket-user map
 
+        const receiverSocketId = findSocketIdByUserId(receiverId); // implement this based on your socket-user map
         if (receiverSocketId) {
           // Receiver is online - emit message to them
           io.to(receiverSocketId).emit("privateMessage", saved);
-         
         }
         socket.emit("messageDelivered", {
           chatId,
@@ -386,67 +371,53 @@ console.log('Active users:', activeUsers);
         callback?.({ status: "failed", error: err.message });
       }
     });
-    
 
-   socket.on("messages:read", async ({ chatId, messageIds, userId, sender, opponentId }) => {
-  console.log("✅ [Socket] messages:read received:", {
-    chatId,
-    messageIds,
-    userId,
-    sender,
-    opponentId
-  });
-
-  try {
-    const updatedMessageIds = [];
-
-    for (const messageId of messageIds) {
-      const msg = await Message.findOne({ _id: messageId, chatId });
-
-      if (!msg) continue;
-
-      const alreadyRead = msg.readBy.some(entry => entry.userId.toString() === userId);
-      if (alreadyRead) continue;
-
-      await Message.updateOne(
-        { _id: messageId },
-        {
-          $push: { readBy: { userId, model: sender } },
-          $set: { status: "read" }
-        }
-      );
-
-      updatedMessageIds.push(messageId);
-    }
-
-    if (updatedMessageIds.length === 0) {
-      console.log("No messages updated.");
-      return;
-    }
-
-    // Emit to the opponent
-    const opponentSocketId = findSocketIdByUserId(opponentId);
-    if (opponentSocketId) {
-      console.log("Emitting to opponent:", opponentSocketId);
-      io.to(opponentSocketId).emit("messages:read:update", {
+    socket.on("messages:read", async ({ chatId, messageIds, userId, sender, opponentId }) => {
+      console.log("✅ [Socket] messages:read received:", {
         chatId,
-        messageIds: updatedMessageIds,
-        status: "read",
+        messageIds,
+        userId,
         sender,
         opponentId
       });
-    } else {
-      console.log("No socket found for opponent:", opponentId);
-    }
-  } catch (err) {
-    console.error("Error handling messages:read:", err);
-  }
-});
+      try {
+        const updatedMessageIds = [];
+        for (const messageId of messageIds) {
+          const msg = await Message.findOne({ _id: messageId, chatId });
+          if (!msg) continue;
+          const alreadyRead = msg.readBy.some(entry => entry.userId.toString() === userId);
+          if (alreadyRead) continue;
+          await Message.updateOne(
+            { _id: messageId },
+            {
+              $push: { readBy: { userId, model: sender } },
+              $set: { status: "read" }
+            }
+          );
+          updatedMessageIds.push(messageId);
+        }
+        if (updatedMessageIds.length === 0) {
+          console.log("No messages updated.");
+          return;
+        }
+        const opponentSocketId = findSocketIdByUserId(opponentId);
+        if (opponentSocketId) {
+          console.log("Emitting to opponent:", opponentSocketId);
+          io.to(opponentSocketId).emit("messages:read:update", {
+            chatId,
+            messageIds: updatedMessageIds,
+            status: "read",
+            sender,
+            opponentId
+          });
+        } else {
+          console.log("No socket found for opponent:", opponentId);
+        }
+      } catch (err) {
+        console.error("Error handling messages:read:", err);
+      }
+    });
 
-    
-    //
-    // 2) EDIT MESSAGE
-    //
     socket.on("editMessage", async ({ messageId, newText, receiverId }, callback) => {
       try {
         const updated = await updatePrivateMessage({ messageId, newText });
@@ -463,12 +434,10 @@ console.log('Active users:', activeUsers);
       try {
         const user = activeUsers.get(socket.id);
         if (!user) throw new Error("User not authenticated");
-    
         const count = await countUnreadMessages({
           userId: user.userId,
           chatId
         });
-    
         if (typeof callback === "function") {
           callback({ chatId, unreadCount: count });
         }
@@ -479,9 +448,7 @@ console.log('Active users:', activeUsers);
         }
       }
     });
-    //
-    // 3) DELETE MESSAGE
-    //
+
     socket.on("deleteMessage", async ({ messageId, receiverId }, callback) => {
       try {
         await deletePrivateMessage({ messageId });
@@ -495,10 +462,6 @@ console.log('Active users:', activeUsers);
       }
     });
 
-
-    //
-    // 5) READ RECEIPTS
-    //
     socket.on("markAsRead", async ({ chatId }, callback) => {
       try {
         // Mark DB
@@ -517,26 +480,20 @@ console.log('Active users:', activeUsers);
       }
     });
 
-    //
-    // 6) HEARTBEAT & OFFLINE
-    //
     socket.on("ping", () => {
       activeUsers.get(socket.id).lastActive = new Date();
     });
+
     socket.on("disconnect", (reason) => {
       const disconnectedUser = activeUsers.get(socket.id);
       if (!disconnectedUser) return;
-    
       activeUsers.delete(socket.id);
-    
       const stillConnected = [...activeUsers.values()].some(
         (user) => user.userId === disconnectedUser.userId
       );
-    
       if (!stillConnected) {
         socket.broadcast.emit("userOffline", { userId: disconnectedUser.userId });
       }
-    
       console.log(`Socket ${socket.id} disconnected (${reason})`);
     });
   });
@@ -553,6 +510,5 @@ console.log('Active users:', activeUsers);
 
   return io;
 };
-
 
 module.exports = { initializeSocket, getIO: () => io, activeUsers };
