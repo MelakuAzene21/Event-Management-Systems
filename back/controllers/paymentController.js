@@ -22,8 +22,7 @@ exports.InializePayment = async (req, res) => {
             first_name: firstName,
             last_name: lastName,
             tx_ref,
-            // callback_url: 'http://localhost:5000/payment/callback',
-            callback_url: `https://3508-213-55-102-49.ngrok-free.app/payment/callback?tx_ref=${tx_ref}`,
+            callback_url: `https://event-management-systems-gj91.onrender.com/payment/callback?tx_ref=${tx_ref}`,
             return_url: `${baseUrl}/success?tx_ref=${tx_ref}`, // Dynamically set return_url
             customization: {
                 "title": "Ticket Booking"

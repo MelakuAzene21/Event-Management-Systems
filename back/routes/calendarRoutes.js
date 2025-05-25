@@ -4,12 +4,15 @@ const router = express.Router();
 const Booking = require('../models/Booking');
 const Event = require('../models/Event');
 const User = require('../models/User');
-
+const baseUrl =
+    process.env.NODE_ENV === 'production'
+        ? 'https://event-management-systems-gj91.onrender.com'
+        : 'http://localhost:5000';
 // Google OAuth2 client for Calendar
 const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CALENDAR_CLIENT_ID,
     process.env.GOOGLE_CALENDAR_CLIENT_SECRET,
-    'http://localhost:5000/api/calendar/callback'
+        `${baseUrl}/api/calendar/callback`
 );
 
 // Get Calendar OAuth URL

@@ -1,11 +1,14 @@
 const { google } = require('googleapis');
 const Booking = require('../models/Booking');
-
+const baseUrl =
+    process.env.NODE_ENV === 'production'
+        ? 'https://event-management-systems-gj91.onrender.com'
+        : 'http://localhost:5000';
 // Initialize OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CALENDAR_CLIENT_ID,
     process.env.GOOGLE_CALENDAR_CLIENT_SECRET,
-    'http://localhost:5000/api/calendar/callback'
+    `${baseUrl}/api/calendar/callback`
 );
 
 exports.checkCalendarEvent = async (req, res) => {
