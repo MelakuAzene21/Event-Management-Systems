@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -33,10 +34,21 @@ import { ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
-const socket = io("http://localhost:5000", {
-  transports: ["websocket", "polling"],
-});
+const socket = io(
+  process.env.NODE_ENV === "production"
+    ? "https://event-management-systems-gj91.onrender.com"
+    : "http://localhost:5000",
+  {
+    transports: ["websocket", "polling"],
+  }
+);
+
 const drawerWidth = 240;
+const baseUrl =
+  process.env.NODE_ENV === 'production'
+    ? 'https://event-management-systems-gj91.onrender.com'
+    : 'http://localhost:5000';
+
 
 const menuItems = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
@@ -61,7 +73,7 @@ const AdminLayout = () => {
       if (user && user._id) {
         try {
           const res = await axios.get(
-            `http://localhost:5000/api/notifications/admin/${user._id}`,
+            `${baseUrl}/api/notifications/admin/${user._id}`,
             { withCredentials: true }
           );
           setNotifications(res.data);
@@ -114,7 +126,7 @@ const AdminLayout = () => {
       navigate(`/admin/events/${notif.eventId}`);
       try {
         await axios.post(
-          "http://localhost:5000/api/notifications/admin/mark-read",
+          `${baseUrl}/api/notifications/admin/mark-read`,
           { notificationId: notif._id, adminId: user._id },
           { withCredentials: true }
         );

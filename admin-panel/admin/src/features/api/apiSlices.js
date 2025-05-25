@@ -1,9 +1,14 @@
+/* eslint-disable no-undef */
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: 'http://localhost:5000/api', // Backend API base URL
-    credentials: 'include', // Include cookies in requests
+    baseUrl:
+        process.env.NODE_ENV === 'production'
+            ? 'https://event-management-systems-gj91.onrender.com/api'
+            : 'http://localhost:5000/api',
+    credentials: 'include',
 });
+  
 
 export const authApi = createApi({
     reducerPath: 'authApi',
@@ -44,6 +49,20 @@ export const authApi = createApi({
             query: () => '/auth/getAllUser', // Your API endpoint
             providesTags: ['User'],
         }),
+        getEventsAdmin: builder.query({
+            query: () => '/events/AllEventAdmin',
+            providesTags: ['Event'],
+        }),
+        // Update Event Status
+        updateEventStatus: builder.mutation({
+            query: ({ eventId, status }) => ({
+                url: `/events/${eventId}/status`,
+                method: 'PUT',
+                body: { status },
+            }),
+            invalidatesTags: ['Event'],
+        }),
+
 
         updateUser: builder.mutation({
             query: ({ userId, role, status }) => ({

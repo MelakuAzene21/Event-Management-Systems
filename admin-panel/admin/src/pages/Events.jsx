@@ -36,7 +36,43 @@ import SearchIcon from "@mui/icons-material/Search";
 const Events = () => {
   const { data, error, isLoading } = useGetEventsAdminQuery();
   const [updateEventStatus] = useUpdateEventStatusMutation();
-  const events = Array.isArray(data) ? data : data?.events || [];
+console.log('error', error);
+  console.log('data', data);
+   
+  // Normalize events data with validation
+  const events = useMemo(() => {
+    const rawEvents = Array.isArray(data) ? data : data?.events || [];
+    const validEvents = rawEvents.filter((event) => {
+      if (!event || typeof event !== "object") {
+        console.warn("Invalid event object:", event);
+        return false;
+      }
+      if (!event._id || !event.title || !event.eventDate || !event.eventTime) {
+        console.warn("Event missing required fields:", event);
+        return false;
+      }
+      if (
+        !event.organizer ||
+        typeof event.organizer !== "object" ||
+        !event.organizer.name
+      ) {
+        console.warn("Event missing valid organizer:", event);
+        return false;
+      }
+      if (
+        !event.location ||
+        typeof event.location !== "object" ||
+        !event.location.name
+      ) {
+        console.warn("Event missing valid location:", event);
+        return false;
+      }
+      return true;
+    });
+    console.log("Valid events after filtering:", validEvents);
+    return validEvents;
+  }, [data]);
+
   const today = new Date();
 
   // State for tabs, search, filters, and pagination
@@ -49,36 +85,76 @@ const Events = () => {
 
   // Filter and search logic
   useEffect(() => {
-    let result = [...events];
+    try {
+      let result = [...events];
 
-    // Apply tab filter
-    if (tabValue !== "all") {
-      result = result.filter((event) => event.status === tabValue);
-    }
+      // Log initial events
+      console.log("Starting filter with events:", result);
 
-    // Apply search
-    if (searchQuery) {
-      result = result.filter(
-        (event) =>
-          event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          event.organizer?.name
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          event.location.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Apply date filter
-    if (filterDate !== "all") {
-      const now = new Date();
-      if (filterDate === "upcoming") {
-        result = result.filter((event) => new Date(event.eventDate) >= now);
-      } else if (filterDate === "past") {
-        result = result.filter((event) => new Date(event.eventDate) < now);
+      // Apply tab filter
+      if (tabValue !== "all") {
+        result = result.filter((event) => {
+          if (!event.status) {
+            console.warn("Event missing status:", event);
+            return false;
+          }
+          return event.status === tabValue;
+        });
+        console.log("After tab filter:", result);
       }
-    }
 
-    setFilteredEvents(result);
+      // Apply search
+      if (searchQuery) {
+        result = result.filter((event) => {
+          try {
+            const titleMatch =
+              event.title
+                ?.toLowerCase?.()
+                ?.includes(searchQuery.toLowerCase()) || false;
+            const organizerMatch =
+              event.organizer?.name
+                ?.toLowerCase?.()
+                ?.includes(searchQuery.toLowerCase()) || false;
+            const locationMatch =
+              event.location?.name
+                ?.toLowerCase?.()
+                ?.includes(searchQuery.toLowerCase()) || false;
+            return titleMatch || organizerMatch || locationMatch;
+          } catch (err) {
+            console.error("Error in search filter for event:", event, err);
+            return false;
+          }
+        });
+        console.log("After search filter:", result);
+      }
+
+      // Apply date filter
+      if (filterDate !== "all") {
+        const now = new Date();
+        result = result.filter((event) => {
+          try {
+            const eventDate = new Date(event.eventDate);
+            if (isNaN(eventDate.getTime())) {
+              console.warn("Invalid event date:", event.eventDate, event);
+              return false;
+            }
+            return filterDate === "upcoming"
+              ? eventDate >= now
+              : eventDate < now;
+          } catch (err) {
+            console.error("Error in date filter for event:", event, err);
+            return false;
+          }
+        });
+        console.log("After date filter:", result);
+      }
+
+      setFilteredEvents(result);
+      console.log("Final filtered events:", result);
+    } catch (err) {
+      console.error("Error in useEffect filtering:", err);
+      setFilteredEvents([]);
+    }
   }, [tabValue, searchQuery, filterDate, events]);
 
   // Pagination logic
@@ -90,21 +166,25 @@ const Events = () => {
   // Handlers
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-    setPage(1); // Reset to first page on tab change
+    setPage(1);
+    console.log("Tab changed to:", newValue);
   };
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
-    setPage(1); // Reset to first page on search
+    setPage(1);
+    console.log("Search query updated:", event.target.value);
   };
 
   const handleFilterDateChange = (event) => {
     setFilterDate(event.target.value);
-    setPage(1); // Reset to first page on filter change
+    setPage(1);
+    console.log("Date filter updated:", event.target.value);
   };
 
   const handlePageChange = (event, value) => {
     setPage(value);
+    console.log("Page changed to:", value);
   };
 
   const handleApproval = async (eventId, status) => {
@@ -113,8 +193,9 @@ const Events = () => {
       toast.success(
         `Event ${status === "pending" ? "restored" : status} successfully!`
       );
+      console.log(`Event ${eventId} status updated to:`, status);
     } catch (error) {
-      console.error("Error updating event status:", error);
+      console.error("Error updating event status:", error, { eventId, status });
       toast.error("Failed to update event status.");
     }
   };
@@ -128,6 +209,7 @@ const Events = () => {
   }
 
   if (error) {
+    console.error("API error:", error);
     return (
       <Alert severity="error" sx={{ m: 2 }}>
         Failed to load events. Please try again later.
@@ -265,139 +347,163 @@ const Events = () => {
           </TableHead>
           <TableBody>
             {paginatedEvents.map((event) => {
-              const eventDate = new Date(event.eventDate);
-              const status =
-                eventDate < today
-                  ? "Completed"
-                  : event.status.charAt(0).toUpperCase() +
-                    event.status.slice(1);
-              const totalAttendees =
-                event.ticketTypes?.reduce(
-                  (sum, ticket) => sum + ticket.limit,
-                  0
-                ) || 0;
+              try {
+                if (!event || !event._id) {
+                  console.warn("Skipping invalid event in render:", event);
+                  return null;
+                }
+                const eventDate = new Date(event.eventDate || today);
+                if (isNaN(eventDate.getTime())) {
+                  console.warn(
+                    "Invalid event date in render:",
+                    event.eventDate,
+                    event
+                  );
+                  return null;
+                }
+                const status =
+                  eventDate < today
+                    ? "Completed"
+                    : event.status?.charAt(0).toUpperCase() +
+                      (event.status?.slice(1) || "unknown");
+                const totalAttendees =
+                  event.ticketTypes?.reduce(
+                    (sum, ticket) => sum + (ticket.limit || 0),
+                    0
+                  ) || 0;
 
-              return (
-                <TableRow
-                  key={event._id}
-                  sx={{
-                    "&:hover": { bgcolor: "grey.50" },
-                  }}
-                >
-                  <TableCell>{event.title}</TableCell>
-                  <TableCell>
-                    {eventDate.toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </TableCell>
-                  <TableCell>{event.eventTime}</TableCell>
-                  <TableCell>{event.location.name?.split(",")[0]}</TableCell>
-                  <TableCell>
-                    {event.organizer?.name} <br />
-                    <Typography variant="caption" color="text.secondary">
-                      {event.organizer?.email}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      sx={{
-                        color:
-                          status === "Completed"
-                            ? "error.main"
-                            : status === "Approved"
-                            ? "success.main"
-                            : status === "Pending"
-                            ? "warning.main"
-                            : "error.main",
-                        fontWeight: "medium",
-                      }}
-                    >
-                      {status}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{totalAttendees}</TableCell>
-                  <TableCell>
-                    <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                      <Link
-                        to={`/events/${event._id}`}
-                        style={{
-                          textDecoration: "none",
-                          fontWeight: "bold",
-                          color: "#1E88E5",
-                        }}
+                return (
+                  <TableRow
+                    key={event._id}
+                    sx={{
+                      "&:hover": { bgcolor: "grey.50" },
+                    }}
+                  >
+                    <TableCell>{event.title || "N/A"}</TableCell>
+                    <TableCell>
+                      {eventDate.toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </TableCell>
+                    <TableCell>{event.eventTime || "N/A"}</TableCell>
+                    <TableCell>
+                      {event.location?.name?.split(",")[0] || "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      {event.organizer?.name || "N/A"} <br />
+                      <Typography variant="caption" color="text.secondary">
+                        {event.organizer?.email || "N/A"}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography
                         sx={{
-                          "&:hover": {
-                            textDecoration: "underline",
-                          },
+                          color:
+                            status === "Completed"
+                              ? "error.main"
+                              : status === "Approved"
+                              ? "success.main"
+                              : status === "Pending"
+                              ? "warning.main"
+                              : "error.main",
+                          fontWeight: "medium",
                         }}
                       >
-                        View Details →
-                      </Link>
-                      {tabValue === "pending" && event.status === "pending" && (
-                        <>
-                          <Button
-                            variant="contained"
-                            color="success"
-                            size="small"
-                            startIcon={<CheckCircleIcon />}
-                            onClick={() =>
-                              handleApproval(event._id, "approved")
-                            }
-                            sx={{
-                              textTransform: "none",
-                              borderRadius: 2,
-                              "&:hover": {
-                                bgcolor: "success.dark",
-                              },
-                            }}
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color="error"
-                            size="small"
-                            startIcon={<CancelIcon />}
-                            onClick={() =>
-                              handleApproval(event._id, "rejected")
-                            }
-                            sx={{
-                              textTransform: "none",
-                              borderRadius: 2,
-                              "&:hover": {
-                                bgcolor: "error.dark",
-                              },
-                            }}
-                          >
-                            Reject
-                          </Button>
-                        </>
-                      )}
-                      {tabValue === "rejected" &&
-                        event.status === "rejected" && (
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            startIcon={<RestoreIcon />}
-                            onClick={() => handleApproval(event._id, "pending")}
-                            sx={{
-                              textTransform: "none",
-                              borderRadius: 2,
-                              "&:hover": {
-                                bgcolor: "primary.dark",
-                              },
-                            }}
-                          >
-                            Restore
-                          </Button>
-                        )}
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              );
+                        {status}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{totalAttendees}</TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{ display: "flex", gap: 1, alignItems: "center" }}
+                      >
+                        <Link
+                          to={`/events/${event._id}`}
+                          style={{
+                            textDecoration: "none",
+                            fontWeight: "bold",
+                            color: "#1E88E5",
+                          }}
+                          sx={{
+                            "&:hover": {
+                              textDecoration: "underline",
+                            },
+                          }}
+                        >
+                          View Details →
+                        </Link>
+                        {tabValue === "pending" &&
+                          event.status === "pending" && (
+                            <>
+                              <Button
+                                variant="contained"
+                                color="success"
+                                size="small"
+                                startIcon={<CheckCircleIcon />}
+                                onClick={() =>
+                                  handleApproval(event._id, "approved")
+                                }
+                                sx={{
+                                  textTransform: "none",
+                                  borderRadius: 2,
+                                  "&:hover": {
+                                    bgcolor: "success.dark",
+                                  },
+                                }}
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                variant="contained"
+                                color="error"
+                                size="small"
+                                startIcon={<CancelIcon />}
+                                onClick={() =>
+                                  handleApproval(event._id, "rejected")
+                                }
+                                sx={{
+                                  textTransform: "none",
+                                  borderRadius: 2,
+                                  "&:hover": {
+                                    bgcolor: "error.dark",
+                                  },
+                                }}
+                              >
+                                Reject
+                              </Button>
+                            </>
+                          )}
+                        {tabValue === "rejected" &&
+                          event.status === "rejected" && (
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              size="small"
+                              startIcon={<RestoreIcon />}
+                              onClick={() =>
+                                handleApproval(event._id, "pending")
+                              }
+                              sx={{
+                                textTransform: "none",
+                                borderRadius: 2,
+                                "&:hover": {
+                                  bgcolor: "primary.dark",
+                                },
+                              }}
+                            >
+                              Restore
+                            </Button>
+                          )}
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                );
+              } catch (err) {
+                console.error("Error rendering event:", event, err);
+                return null;
+              }
             })}
           </TableBody>
         </Table>
@@ -440,8 +546,6 @@ const Events = () => {
           No events found for the selected criteria.
         </Typography>
       )}
-
-      
     </Paper>
   );
 };

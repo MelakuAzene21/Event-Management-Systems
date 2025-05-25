@@ -1,7 +1,12 @@
+/* eslint-disable no-undef */
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000");
+const socket = io(
+  process.env.NODE_ENV === "production"
+    ? "https://event-management-systems-gj91.onrender.com"
+    : "http://localhost:5000"
+);
 
 const Notification = () => {
   const [notifications, setNotifications] = useState([]);

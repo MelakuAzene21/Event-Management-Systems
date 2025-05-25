@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -19,12 +20,16 @@ const EventApproval = () => {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const baseUrl =
+    process.env.NODE_ENV === "production"
+      ? "https://event-management-systems-gj91.onrender.com"
+      : "http://localhost:5000";
 
   useEffect(() => {
     const fetchEventDetails = async () => {
       try {
         const { data } = await axios.get(
-          `http://localhost:5000/api/events/${eventId}`
+          `${baseUrl}/api/events/${eventId}`
         );
         setEvent(data);
         setLoading(false);
@@ -40,7 +45,7 @@ const EventApproval = () => {
 
   const handleApproval = async (status) => {
     try {
-      await axios.put(`http://localhost:5000/api/events/${eventId}/status`, {
+      await axios.put(`${baseUrl}/api/events/${eventId}/status`, {
         status,
       });
       toast.success(`Event ${status} successfully!`);

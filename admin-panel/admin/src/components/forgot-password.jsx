@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -20,8 +21,10 @@ const ForgotPassword = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const BASE_URL = "http://localhost:5000";
-
+  const BASE_URL =
+    process.env.NODE_ENV === "production"
+      ? "https://event-management-systems-gj91.onrender.com"
+      : "http://localhost:5000";
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
