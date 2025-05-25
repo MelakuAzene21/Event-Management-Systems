@@ -4,7 +4,7 @@ const booking = require('../models/Booking');
 dotenv.config();
 // Determine the base URL based on the environment
 const baseUrl = process.env.NODE_ENV === 'production'
-    ? 'https://e-market-hbf7.onrender.com'
+    ? 'https://event-hub-vercel.vercel.app'
     : 'http://localhost:3000';
 
 exports.InializePayment = async (req, res) => {

@@ -497,14 +497,15 @@ exports.login = async (req, res) => {
         const { password: _, ...userWithoutPassword } = user._doc;
 
         // Set the token as an HTTP-only cookie
-        res.cookie('token', token, 
-            
-            { httpOnly: true, 
-                secure: false,
-                 sameSite: 'strict' ,
-                //  maxAge: 24 * 60 * 60 * 1000, // 1 day
-}) // Adjust `secure: true` for production
-            .status(200)
+        // Set the token as an HTTP-only cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // true in production for HTTPS
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // 'none' for cross-origin in production
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+        });
+           
+        res.status(200)
             .json({ message: 'Login successful', user: userWithoutPassword });      
     } catch (error) {
         console.error('Error logging in:', error);

@@ -5,7 +5,7 @@ import { FaFacebook, FaTwitter, FaLinkedin, FaWhatsapp, FaTelegram, FaShareAlt }
 const ShareEventModal = ({ event }) => {
     const { title, _id } = event;
 
-    const eventUrl = `https://EventHub.com/events/${_id}`;
+    const eventUrl = `https://event-hub-vercel.vercel.app/${_id}`;
 
     const [open, setOpen] = useState(false);
 

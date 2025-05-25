@@ -147,8 +147,12 @@ router.get('/callback', async (req, res) => {
         console.log('Booking updated with calendar data');
 
         // Redirect to success page
-        const redirectUrl = `http://localhost:3000/success/calendar?bookingId=${bookingId}`;
-        console.log('Redirecting to:', redirectUrl);
+        const clientBaseUrl =
+            process.env.NODE_ENV === 'production'
+                ? 'https://event-hub-vercel.vercel.app'
+                : 'http://localhost:3000';
+
+        const redirectUrl = `${clientBaseUrl}/success/calendar?bookingId=${bookingId}`;
         res.redirect(redirectUrl);
     } catch (error) {
         console.error('Error in calendar callback:', error);
