@@ -248,16 +248,29 @@ let io;
 const activeUsers = new Map(); // socketId → { userId, role, lastActive }
 
 const initializeSocket = (server) => {
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const clientOrigins = isProduction
+    ? [
+      "https://event-hub-vercel.vercel.app",
+      "https://event-hub-admin.vercel.app",
+    ]
+    : [
+      "http://localhost:3000",
+      "http://localhost:5173",
+    ];
+
   io = new Server(server, {
     cors: {
-      origin: ["http://localhost:3000", "http://localhost:5173"],
+      origin: clientOrigins,
       methods: ["GET", "POST"],
       credentials: true,
     },
     transports: ["websocket", "polling"],
-    pingTimeout: 60000,  // 60 seconds
-    pingInterval: 25000  // 25 seconds    
+    pingTimeout: 60000, // 60 seconds
+    pingInterval: 25000, // 25 seconds
   });
+};
 
   // Attach JWT-auth middleware
   io.use(verifyToken);

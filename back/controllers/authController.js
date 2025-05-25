@@ -800,7 +800,7 @@ exports.forgotPassword = async (req, res) => {
     await user.save({ validateBeforeSave: false });  // Save the token and expiration time
     const BASE_URL =
         process.env.NODE_ENV === 'production'
-            ? 'https://e-market-hbf7.onrender.com' // Production URL
+            ? 'https://event-hub-vercel.vercel.app/' // Production URL
             : 'http://localhost:3000'; // Local development URL
     // Create reset URL
     const resetUrl = `${BASE_URL}/reset-password/${resetToken}`;
@@ -1052,8 +1052,13 @@ exports.googleCallback = (req, res) => {
         sameSite: 'strict',
     });
 
-    res.redirect('http://localhost:3000');
-};
+    const redirectURL =
+        process.env.NODE_ENV === 'production'
+            ? 'https://event-hub-vercel.vercel.app'
+            : 'http://localhost:3000';
+
+    res.redirect(redirectURL);
+  };
 
 // Logout Handler
 exports.logoutGoogle = (req, res) => {
@@ -1063,7 +1068,12 @@ exports.logoutGoogle = (req, res) => {
             return res.status(500).send('Error logging out.');
         }
         res.clearCookie('token');
-        res.redirect('http://localhost:3000');
-    });
+        const redirectURL =
+            process.env.NODE_ENV === 'production'
+                ? 'https://event-hub-vercel.vercel.app'
+                : 'http://localhost:3000';
+
+        res.redirect(redirectURL);
+          });
 };
 

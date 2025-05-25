@@ -89,9 +89,15 @@ router.get(
 );
 
 // Google OAuth Callback
+const isProduction = process.env.NODE_ENV === 'production';
+
+const failureRedirectURL = isProduction
+    ? 'https://event-hub-vercel.vercel.app/login'
+    : 'http://localhost:3000/login';
+
 router.get(
     '/google/callback',
-    passport.authenticate('google', { failureRedirect: 'http://localhost:3000/login' }),
+    passport.authenticate('google', { failureRedirect: failureRedirectURL }),
     googleCallback
 );
 
