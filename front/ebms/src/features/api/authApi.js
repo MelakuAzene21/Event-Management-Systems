@@ -11,14 +11,34 @@ export const authApi = createApi({
     tagTypes: ['User','Followers'], // Tag for invalidation
     endpoints: (builder) => ({
         // Signup Endpoint
-        signup: builder.mutation({
-            query: (newUser) => ({
-                url: '/auth/register',
-                method: 'POST',
-                body: newUser,
-            }),
-            invalidatesTags: ['User'], // Invalidate user data
+       signup: builder.mutation({
+          query: ({ formData, verifiedToken }) => ({
+            url: '/auth/register',
+            method: 'POST',
+            body: formData,
+            headers: {
+              Authorization: `Bearer ${verifiedToken}`,
+            },
+       }),        
+          invalidatesTags: ['User'], // Invalidate user data
+     }),
+
+     //Send OTP (initiate registration)
+        InitiateRegister: builder.mutation({
+            query: (emailOnly) => ({
+            url: '/auth/register/initiate',
+            method: 'POST',
+            body: emailOnly,
+           }),
         }),
+     //Verify OTP and complete registration
+        VerifyOtpAndRegister: builder.mutation({
+           query: (formData) => ({
+             url: '/auth/register/verify-otp',
+             method: 'POST',
+             body: formData, // This should be FormData with fields: name, password, otp, etc.
+           }),
+         }),
 
         // Login Endpoint
         login: builder.mutation({
@@ -126,4 +146,6 @@ export const {
     useGetOrganizerFollowersQuery,
     useGetOrganizerQuery,
     useGetOrganizersQuery,
+    useInitiateRegisterMutation,
+    useVerifyOtpAndRegisterMutation,
 } = authApi;

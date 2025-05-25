@@ -17,10 +17,12 @@ import OrganizersList from "../pages/OrganizersList.jsx";
 import OrganizerDetails from "../pages/OrganizerDetails.jsx";
 import VendorList from "../pages/VendorList.jsx";
 import VendorDetails from "../pages/VendorDetails.jsx";
+import VerifyOtp  from "../pages/Admin_VerifyOtp.jsx";
 const AdminRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
+      <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="*" element={<NotFoundPage />} />
       <Route path="admin" element={<AdminLayout />}>

@@ -43,8 +43,9 @@ import Vendordashboard from './Vendor/Vendordashboard';
 import ChatInterface from './components/ChatInterface';
 import VendorProfile  from './components/VendorProfile';
 import { setUserOnline, setUserOffline, setOnlineUsers } from "./features/slices/chatSlice";
-import socket, { startPing } from './lib/socket'; // ✅ Import your socket instance
+import socket,  { startPing  } from './lib/socket'; // ✅ Import your socket instance
 import CheckCalendarSuccess from './Private/CheckCalendarSuccess';
+import VerifyOtp from './components/VerifyOtp'
 function App() {
   // const user=useSelector((state) => state.auth.user);
   const { data: user, isLoading } = useGetCurrentUserQuery();
@@ -82,7 +83,7 @@ socket.on("startPing", () => {
     }
   }, [user]);
 
-  if (isLoading) {
+if (isLoading) {
 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {[...Array(10)].map((_, i) => (
           <SkeletonLoader key={i} />
@@ -141,6 +142,7 @@ socket.on("startPing", () => {
               <Route path="/organizers/:id" element={<OrganizerDetails />} />
               <Route path="/categories/:id/events" element={<CategoryEvents />} />
               <Route path="/city-events/:city" element={<CityEvents />} />
+              <Route path="/verify-otp" element={<VerifyOtp />} />
 
           </Route>
           </Routes>
@@ -151,3 +153,4 @@ socket.on("startPing", () => {
 }
 
 export default App;
+

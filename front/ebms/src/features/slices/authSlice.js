@@ -8,11 +8,18 @@ const authSlice = createSlice({
     isLoading: false,
     isError: false,
     error: null,
+    pendingRegistration: null,  // <--- NEW
   },
     reducers: {
         setUser(state, action) {
             state.user = action.payload; // Set the user information
         },
+         setPendingRegistration(state, action) {
+             state.pendingRegistration = action.payload;
+           },
+       clearPendingRegistration(state) {
+             state.pendingRegistration = null;
+           },
         setFollowedOrganizers(state, action) {
             if (state.user) {
                 state.user.followedOrganizers = action.payload.followedOrganizers;
@@ -156,6 +163,8 @@ export const {
   updatePortfolioItem,
   deletePortfolioItem,
   togglePortfolioMenu,
+  setPendingRegistration,
+  clearPendingRegistration,
   setPortfolio
 } = authSlice.actions;
 

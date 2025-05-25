@@ -173,6 +173,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../features/slices/authSlice";
 import { Link } from "react-router-dom";
+import { settemptoken,settempformDAta } from "../features/slices/authSlice"; // Adjust path as needed
+
 import {
   TextField,
   Button,
@@ -202,22 +204,40 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const userData = await login(formData).unwrap();
-      dispatch(setUser(userData.user));
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    dispatch(settempformDAta(formData));
+    const userData = await login(formData).unwrap();
+    // Store the temporary tokeny
+    console.log(userData.temptoken);
+    dispatch(settemptoken(userData.temptoken));
+  
+    // Navigate to OTP verification page
+    navigate("/verify-otp", { replace: true });
 
-      if (userData.user.role === "admin") {
-        navigate("/admin", { replace: true });
-      }
+    setErrorMessage("");
+  } catch (error) {
+  console.error("Login error:", error);
 
-      setErrorMessage("");
-    } catch (error) {
-      console.log(error);
-      setErrorMessage("Login failed: Invalid email or password.");
-    }
-  };
+  // If the backend returns a specific message, use it
+  const serverMessage = error?.response?.data?.message || error?.data?.message;
+
+  if (serverMessage) {
+    setErrorMessage(serverMessage);
+  } else if (error?.status === 401) {
+    setErrorMessage("Invalid email or password.");
+  } else if (error?.status === 403) {
+    setErrorMessage("You are not authorized to access this area.");
+  } else if (error?.status === 400) {
+    setErrorMessage("Please enter both email and password.");
+  } else if (error?.status === undefined) {
+    setErrorMessage("Network error. Please check your internet connection.");
+  } else {
+    setErrorMessage("Login failed. Please try again.");
+  }
+}
+};
 
   return (
     <Container
