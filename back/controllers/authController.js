@@ -736,24 +736,12 @@ exports.getAllUsers = async (req, res) => {
         if (!token) {
             return res.status(401).json({ message: 'Access denied. No token provided.' });
         }
-
-        // Verify token
-        jwt.verify(token, process.env.JWT_SECRET, async (err, userData) => {
-            if (err) {
-                return res.status(400).json({ message: 'Invalid token.' });
-            }
-
-            // Check if the user is an admin (Optional: Role-based access)
-            const user = await User.findById(userData.id);
-            if (!user || user.role !== 'admin') {
-                return res.status(403).json({ message: 'Access denied. Only admins can view all users.' });
-            }
-
+          
             // Fetch all users excluding sensitive data like passwords
             const users = await User.find().select('-password');
 
             res.json({ message: 'Users fetched successfully.', users });
-        });
+        
     } catch (error) {
         res.status(500).json({ message: 'Error fetching users', error: error.message });
     }
