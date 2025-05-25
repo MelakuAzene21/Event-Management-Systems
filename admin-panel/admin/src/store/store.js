@@ -1,6 +1,6 @@
 // src/store/store.js
 import { configureStore } from '@reduxjs/toolkit';
-import { authApi } from '../features/api/apislices'; // Correct import for RTK Query API
+import { authApi } from '../features/api/apiSlices'; // Correct import for RTK Query API
 // import { usersReducer } from '../features/slices/userslices'; // Your user slice
 import authReducer from '../features/slices/authSlice';
 
