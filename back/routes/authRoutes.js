@@ -105,12 +105,12 @@ router.get(
 router.get('/logout', logoutGoogle);
 
 
-router.delete("/users/:id", verifyToken, checkRole('admin'), deleteUser);
-router.put("/users/:id", verifyToken, checkRole('admin'), updateUser);
+router.delete("/users/:id", verifyToken,  deleteUser);
+router.put("/users/:id", verifyToken,  updateUser);
 
 
 router.put('/updateProfile/:id',verifyToken, updateProfile);
-router.get('/getAllUser',verifyToken,checkRole('admin'), getAllUsers);
+router.get('/getAllUser',verifyToken, getAllUsers);
 // router.get('/getAllUser',  getAllUsers);
 router.post('/organizers/follow',verifyToken, followedOrganizers);
 router.get('/organizers/:organizerId/followers',  totalFollowerOfOrganizer)
