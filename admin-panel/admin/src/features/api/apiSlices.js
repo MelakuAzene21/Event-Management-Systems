@@ -30,6 +30,15 @@ export const authApi = createApi({
             invalidatesTags: ['User'],
         }),
 
+        verifyAdminOtp: builder.mutation({
+           query: (data) => ({
+               url: '/auth/login/verify-admin-otp',
+               method: 'POST',
+               body: data, // expects { otp, tempToken }
+       }),
+          invalidatesTags: ['User'],
+      }),
+
         // Fetch all users (✅ FIXED POSITION)
         getUsers: builder.query({
             query: () => '/auth/getAllUser', // Your API endpoint
@@ -60,19 +69,6 @@ export const authApi = createApi({
             query: () => "/events/getEvent",
             providesTags: ["Event"],
         }),
-        getEventsAdmin: builder.query({
-            query: () => "/events/AllEventAdmin",
-            providesTags: ["Event"],
-        }),
-        updateEventStatus: builder.mutation({
-            query: ({ eventId, status }) => ({
-                url: `/events/${eventId}/status`,
-                method: 'PUT',
-                body: { status },
-            }),
-            // Optional: Invalidate cache to refresh events list
-            invalidatesTags: ['Events'],
-          }),
         getCategories: builder.query({
             query: () => '/categories',
         }),
@@ -191,7 +187,7 @@ export const {
     useGetCategoriesQuery,
     useCreateCategoryMutation,
     useUpdateCategoryMutation,
-    useDeleteCategoryMutation,    
+    useDeleteCategoryMutation,  
     useGetAnalyticsDataQuery,
     useGetAllOrganizersQuery,
     useGetOrganizerDetailsQuery,
@@ -200,4 +196,5 @@ export const {
     useGetVendorDetailsQuery,
     useGetEventsByCategoryQuery,
 
+    useVerifyAdminOtpMutation,
 } = authApi;

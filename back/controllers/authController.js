@@ -9,6 +9,8 @@ const Ticket = require('../models/Ticket');
 const Bookmark = require('../models/Bookmark');
 const Notification =require('../models/Notification')
 
+// const sendEmail = require('../utils/sendEmail'); // Your email utility
+
 
 
 // exports.register = async (req, res) => {
@@ -45,6 +47,188 @@ const Notification =require('../models/Notification')
 //         res.status(500).json({ message: 'Error registering user', error: error.message });
 //     }
 // };
+
+//added controller 1
+
+exports.initiateRegistration = async (req, res) => {
+  try {
+const rawEmail = req.body.email;
+
+if (typeof rawEmail !== 'string') {
+  return res.status(400).json({ message: 'Invalid email format: Not a string' });
+}
+
+const email = rawEmail.trim();
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!email || !emailRegex.test(email)) {
+  return res.status(400).json({ message: 'Invalid email format' });
+}
+
+
+    // 2. Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    // 3. Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // 4. Create short-lived JWT (email + otp only)
+    const token = jwt.sign(
+      { email, otp },
+      process.env.JWT_SECRET,
+      { expiresIn: '5m' }
+    );
+
+    // 5. Send OTP to email
+    await sendEmail(email, 'Your EMS Verification Code', 'otpEmail', { otp }); // adjust template logic
+
+    // 6. Return token
+    res.status(200).json({
+      message: 'OTP sent successfully',
+      token,
+    });
+  } catch (error) {
+    console.error('OTP initiation error:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+//add controller 2
+exports.registercontroller = async (req, res) => {
+  try {
+    const {
+      name,
+      email,
+      password,
+      role,
+      serviceProvided,
+      price,
+      description,
+      availability,
+      location,
+      portfolio,
+      phoneNumber,
+      organizationName,
+      website,
+      socialLinks,
+      about,
+      experience,
+    } = req.body;
+
+    // Basic required fields validation
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Name, email, and password are required' });
+    }
+
+    // Validate role
+    if (!['user', 'vendor', 'organizer'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role. Must be user, vendor, or organizer' });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already registered' });
+    }
+
+    // Process uploaded files
+    let avatarUrl = 'default.jpg';
+    let docUrls = [];
+
+    if (req.files) {
+      if (req.files.avatar && req.files.avatar.length > 0) {
+        avatarUrl = req.files.avatar[0].path;
+      }
+
+      if (req.files.docs && req.files.docs.length > 0) {
+        docUrls = req.files.docs.map(file => ({
+          url: file.path,
+          type: file.mimetype === 'application/pdf' ? 'pdf' : 'image',
+          previewUrl: file.mimetype === 'application/pdf' ? `${file.path}/pg_1.jpg` : file.path,
+        }));
+      }
+    }
+
+    // Parse portfolio (for vendor)
+    let parsedPortfolio = [];
+    if (portfolio && role === 'vendor') {
+      try {
+        parsedPortfolio = typeof portfolio === 'string' ? JSON.parse(portfolio) : portfolio;
+      } catch {
+        return res.status(400).json({ message: 'Invalid portfolio format' });
+      }
+    }
+
+    // Parse socialLinks (for organizer)
+    let parsedSocialLinks = [];
+    if (socialLinks && role === 'organizer') {
+      try {
+        parsedSocialLinks = typeof socialLinks === 'string' ? JSON.parse(socialLinks) : socialLinks;
+      } catch {
+        return res.status(400).json({ message: 'Invalid social links format' });
+      }
+    }
+
+    // Organizer-specific validations
+    if (role === 'organizer') {
+      if (!phoneNumber || !organizationName || !location || !about) {
+        return res.status(400).json({ message: 'Phone number, organization name, location, and about are required for organizers' });
+      }
+      if (!req.files || !req.files.docs || req.files.docs.length === 0) {
+        return res.status(400).json({ message: 'At least one legal document is required for organizers' });
+      }
+    }
+
+    // Assemble user data
+    const userData = {
+      name,
+      email,
+      password,
+      role: role || 'user',
+      avatar: avatarUrl,
+      status: 'active',
+      ...(role === 'vendor' && {
+        serviceProvided: serviceProvided || 'photographer',
+        docs: docUrls,
+        rating: 0,
+        price: price || '50 birr per hour',
+        portfolio: parsedPortfolio,
+        description,
+        availability: availability || 'As needed',
+        location,
+      }),
+      ...(role === 'organizer' && {
+        phoneNumber,
+        organizationName,
+        location,
+        website,
+        socialLinks: parsedSocialLinks,
+        about,
+        experience,
+        docs: docUrls,
+      }),
+    };
+
+    // Save user
+    const user = await User.create(userData);
+
+    // Send welcome email
+    await sendEmail(email, 'Welcome to EMS!', 'welcomeEmail', { name });
+
+    // Return success response without password
+    const { password: _, ...userWithoutPassword } = user._doc;
+    res.status(201).json({ message: 'User registered successfully', user: userWithoutPassword });
+
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Email already registered' });
+    }
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
 
 
 
@@ -205,6 +389,60 @@ exports.register = async (req, res) => {
     }
 };
 
+exports.verifyAdminOtp = async (req, res) => {
+  try {
+    const { otp, temptoken } = req.body;
+
+    if (!otp || !temptoken) {
+      return res.status(400).json({ message: 'OTP and token are required' });
+    }
+
+    // Decode the short-lived temp token
+    let payload;
+    try {
+      payload = jwt.verify(temptoken, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+
+    const { email, otp: tokenOtp } = payload;
+
+    if (otp !== tokenOtp) {
+      return res.status(401).json({ message: 'Incorrect OTP' });
+    }
+
+    // OTP matched – find the user
+    const user = await User.findOne({ email });
+
+    if (!user || user.role !== 'admin') {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    // Generate the real full login token
+    const realToken = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    // Remove password from response
+    const { password, ...userData } = user._doc;
+
+    // Send full user data and real token
+    res.cookie('token', realToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'strict'
+    }).status(200).json({
+      message: 'OTP verified successfully',
+      user: userData
+    });
+
+  } catch (error) {
+    console.error('OTP verification failed:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
 
 exports.login = async (req, res) => {
     try {
@@ -227,6 +465,27 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
+    // 4. Check if user is admin and trigger OTP flow
+    if (user.role === 'admin') {
+      // Generate 6-digit OTP
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // Create a short-lived token for verifying OTP
+      const temptoken = jwt.sign(
+        { email, otp, role: 'admin' },
+        process.env.JWT_SECRET,
+        { expiresIn: '5m' }
+      );
+
+      // Send OTP to email
+      await sendEmail(email, 'Your EMS Verification Code', 'otpEmail', { otp });
+
+      // Return tempToken (used to verify OTP on frontend)
+      return res.status(200).json({
+        message: 'OTP sent to email',
+        temptoken
+      });
+    }
         // Generate JWT token
         const token = jwt.sign(
             { id: user._id, role: user.role },

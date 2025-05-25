@@ -4,6 +4,7 @@ const { register, login, logout, getProfile, updateProfile,
     forgotPassword, resetPassword, updateUser, followedOrganizers,
     totalFollowerOfOrganizer, uploadAvatar, getAllVendors, getVendorById, 
     getOrganizerDetails,
+    getOrganizerDEtails,verifyAdminOtp,
     getAllOrganizers} = require('../controllers/authController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
@@ -11,10 +12,13 @@ const router = express.Router();
 const upload=require('../utils/uploadAavatar');
 const passport = require("passport");
 const uploadMiddleware = require('../utils/uploadAavatar');
+const {otpVerificationMiddleware,verifyTokenMiddleware} = require('../middlewares/otpVerificationMiddleware');
 // const { CloudinaryStorage } = require('multer-storage-cloudinary');
 // const cloudinary = require('cloudinary').v2;
 require("../config/passport");
-router.post('/register',uploadMiddleware, register);
+
+// router.post('/register',uploadMiddleware, register);
+
 router.post('/login', login);
 router.post('/logout',verifyToken, logout);
 router.get('/profile',verifyToken, getProfile);
@@ -23,6 +27,17 @@ router.put('/reset-password/:token', resetPassword);
 router.get('/vendors', getAllVendors)
 router.get('/vendor/:id', getVendorById);
 router.get('/organizers',getAllOrganizers)
+//add for otp
+const { initiateRegistration,registercontroller } = require('../controllers/authController');
+router.post('/register/initiate', initiateRegistration);
+//for verify otp
+router.post('/register/verify-otp', otpVerificationMiddleware);
+// for register after success 
+ router.post('/register',verifyTokenMiddleware,uploadMiddleware, registercontroller);
+router.post('/login/verify-admin-otp', verifyAdminOtp);
+
+
+
 // // Google OAuth Login
 // router.get("/google", passport.authenticate("google",
 

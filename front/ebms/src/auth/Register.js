@@ -7,10 +7,15 @@ import { toast } from 'react-toastify';
 import { FaTicketAlt, FaBuilding, FaPlus, FaTrash, FaUsers, FaFilePdf, FaUpload } from 'react-icons/fa';
 import signupImage from '../assets/signupImage.svg';
 
+import { setPendingRegistration ,clearPendingRegistration} from '../features/slices/authSlice'; // Adjust the path
+import { useDispatch } from 'react-redux';
+import { useInitiateRegisterMutation } from '../features/api/authApi'; // adjust path
+
 const Signup = () => {
     const [signup, { isLoading }] = useSignupMutation();
     const navigate = useNavigate();
-
+     const dispatch = useDispatch();
+     const [InitiateRegister] = useInitiateRegisterMutation();
     const [selectedRole, setSelectedRole] = useState('Attendee');
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
@@ -123,6 +128,24 @@ const Signup = () => {
         }
     };
 
+    function validatePassword(password) {
+  const errors = [];
+
+  if (!password || password.length < 8) {
+    errors.push("Password must be at least 8 characters long.");
+  }
+
+  if (!/[A-Za-z]/.test(password)) {
+    errors.push("Password must include at least one letter.");
+  }
+
+  if (!/\d/.test(password)) {
+    errors.push("Password must include at least one number.");
+  }
+
+  return errors;
+}
+
     const validateStep = () => {
         const newErrors = {};
 
@@ -134,9 +157,11 @@ const Signup = () => {
             if (!formData.email || !emailRegex.test(formData.email.trim())) {
                 newErrors.email = 'Please enter a valid email address.';
             }
-            if (!formData.password || formData.password.length < 6) {
-                newErrors.password = 'Password must be at least 6 characters long.';
-            }
+            const passwordErrors = validatePassword(formData.password);
+           if (passwordErrors.length > 0) {
+               newErrors.password = passwordErrors; // keep as array for UI rendering
+             }
+
         }
 
         if (selectedRole === 'Vendor' && step === 2) {
@@ -221,9 +246,11 @@ const Signup = () => {
         if (!formData.email || !emailRegex.test(formData.email.trim())) {
             newErrors.email = 'Please enter a valid email address.';
         }
-        if (!formData.password || formData.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters long.';
-        }
+         const passwordErrors = validatePassword(formData.password);
+           if (passwordErrors.length > 0) {
+          newErrors.password = passwordErrors; // keep as array for UI rendering
+         }
+
 
         if (selectedRole === 'Vendor') {
             if (!formData.serviceProvided || formData.serviceProvided.trim() === '') {
@@ -302,64 +329,97 @@ const Signup = () => {
         setStep(step - 1);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setServerError('');
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setServerError('');
 
-        const validationErrors = validateFullForm();
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            return;
-        }
+    //     const validationErrors = validateFullForm();
+    //     if (Object.keys(validationErrors).length > 0) {
+    //         setErrors(validationErrors);
+    //         return;
+    //     }
 
-        try {
-            const formDataToSend = new FormData();
-            formDataToSend.append('name', formData.name.trim());
-            formDataToSend.append('email', formData.email.trim());
-            formDataToSend.append('password', formData.password);
-            formDataToSend.append('role', selectedRole === 'Attendee' ? 'user' : selectedRole.toLowerCase());
+    //     try {
+    //         const formDataToSend = new FormData();
+    //         formDataToSend.append('name', formData.name.trim());
+    //         formDataToSend.append('email', formData.email.trim());
+    //         formDataToSend.append('password', formData.password);
+    //         formDataToSend.append('role', selectedRole === 'Attendee' ? 'user' : selectedRole.toLowerCase());
 
-            if (selectedRole === 'Vendor') {
-                formDataToSend.append('serviceProvided', formData.serviceProvided || '');
-                formDataToSend.append('price', formData.price || '');
-                formDataToSend.append('description', formData.description || '');
-                formDataToSend.append('availability', formData.availability || '');
-                formDataToSend.append('location', formData.location || '');
-                if (formData.portfolio.length > 0) {
-                    formDataToSend.append('portfolio', JSON.stringify(formData.portfolio));
-                }
-                if (formData.avatar) {
-                    formDataToSend.append('avatar', formData.avatar);
-                }
-                if (formData.docs.length > 0) {
-                    formData.docs.forEach((doc) => formDataToSend.append('docs', doc));
-                }
-            }
+    //         if (selectedRole === 'Vendor') {
+    //             formDataToSend.append('serviceProvided', formData.serviceProvided || '');
+    //             formDataToSend.append('price', formData.price || '');
+    //             formDataToSend.append('description', formData.description || '');
+    //             formDataToSend.append('availability', formData.availability || '');
+    //             formDataToSend.append('location', formData.location || '');
+    //             if (formData.portfolio.length > 0) {
+    //                 formDataToSend.append('portfolio', JSON.stringify(formData.portfolio));
+    //             }
+    //             if (formData.avatar) {
+    //                 formDataToSend.append('avatar', formData.avatar);
+    //             }
+    //             if (formData.docs.length > 0) {
+    //                 formData.docs.forEach((doc) => formDataToSend.append('docs', doc));
+    //             }
+    //         }
 
-            if (selectedRole === 'Organizer') {
-                formDataToSend.append('phoneNumber', formData.phoneNumber || '');
-                formDataToSend.append('organizationName', formData.organizationName || '');
-                formDataToSend.append('location', formData.location || '');
-                formDataToSend.append('website', formData.website || '');
-                formDataToSend.append('socialLinks', JSON.stringify(formData.socialLinks));
-                formDataToSend.append('about', formData.about || '');
-                formDataToSend.append('experience', formData.experience || '');
-                if (formData.avatar) {
-                    formDataToSend.append('avatar', formData.avatar);
-                }
-                if (formData.docs.length > 0) {
-                    formData.docs.forEach((doc) => formDataToSend.append('docs', doc));
-                }
-            }
+    //         if (selectedRole === 'Organizer') {
+    //             formDataToSend.append('phoneNumber', formData.phoneNumber || '');
+    //             formDataToSend.append('organizationName', formData.organizationName || '');
+    //             formDataToSend.append('location', formData.location || '');
+    //             formDataToSend.append('website', formData.website || '');
+    //             formDataToSend.append('socialLinks', JSON.stringify(formData.socialLinks));
+    //             formDataToSend.append('about', formData.about || '');
+    //             formDataToSend.append('experience', formData.experience || '');
+    //             if (formData.avatar) {
+    //                 formDataToSend.append('avatar', formData.avatar);
+    //             }
+    //             if (formData.docs.length > 0) {
+    //                 formData.docs.forEach((doc) => formDataToSend.append('docs', doc));
+    //             }
+    //         }
 
-            await signup(formDataToSend).unwrap();
-            toast.success('Registered Successfully! Please verify your email.');
-            navigate('/login');
-        } catch (error) {
-            setServerError(error.data?.message || 'Signup failed. Please try again later.');
-        }
-    };
+    //         await signup(formDataToSend).unwrap();
+    //         toast.success('Registered Successfully! Please verify your email.');
+    //         navigate('/login');
+    //     } catch (error) {
+    //         setServerError(error.data?.message || 'Signup failed. Please try again later.');
+    //     }
+    // };
 
+    
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    setServerError('');
+
+    const validationErrors = validateFullForm();
+    if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+    }
+
+    try {
+        // 1. Extract and send email to initiate OTP
+const emailOnly = { email: formData.email.trim() };
+const response = await InitiateRegister(emailOnly).unwrap();
+console.log('Received token:', response.token);
+
+// 2. Store remaining form data and token in Redux
+dispatch(setPendingRegistration({
+  formData,
+  selectedRole,
+  token: response.token, // ✅ store the token
+}));
+
+        
+
+        // 3. Navigate to OTP verification page
+        navigate('/verify-otp');
+
+    } catch (error) {
+        setServerError(error?.data?.message || 'Failed to initiate registration. Please try again later.');
+    }
+};
     const roles = [
         { name: 'Attendee', icon: <FaTicketAlt />, desc: 'Discover & join events' },
         { name: 'Vendor', icon: <FaBuilding />, desc: 'Offer services to organizers' },

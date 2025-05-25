@@ -8,11 +8,25 @@ const authSlice = createSlice({
         isLoading: false,
         isError: false,
         error: null,
+        temptoken:null,
+        tempformDAta:null
     },
     reducers: {
         setUser(state, action) {
             state.user = action.payload; // Set the user information
         },
+        settemptoken(state, action) {
+             state.temptoken = action.payload;
+        },
+        cleartemptoken(state) {
+            state.temptoken = null;
+         },
+        settempformDAta(state, action) {
+             state.tempformDAta = action.payload;
+        },
+        cleartempformDAta(state) {
+            state.tempformDAta = null;
+         },
         logout(state) {
             state.user = null;
             state.isLoading = false;
@@ -83,6 +97,6 @@ const authSlice = createSlice({
     },
 });
 
-export const { setUser, logout } = authSlice.actions; // Export setUser action
+export const { setUser, logout,settemptoken, cleartemptoken ,settempformDAta, cleartempformDAta} = authSlice.actions; // Export setUser action
 
 export default authSlice.reducer;

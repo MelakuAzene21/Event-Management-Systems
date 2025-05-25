@@ -108,13 +108,19 @@ useEffect(() => {
 
   
 
+useEffect(() => {
+  const handlePrivateMessage = (message) => {
+    dispatch(addMessage({ chatId: message.chatId, message, currentUserId }));
+  };
 
-  useEffect(() => {
-    socket.on("privateMessage", (message) => {
-      dispatch(addMessage({ chatId: message.chatId, message, currentUserId }));
-    });
+  socket.on("privateMessage", handlePrivateMessage);
 
-  }, [dispatch, currentUserId]);
+  // ✅ Clean up the listener when component unmounts or dependencies change
+  return () => {
+    socket.off("privateMessage", handlePrivateMessage);
+  };
+}, [dispatch, currentUserId]);
+
   
   useEffect(() => {
     socket.on("messages:read:update", ({ chatId, messageIds, status }) => {

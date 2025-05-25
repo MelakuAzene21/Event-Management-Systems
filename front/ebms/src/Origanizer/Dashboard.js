@@ -23,14 +23,6 @@ import ChatInterface from '../components/ChatInterface';
 import { useSearchParams } from "react-router-dom";
 
 
-// const OrganizerDashboard = () => {
-//     const [searchParams] = useSearchParams();
-//    const tabFromQuery = searchParams.get("tab");
-//     // const [activeTab, setActiveTab] = useState("events");
-//     const [activeTab, setActiveTab] = useState(tabFromQuery || "events");
-
-//     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // For mobile sidebar toggle
-
 const OrganizerDashboard = () => {
     const [searchParams] = useSearchParams();
        const tabFromQuery = searchParams.get("tab");
@@ -73,7 +65,6 @@ const OrganizerDashboard = () => {
             default: return <div className="p-6 text-gray-700">Select a tab from the sidebar.</div>;
         }
     };
-
     const tabs = [
         {
             tab: "Dashboard",
@@ -141,7 +132,6 @@ const OrganizerDashboard = () => {
                     </svg>
                     <span className="text-xl font-bold text-indigo-900">EventPro</span>
                 </div>
-
                 {user && (
                     <div className="flex items-center gap-4 sm:gap-6">
                         <button
@@ -215,7 +205,6 @@ const OrganizerDashboard = () => {
                             >
                                 <BsFillCaretDownFill className="w-4 h-4" />
                             </button>
-
                             {isMenuOpen && (
                                 <div className="absolute top-12 right-0 w-48 bg-white shadow-lg rounded-lg py-2 z-20">
                                     <button
