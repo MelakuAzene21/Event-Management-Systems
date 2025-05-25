@@ -1,10 +1,16 @@
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000", {
-  withCredentials: true,
-  autoConnect: false, // Important to prevent connecting before setting token
-  transports: ["websocket"],
-});
+const socket = io(
+  process.env.NODE_ENV === "production"
+    ? "https://event-management-systems-gj91.onrender.com"
+    : "http://localhost:5000",
+  {
+    withCredentials: true,
+    autoConnect: false,
+    transports: ["websocket"],
+  }
+);
+
 
 // This will hold the ping interval ID
 let pingInterval;

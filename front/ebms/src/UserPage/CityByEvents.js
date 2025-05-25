@@ -9,11 +9,14 @@ const CityEvents = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
+    const baseUrl =
+        process.env.NODE_ENV === 'production'
+            ? 'https://event-management-systems-gj91.onrender.com'
+            : 'http://localhost:5000';
     useEffect(() => {
         const fetchEventsByCity = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/events/by-city/${city}`);
+                const response = await axios.get(`${baseUrl}/api/events/by-city/${city}`);
                 setEvents(response.data);
                 setLoading(false);
             } catch (err) {

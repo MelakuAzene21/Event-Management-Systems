@@ -47,7 +47,10 @@ const VendorProfile = () => {
 
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user); // Get user from Redux
-
+  const baseUrl =
+    process.env.NODE_ENV === 'production'
+      ? 'https://event-management-systems-gj91.onrender.com'
+      : 'http://localhost:5000';
   useEffect(() => {
     // Dispatch the action to set the vendor data in Redux when the profile loads
     const vendorData = {
@@ -68,7 +71,8 @@ const VendorProfile = () => {
       <div className="flex flex-col items-center border-b pb-4">
         <div className="relative">
           <img
-         src={`http://localhost:5000${user.avatar}`} // If backend runs on port 5000
+            src={`${baseUrl}${user.avatar}`}
+
 
              alt="Profile"
             className="w-24 h-24 rounded-full"
@@ -103,8 +107,7 @@ const VendorProfile = () => {
           </h3>
           <ul className="list-disc list-inside text-gray-600 mt-2">
             {services.map((service, index) => (
-              <li key={index}>{user.
-                serviceProvided}</li>
+              <li key={index}>{user.serviceProvided}</li>
             ))}
           </ul>
         </div>

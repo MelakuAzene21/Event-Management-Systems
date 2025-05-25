@@ -42,7 +42,10 @@ const UserProfile = () => {
     const [selectedAvatar, setSelectedAvatar] = useState(null);
     const [loading, setLoading] = useState(false);
     const [imageLoadedStates, setImageLoadedStates] = useState({});
-
+    const baseUrl =
+        process.env.NODE_ENV === 'production'
+            ? 'https://event-management-systems-gj91.onrender.com'
+            : 'http://localhost:5000';
     useEffect(() => {
         if (user) {
             setEditedData({
@@ -100,7 +103,7 @@ const UserProfile = () => {
                 formData.append("avatar", selectedAvatar);
                 formData.append("userId", user?._id);
 
-                const { data } = await axios.post("http://localhost:5000/api/auth/upload-avatar", formData, {
+                const { data } = await axios.post(`${baseUrl}/api/auth/upload-avatar`, formData, {
                     headers: { "Content-Type": "multipart/form-data" },
                     withCredentials: true,
                 });

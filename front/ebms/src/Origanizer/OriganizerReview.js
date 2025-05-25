@@ -18,7 +18,7 @@ const OrganizerEventReviews = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const BASE_URL = "http://localhost:5000";
+    const BASE_URL = process.env.NODE_ENV === "production"? "https://event-management-systems-gj91.onrender.com": "http://localhost:5000"
 
     useEffect(() => {
         const fetchEvents = async () => {

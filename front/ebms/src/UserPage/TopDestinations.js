@@ -8,12 +8,15 @@ const TopDestinations = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const scrollRef = useRef(null);
-
+    const baseUrl =
+        process.env.NODE_ENV === 'production'
+            ? 'https://event-management-systems-gj91.onrender.com'
+            : 'http://localhost:5000';
     // Fetch top cities
     useEffect(() => {
         const fetchTopCities = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/events/top-cities');
+                const response = await axios.get(`${baseUrl}/api/events/top-cities`);
                 setCities(response.data);
                 setLoading(false);
             } catch (err) {
@@ -48,19 +51,7 @@ const TopDestinations = () => {
         );
     }
 
-    if (error) {
-        return (
-            <div className="py-16 text-center">
-                <p className="text-xl font-semibold text-red-500">{error}</p>
-                <Link
-                    to="/"
-                    className="mt-6 inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-md"
-                >
-                    Return to Home
-                </Link>
-            </div>
-        );
-    }
+   
 
     return (
         <section className="py-16 bg-gradient-to-b from-gray-50 to-gray-100">

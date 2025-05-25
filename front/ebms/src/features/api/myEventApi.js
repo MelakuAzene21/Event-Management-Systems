@@ -3,7 +3,10 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const eventsApi = createApi({
     reducerPath: "eventsApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://localhost:5000/api",
+        baseUrl:
+            process.env.NODE_ENV === "production"
+                ? "https://event-management-systems-gj91.onrender.com/api"
+                : "http://localhost:5000/api",
         credentials: "include", // To send cookies for authentication
     }),
     tagTypes: ["Events"],

@@ -1,8 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: 'http://localhost:5000/api', // Backend API base URL
-    credentials: 'include', // Include cookies in requests
+  baseUrl:
+    process.env.NODE_ENV === 'production'
+      ? 'https://event-management-systems-gj91.onrender.com/api'
+      : 'http://localhost:5000/api',
+  credentials: 'include', // Include cookies in requests
 });
 
 export const authApi = createApi({

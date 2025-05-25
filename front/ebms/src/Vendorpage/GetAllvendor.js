@@ -31,11 +31,14 @@ const AllVendors = () => {
     });
     const [currentPage, setCurrentPage] = useState(1);
     const vendorsPerPage = 9;
-
+    const baseUrl =
+        process.env.NODE_ENV === 'production'
+            ? 'https://event-management-systems-gj91.onrender.com'
+            : 'http://localhost:5000';
     useEffect(() => {
         const fetchVendors = async () => {
             try {
-                const { data } = await axios.get('http://localhost:5000/api/auth/vendors');
+                const { data } = await axios.get(`${baseUrl}/api/auth/vendors`);
                 setVendors(data.vendors);
                 setFilteredVendors(data.vendors);
             } catch (error) {

@@ -19,11 +19,14 @@ const VendorDetail = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [docType, setDocType] = useState(null);
-
+    const baseUrl =
+        process.env.NODE_ENV === 'production'
+            ? 'https://event-management-systems-gj91.onrender.com'
+            : 'http://localhost:5000';
     useEffect(() => {
         const fetchVendor = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/auth/vendor/${id}`, {
+                const response = await fetch(`${baseUrl}/api/auth/vendor/${id}`, {
                     credentials: 'include'
                 });
                 const data = await response.json();
@@ -62,7 +65,7 @@ const VendorDetail = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/api/chats/newchat', {
+            const response = await fetch(`${baseUrl}/api/chats/newchat`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {

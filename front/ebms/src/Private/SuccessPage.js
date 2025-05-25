@@ -160,7 +160,10 @@ const SuccessPage = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const txRef = queryParams.get("tx_ref");
-
+    const baseUrl =
+        process.env.NODE_ENV === 'production'
+            ? 'https://event-management-systems-gj91.onrender.com'
+            : 'http://localhost:5000';
     const {
         data: transactionData,
         isLoading: isVerifying,
@@ -215,7 +218,7 @@ const SuccessPage = () => {
         }
         try {
             const response = await fetch(
-                `http://localhost:5000/api/calendar/auth?bookingId=${bookingId}`,
+                `${baseUrl}/api/calendar/auth?bookingId=${bookingId}`,
                 { credentials: 'include' }
             );
             console.log("Calendar auth response:", response);

@@ -1,10 +1,16 @@
 import { io } from "socket.io-client";
 import { addNotification } from "../slices/notificationSlice";
 
-const socket = io("http://localhost:5000", {
-    transports: ["websocket", "polling"], // Ensure compatibility
-    withCredentials: true,  // Allow credentials
-});
+const socket = io(
+    process.env.NODE_ENV === 'production'
+        ? 'https://event-management-systems-gj91.onrender.com'
+        : 'http://localhost:5000',
+    {
+        transports: ['websocket', 'polling'],
+        withCredentials: true,
+    }
+);
+  
 
 // Join the user room when they log in
 export const setupSocket = (userId) => {

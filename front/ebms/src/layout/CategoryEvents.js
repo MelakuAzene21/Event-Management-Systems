@@ -13,6 +13,13 @@ const CategoryEvents = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+
+    const baseUrl =
+        process.env.NODE_ENV === 'production'
+            ? 'https://event-management-systems-gj91.onrender.com'
+            : 'http://localhost:5000';
+
+
     // Fallback carousel images
     const carouselImages = category?.carouselImages?.length > 0
         ? category.carouselImages
@@ -25,9 +32,9 @@ const CategoryEvents = () => {
     useEffect(() => {
         const fetchCategoryAndEvents = async () => {
             try {
-                const categoryResponse = await axios.get(`http://localhost:5000/api/categories/${id}`);
+                const categoryResponse = await axios.get(`${baseUrl}/api/categories/${id}`);
                 setCategory(categoryResponse.data);
-                const eventsResponse = await axios.get(`http://localhost:5000/api/categories/events?category=${id}`);
+                const eventsResponse = await axios.get(`${baseUrl}/api/categories/events?category=${id}`);
                 setEvents(eventsResponse.data);
                 setLoading(false);
             } catch (err) {

@@ -16,7 +16,10 @@ const Login = () => {
     const [login, { isLoading }] = useLoginMutation();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-
+    const baseUrl =
+        process.env.NODE_ENV === 'production'
+            ? 'https://event-management-systems-gj91.onrender.com'
+            : 'http://localhost:5000';
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -25,8 +28,8 @@ const Login = () => {
     const [errorMessage, setErrorMessage] = useState('');
 
     const googleLogin = () => {
-        window.open("http://localhost:5000/api/auth/google", "_self");
-    };
+        window.open(`${baseUrl}/api/auth/google`, "_self");
+      };
 
     const handleChange = (e) => {
         setFormData({

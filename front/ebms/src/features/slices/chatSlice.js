@@ -4,9 +4,14 @@ import axios from 'axios';
 
 export const fetchUserChats = createAsyncThunk(
   'chats/fetchUserChats',
+  
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/chats', {
+      const baseUrl =
+        process.env.NODE_ENV === 'production'
+          ? 'https://event-management-systems-gj91.onrender.com'
+          : 'http://localhost:5000';
+      const response = await axios.get(`${baseUrl}/api/chats`, {
         withCredentials: true,
       });
       console.log(response.data);

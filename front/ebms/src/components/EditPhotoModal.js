@@ -7,6 +7,12 @@ const EditPhotoModal = ({ isOpen, onClose, updateProfilePhoto }) => {
   const [error, setError] = useState("");
   const dispatch = useDispatch(); // Redux dispatch
 
+
+  const baseurl =
+    process.env.NODE_ENV === 'production'
+      ? 'https://event-management-systems-gj91.onrender.com'
+      : 'http://localhost:5000';
+
   // Use useSelector to get the user object from Redux state (from authSlice)
   const user = useSelector((state) => state.auth.user); // Get the user object from auth slice
   console.log("User in component:", user);
@@ -45,7 +51,7 @@ const EditPhotoModal = ({ isOpen, onClose, updateProfilePhoto }) => {
   const handleDropClick = () => {
     document.getElementById("fileInput").click();
   };
-
+  
   const handleUpload = async () => {
     if (!selectedFile) return;
 
@@ -56,8 +62,9 @@ const EditPhotoModal = ({ isOpen, onClose, updateProfilePhoto }) => {
       console.log("Uploading photo for vendor:", vendorId);
 
     try {
+
       const response = await axios.put(
-        `http://localhost:5000/api/uploads/upload-avatar/${vendorId}`,
+        `${baseurl}/api/uploads/upload-avatar/${vendorId}`,
         formData,
         {
           headers: {
