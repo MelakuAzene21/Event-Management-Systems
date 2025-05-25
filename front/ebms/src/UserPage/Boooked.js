@@ -186,7 +186,7 @@ import SkeletonLoader from "../layout/SkeletonLoader";
 import { useGetAttendeeBookingsQuery, useDeleteBookingMutation } from "../features/api/bookingApi";
 
 const BookingsTable = () => {
-    const { data: bookings = [], isLoading, error } = useGetAttendeeBookingsQuery();
+    const { data: bookings = [], isLoading } = useGetAttendeeBookingsQuery();
     const [deleteBooking] = useDeleteBookingMutation();
 
     // State for search, filters, and pagination
@@ -259,14 +259,14 @@ const BookingsTable = () => {
         setCurrentPage(page);
     };
 
-    if (error) {
-        return (
-            <div className="container mx-auto p-6 min-h-[50vh] text-center">
-                <h2 className="text-xl font-bold text-red-600">Error loading bookings</h2>
-                <p>Please try again later.</p>
-            </div>
-        );
-    }
+    // if (error) {
+    //     return (
+    //         <div className="container mx-auto p-6 min-h-[50vh] text-center">
+    //             <h2 className="text-xl font-bold text-red-600">Error loading bookings</h2>
+    //             <p>Please try again later.</p>
+    //         </div>
+    //     );
+    // }
 
     return (
         <div className="container mx-auto p-6 min-h-[50vh]">

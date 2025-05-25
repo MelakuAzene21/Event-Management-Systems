@@ -5,21 +5,21 @@ import { toast } from "react-toastify";
 import { IoBookmark, IoLocationOutline, IoTimeOutline, IoCalendarOutline } from "react-icons/io5";
 import SkeletonLoader from "../layout/SkeletonLoader";
 import { useGetBookmarkedEventsQuery, useUnbookmarkEventMutation } from "../features/api/bookingApi";
-
+import { useMemo } from "react";
 const BookmarkedEvents = () => {
     const {
         data: bookmarkedEvents = [],
         isLoading: loading,
     } = useGetBookmarkedEventsQuery();
-    const [filteredEvents, setFilteredEvents] = useState([]);
+    // const [filteredEvents, setFilteredEvents] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [showUnbookmarkModal, setShowUnbookmarkModal] = useState(false);
     const [eventToUnbookmark, setEventToUnbookmark] = useState(null);
 
     // Filter events based on search query and category
-    useEffect(() => {
-        let filtered = bookmarkedEvents;
+    const filteredEvents = useMemo(() => {
+        let filtered = bookmarkedEvents || [];
 
         if (searchQuery) {
             filtered = filtered.filter((event) => {
@@ -36,9 +36,9 @@ const BookmarkedEvents = () => {
             filtered = filtered.filter((event) => event?.category?.name === selectedCategory);
         }
 
-        setFilteredEvents(filtered);
+        return filtered;
     }, [searchQuery, selectedCategory, bookmarkedEvents]);
-
+    
     const [unbookmarkEvent] = useUnbookmarkEventMutation();
 
     const handleUnbookmark = async () => {
