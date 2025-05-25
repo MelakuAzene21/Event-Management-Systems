@@ -32,12 +32,31 @@ const io = initializeSocket(server); // Initialize WebSocket
 
 const cors = require('cors');
 // Configure CORS to allow requests from your frontend
-app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+// app.use(cors({
+//     origin: ['http://localhost:3000', 'http://localhost:5173'],
+//     credentials: true,
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+// }));
+ 
+
+
+
+
+const devOrigins = ['http://localhost:3000', 'http://localhost:5173'];
+const prodOrigins = [
+    'https://event-hub-vercel.vercel.app',
+    'https://event-admin-vercel.vercel.app'
+];
+
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production' ? prodOrigins : devOrigins,
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization'],
-}));
- 
+};
+
+app.use(cors(corsOptions));
+
+
 
 // Parse URL-encoded data (optional, after multer)
 app.use(express.urlencoded({ extended: true }));
