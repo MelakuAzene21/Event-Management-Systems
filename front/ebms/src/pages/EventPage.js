@@ -748,6 +748,7 @@ import NoEventsFound from '../components/NoEventsFound';
 import { ArrowLeft, ArrowRight, MapPin, Calendar, X } from 'lucide-react';
 import { useGetAllEventsQuery, useLikeEventMutation, useGetCategoriesQuery } from '../features/api/eventApi';
 import TopDestinations from '../UserPage/TopDestinations';
+import FAQ from '../components/FAQ';
 
 export default function IndexPage() {
     const user = useSelector((state) => state.auth.user);
@@ -1194,6 +1195,10 @@ export default function IndexPage() {
                     <TopDestinations/>
                  </div>
 
+                 
+                <div>
+                   {user && <FAQ />}
+                 </div>
             </div>
         </>
     );
