@@ -79,6 +79,7 @@ const sendEmail =require("../helpers/Send-Email")
 const Category = require('../models/Category');
 const axios = require("axios");
 const Ticket = require('../models/Ticket');
+const nodemailer = require('nodemailer');
 
 
 // Helper function to fetch coordinates from Nominatim
@@ -214,6 +215,54 @@ async function getCoordinates(location) {
 //     }
 // };
 
+
+exports.contactSupport = async (req, res) => {
+  const { name, email, subject, message } = req.body;
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: 'Name, email, and message are required.' });
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER, // your admin email
+        pass: process.env.EMAIL_PASS, // app password
+      },
+    });
+
+    const mailOptions = {
+      from: `"${name}" <${email}>`, // user name and email
+      to: process.env.ADMIN_EMAIL,    // admin receives it
+      subject:"Support Request Notification from EBMS",
+html: `
+  <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f9fafb; padding: 24px; border-radius: 8px; color: #333;">
+    <h2 style="color: #1a73e8; margin-bottom: 16px;">🛠️ Support Request for ${subject}</h2>
+
+    <div style="margin-top: 20px; padding: 16px; background-color: #fff; border-left: 4px solid #1a73e8; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+      <p style="margin: 0;">
+        <em>${name} has encountered an issue while using the Event-Based Management System (EBMS) and is requesting support. Please review the issue described below and address it at your earliest convenience::</em>
+      </p>
+      <p style="margin: 12px 0 0; white-space: pre-line;">${message.replace(/\n/g, '<br/>')}</p>
+    </div>
+
+    <p style="margin-top: 24px; font-size: 14px; color: #666;">
+      You can respond directly to the user at: 
+      <a href="mailto:${email}" style="color: #1a73e8;">${email}</a>
+    </p>
+  </div>
+`,
+
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: 'Support request sent successfully.' });
+  } catch (err) {
+    console.error('Error sending email:', err);
+    res.status(500).json({ error: 'Failed to send support request. Please try again later.' });
+  }
+};
 
 exports.createEvent = async (req, res) => {
     try {
