@@ -45,7 +45,7 @@ const cors = require('cors');
 const devOrigins = ['http://localhost:3000', 'http://localhost:5173'];
 const prodOrigins = [
     'https://event-hub-vercel.vercel.app',
-    'https://event-admin-vercel.vercel.app'
+    'https://event-hub-admin.vercel.app'
 ];
 
 const corsOptions = {
