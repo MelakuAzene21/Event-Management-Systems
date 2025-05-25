@@ -34,6 +34,17 @@ export const eventApi = createApi({
             query: () => '/events/myEvent',
             providesTags: ['Event'],
         }),
+          //contact support endpoint
+      // Inside endpoints
+      contactSupport: builder.mutation({
+        query: (supportData) => ({
+             url: '/events/contact-support',
+             method: 'POST',
+             body: supportData,
+         }),
+            invalidatesTags: ['User'],
+        }),
+
         // Create a new event
         createEvent: builder.mutation({
             query: (eventData) => ({
@@ -89,4 +100,5 @@ export const {
     useLikeEventMutation,
     useGetCategoriesQuery,
     useGetDashboardDataQuery,
+    useContactSupportMutation,
 } = eventApi;

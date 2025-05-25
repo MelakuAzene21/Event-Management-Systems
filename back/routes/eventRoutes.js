@@ -37,6 +37,7 @@ const { createEvent, getEvents, eventDetails, getMyEvent, UpdateEvent, deleteEve
     getDashboardData,
     getEventsAdmin,
     getAnalyticsData,
+    contactSupport,
     countEventByCategory
 } = require('../controllers/eventController');
 const verifyToken = require('../middlewares/verifyToken');
@@ -62,4 +63,5 @@ router.put('/update/:id', verifyToken, checkRole('organizer'), UpdateEvent);
 router.delete('/delete/:id', verifyToken, checkRole('organizer', 'admin'), deleteEvent);
 router.post('/userLike/:eventId', verifyToken, userLike);
 router.get('/:eventId/attendeeCount', getEventAttendeeCount);
+router.post('/contact-support',contactSupport )
 module.exports = router;
