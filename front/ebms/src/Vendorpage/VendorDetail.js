@@ -140,7 +140,7 @@ const VendorDetail = () => {
                     <div className="flex items-center gap-6 mt-3">
                         <div className="flex items-center">
                             <FiMapPin className="text-gray-500 mr-2" />
-                            <span className="text-gray-600">{vendor.location.name || 'No location specified'}</span>
+                            <span className="text-gray-600">{vendor?.location?.name || 'No location specified'}</span>
                         </div>
                         <div className="flex items-center">
                             <FiCalendar className="text-gray-500 mr-2" />
