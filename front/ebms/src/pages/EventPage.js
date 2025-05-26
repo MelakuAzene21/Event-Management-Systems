@@ -1197,7 +1197,7 @@ export default function IndexPage() {
 
                  
                 <div>
-                   {user && <FAQ />}
+                     <FAQ />
                  </div>
             </div>
         </>
