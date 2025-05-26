@@ -77,42 +77,41 @@ const formData = useSelector((state) => state.auth.formData);
     return `${m}:${s}`;
   };
 
-const handleVerify = async () => {
-  setErrorMsg('');
-  setSuccessMsg('');
-  const code = otp.join('');
-  // Check if all digits are filled
-  if (code.length !== 6 || otp.includes('')) {
-    setErrorMsg('Please enter all 6 digits.');
-    return;
-  }
-  // Check if tempToken is missing
-  if (!temptoken) {
-    setErrorMsg('Verification session expired. Please log in again.');
-    return;
-  }
-
-  try {
-    // Send OTP and tempToken
-    console.log("code :",code ,"and tokenis ",temptoken)
-    const response = await verifyAdminOtp({ otp: code, temptoken }).unwrap();
-    // Store token and user data
- if (response?.message === 'OTP verified successfully') {
-    dispatch(setUser({ user: response.user }));
-      dispatch(cleartemptoken());
-      dispatch(cleartempformDAta());
-setSuccessMsg('OTP verified and login successful! Redirecting...');
-      setTimeout(() => navigate('/admin'), 1500);
-    } else {
-      setErrorMsg('Unexpected response. Please try again.');
+  const handleVerify = async () => {
+    setErrorMsg("");
+    setSuccessMsg("");
+    const code = otp.join("");
+    if (code.length !== 6 || otp.includes("")) {
+      setErrorMsg("Please enter all 6 digits.");
+      return;
     }
-  } catch (error) {
-    console.error(error);
-    setErrorMsg(
-      error?.data?.message || error?.message || 'Verification  failed.'
-    );
-  }
-};
+    if (!temptoken) {
+      setErrorMsg("Verification session expired. Please log in again.");
+      return;
+    }
+
+    try {
+      const response = await verifyAdminOtp({ otp: code, temptoken }).unwrap();
+      console.log("OTP Verification Response:", response); // Debug log
+      if (response?.message === "OTP verified successfully") {
+        if (!response.user?._id) {
+          console.error("User object missing _id:", response.user);
+          setErrorMsg("Invalid user data received.");
+          return;
+        }
+        dispatch(setUser(response.user)); // Set user without wrapping in { user: ... }
+        dispatch(cleartemptoken());
+        dispatch(cleartempformDAta());
+        setSuccessMsg("OTP verified and login successful! Redirecting...");
+        setTimeout(() => navigate("/admin"), 1500);
+      } else {
+        setErrorMsg("Unexpected response. Please try again.");
+      }
+    } catch (error) {
+      console.error("OTP Verification Error:", error);
+      setErrorMsg(error?.data?.message || "Verification failed.");
+    }
+  };
 
   const handleResend = async () => {
     if (resendCount >= 3) {

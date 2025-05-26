@@ -33,13 +33,17 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { ToastContainer } from "react-toastify";
 import { useSelector } from "react-redux";
 import axios from "axios";
-
+import { useGetCurrentUserQuery } from "../features/api/apiSlices";
 const socket = io(
   process.env.NODE_ENV === "production"
     ? "https://event-management-systems-gj91.onrender.com"
     : "http://localhost:5000",
   {
     transports: ["websocket", "polling"],
+    reconnection: true,
+    reconnectionAttempts: 5, // Limit reconnection attempts
+    reconnectionDelay: 3000,
+    withCredentials: true,
   }
 );
 
@@ -67,6 +71,23 @@ const AdminLayout = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [notifAnchor, setNotifAnchor] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const {
+    data: currentUser,
+    isLoading: isUserLoading,
+    error: userError,
+  } = useGetCurrentUserQuery(undefined, {
+    skip: !!user, // Skip if user is already present
+  });
+
+  useEffect(() => {
+    if (!user && currentUser) {
+      dispatch(setUser(currentUser));
+    }
+    if (userError) {
+      console.error("Error fetching current user:", userError);
+      navigate("/"); // Redirect to login if token is invalid
+    }
+  }, [currentUser, userError, user, navigate]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -77,7 +98,8 @@ const AdminLayout = () => {
             { withCredentials: true }
           );
           setNotifications(res.data);
-        } catch (error) {
+          console.log("Fetched notifications for admin:", res.data);
+        } catch (error) { 
           console.error("Error fetching notifications:", error);
         }
       }
@@ -119,6 +141,7 @@ const AdminLayout = () => {
     if (user && user._id) {
       socket.emit("join", user._id);
     }
+    console.log("User ID for socket join:", user._id);
   }, [user]);
 
   const handleNotificationClick = async (notif) => {

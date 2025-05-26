@@ -209,6 +209,7 @@ const handleSubmit = async (e) => {
   try {
     dispatch(settempformDAta(formData));
     const userData = await login(formData).unwrap();
+    dispatch(setUser(userData.user));
     // Store the temporary tokeny
     console.log(userData.temptoken);
     dispatch(settemptoken(userData.temptoken));

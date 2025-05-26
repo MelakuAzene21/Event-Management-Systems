@@ -419,7 +419,7 @@ exports.verifyAdminOtp = async (req, res) => {
     }
 
     // Generate the real full login token
-    const realToken = jwt.sign(
+    const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
@@ -429,12 +429,13 @@ exports.verifyAdminOtp = async (req, res) => {
     const { password, ...userData } = user._doc;
 
     // Send full user data and real token
-    res.cookie('token', realToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'strict'
-    }).status(200).json({
-      message: 'OTP verified successfully',
+      res.cookie('token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+          maxAge: 24 * 60 * 60 * 1000,
+      });  
+        res.status(200).json({message: 'OTP verified successfully',
       user: userData
     });
 

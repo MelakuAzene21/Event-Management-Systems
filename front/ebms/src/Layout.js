@@ -10,7 +10,7 @@ export default function Layout() {
     return (
         <div className='  flex flex-col min-h-screen'>
             {/* Show Navbar only if the user is NOT an organizer */}
-            {user?.role !== "organizer" && <Header />}
+            { <Header />}
             <main className="flex-grow mt-16">
                 <Outlet />
             </main>

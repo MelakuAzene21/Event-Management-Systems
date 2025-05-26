@@ -22,6 +22,7 @@
 //             .concat(eventApi.middleware) // Include middleware for APIs
 //             .concat(bookingApi.middleware) // Add booking middleware
 // });
+
 import { configureStore } from '@reduxjs/toolkit';
 import { authApi } from '../features/api/authApi';
 import { eventApi } from '../features/api/eventApi';
