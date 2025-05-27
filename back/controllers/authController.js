@@ -517,10 +517,17 @@ exports.login = async (req, res) => {
 
 exports.logout = (req, res) => {
     try {
-        // Clear the authentication cookie
-        res.clearCookie('token', { httpOnly: true,sameSite:'None' })
-            .json({ message: 'Logout successful' });
+        // Clear the authentication cookie with matching attributes
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Match login's secure setting
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Match login's sameSite setting
+            path: '/', // Ensure path matches (default is '/')
+        });
+
+        res.status(200).json({ message: 'Logout successful' });
     } catch (error) {
+        console.error('Error logging out:', error);
         res.status(500).json({ message: 'Error logging out', error: error.message });
     }
 };
