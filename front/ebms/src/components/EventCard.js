@@ -168,15 +168,18 @@ const EventCard = React.memo(({ event, user, handleLike }) => {
     );
 
     return (
-        <Link to={`/events/${event._id}`} className="group">
-            <div className={cardClasses.container}>
+       
+        <div className={cardClasses.container}>
+            <Link to={`/events/${event._id}`} className="group">
+
                 <div className={cardClasses.imageWrapper}>
-                    <img
+                <img
                         src={event.images[0]}
                         alt={event.title}
                         className={cardClasses.image}
                         loading="lazy" // Lazy load images
                     />
+
                     <div className={cardClasses.badge}>{categoryName}</div>
                     {event.isFree && (
                         <div className={cardClasses.freeBadge}>
@@ -185,6 +188,7 @@ const EventCard = React.memo(({ event, user, handleLike }) => {
                         </div>
                     )}
                 </div>
+                </Link>
                 <div className={cardClasses.content}>
                     <h3 className={cardClasses.title}>{event.title.toUpperCase()}</h3>
                     <div className="mt-2 space-y-1">
@@ -224,13 +228,16 @@ const EventCard = React.memo(({ event, user, handleLike }) => {
                             <ShareEventModal event={event} />
                         </div>
                     </div>
-                    <button className={cardClasses.button}>
+                <Link to={`/events/${event._id}`} className="group">
+
+                <button className={cardClasses.button}>
                         View Details
                         <BsArrowRightShort className="w-5 h-5" />
                     </button>
+                </Link>
                 </div>
             </div>
-        </Link>
+       
     );
 });
 
