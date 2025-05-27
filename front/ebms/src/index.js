@@ -25,14 +25,16 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store ,persistor} from './store/store';
 import './index.css';
 import "antd/dist/reset.css"; // Import antd styles
-
+import ErrorBoundary from './components/ErrorBoundary';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   
   <Provider store={store}>
     <PersistGate loading={null} persistor={persistor}>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </PersistGate>
   </Provider>
 );

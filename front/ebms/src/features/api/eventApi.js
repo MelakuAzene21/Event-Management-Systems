@@ -89,6 +89,9 @@ export const eventApi = createApi({
         getDashboardData: builder.query({
             query: () => '/events/dashboard',
         }),
+        getTopCities: builder.query({
+            query: () => '/events/top-cities',
+          }),
                 
     }),
 });
@@ -104,4 +107,5 @@ export const {
     useGetCategoriesQuery,
     useGetDashboardDataQuery,
     useContactSupportMutation,
+    useGetTopCitiesQuery,
 } = eventApi;
