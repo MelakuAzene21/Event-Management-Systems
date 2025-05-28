@@ -585,7 +585,7 @@ exports.getAllVendors = async (req, res) => {
         }
 
         const vendors = await User.find(query)
-            .select("name email serviceProvided rating price location status")
+            .select("name avatar email serviceProvided rating price location status")
             .sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -608,7 +608,7 @@ exports.getVendorById = async (req, res) => {
     try {
         const vendor = await User.findOne({ _id: req.params.id, role: "vendor" })
             .select(
-                "name email serviceProvided rating price location status description availability documents portfolio"
+                "name email avatar serviceProvided rating price location status description availability docs portfolio"
             );
 
         if (!vendor) {
@@ -1041,12 +1041,16 @@ exports.googleCallback = (req, res) => {
     const token = req.user.token;
     console.log('Token from Google authenticated', token);
 
+    // Determine if the environment is production
+    const isProduction = process.env.NODE_ENV === 'production';
+
     // Store token in a cookie
     res.cookie('token', token, {
         httpOnly: true,
-        secure: false, // Change to true in production (for HTTPS)
-        sameSite: 'strict',
+        secure: isProduction, // true in production (HTTPS), false in development
+        sameSite: isProduction ? 'strict' : 'lax', // lax is better for local development
     });
+
 
     const redirectURL =
         process.env.NODE_ENV === 'production'
