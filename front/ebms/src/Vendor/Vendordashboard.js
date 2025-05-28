@@ -7,7 +7,7 @@ const Vendordashboard = () => {
   return (
     <div className="h-screen flex flex-col">
       {/* Top Navigation - Includes Sidebar */}
-      <div className="w-full fixed top-0">
+      <div className="w-full  top-0">
         <Top />
       </div>
       

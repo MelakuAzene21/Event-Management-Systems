@@ -100,12 +100,17 @@ useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-   useEffect(() => {
-    socket.on("messageDelivered", ({ chatId, message }) => {
+  useEffect(() => {
+    const handleMessageDelivered = ({ chatId, message }) => {
       dispatch(addMessage({ chatId, message, currentUserId }));
-    });
-  }, [dispatch, currentUserId]);
+    };
 
+    socket.on("messageDelivered", handleMessageDelivered);
+
+    return () => {
+      socket.off("messageDelivered", handleMessageDelivered);
+    };
+  }, [dispatch, currentUserId]);
   
 
 useEffect(() => {
