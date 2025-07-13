@@ -14,7 +14,7 @@ export default function Footer() {
                     <div className="flex space-x-4 mt-4">
                         <a href="#" className="text-gray-400 hover:text-white"><FaFacebookF /></a>
                         <a href="#" className="text-gray-400 hover:text-white"><FaTwitter /></a>
-                        <a href="#" className="text-gray-400 hover:text-white"><FaInstagram /></a>
+                        <a href="https://www.instagram.com/melakuaz_21/" className="text-gray-400 hover:text-white"><FaInstagram /></a>
                         <a href="#" className="text-gray-400 hover:text-white"><FaYoutube /></a>
                     </div>
                 </div>
@@ -23,7 +23,7 @@ export default function Footer() {
                 <div>
                     <h3 className="text-lg font-semibold mb-4">Events</h3>
                     <ul className="text-sm text-gray-400 space-y-2">
-                        <li><a href="#" className="hover:text-white">Browse Events</a></li>
+                        <li><a href="/" className="hover:text-white">Browse Events</a></li>
                         <li><a href="#" className="hover:text-white">Create Event</a></li>
                         <li><a href="#" className="hover:text-white">Virtual Events</a></li>
                         <li><a href="#" className="hover:text-white">Corporate Events</a></li>
@@ -63,9 +63,9 @@ export default function Footer() {
                     </div>
                     <div className="mt-6">
                         <h3 className="text-lg font-semibold mb-2">Contact Info</h3>
-                        <p className="text-sm text-gray-400">📞 +1 (555) 123-4567</p>
-                        <p className="text-sm text-gray-400">✉️ support@ems.com</p>
-                        <p className="text-sm text-gray-400">📍 123 Event Street, NY 10001</p>
+                        <p className="text-sm text-gray-400">📞 +251918219856</p>
+                        <p className="text-sm text-gray-400">✉️ melakuazene23@gmail.com</p>
+                        <p className="text-sm text-gray-400">📍 123 Event Street, Bole, Addis Abeba</p>
                     </div>
                 </div>
             </div>
