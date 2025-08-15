@@ -96,7 +96,7 @@ EBMS/
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/MelakuAzene21/Event-Management-Systems
    cd EBMS
    ```
 
@@ -311,6 +311,7 @@ This project is licensed under the ISC License.
 **Melaku Azene** - Event Booking Management System
 
 ## 📞 Support
+DM in Telegram   @Melaku_21
 
 For support and questions, please contact the development team or create an issue in the repository.
 
