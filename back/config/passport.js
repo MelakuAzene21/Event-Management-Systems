@@ -5,13 +5,16 @@ const jwt = require("jsonwebtoken");
 const dotenv = require('dotenv');
 
 dotenv.config();
+const isProduction = process.env.NODE_ENV === "production";
 
 passport.use(
     new GoogleStrategy(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: "/api/auth/google/callback",
+            callbackURL: isProduction
+                ? "https://event-management-systems-gj91.onrender.com/api/auth/google/callback"
+                : "http://localhost:5000/api/auth/google/callback",
             passReqToCallback: true,  // Enables passing req as first parameter
             prompt: "select_account"  // Forces Google to show account selection
         },
