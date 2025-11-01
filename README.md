@@ -8,7 +8,7 @@ EBMS is a modern, scalable event management platform built with the MERN stack (
 
 ### Key Features
 
-- **Multi-User System**: Support for regular users, event organizers, vendors, and administrators
+- **Multi-User /Actor/ System**: Support for regular users, event organizers, vendors, and administrators
 - **Event Management**: Create, update, and manage events with rich details
 - **Booking System**: Secure ticket booking with payment integration
 - **Real-time Communication**: Live chat and notifications using Socket.io
