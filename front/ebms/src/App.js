@@ -43,39 +43,57 @@ import Vendordashboard from './Vendor/Vendordashboard';
 import ChatInterface from './components/ChatInterface';
 import VendorProfile  from './components/VendorProfile';
 import { setUserOnline, setUserOffline, setOnlineUsers } from "./features/slices/chatSlice";
-import socket,  { startPing  } from './lib/socket'; // ✅ Import your socket instance
+import socket,  { startPing ,stopPing  } from './lib/socket'; // ✅ Import your socket instance
 import CheckCalendarSuccess from './Private/CheckCalendarSuccess';
 import VerifyOtp from './components/VerifyOtp'
 function App() {
-  // const user=useSelector((state) => state.auth.user);
   const { data: user, isLoading } = useGetCurrentUserQuery();
   const dispatch = useDispatch();
+ const auth = useSelector(state => state.auth);
 
-  
   useEffect(() => {
-    if (user) {
-      dispatch(setUser(user)); // Update Redux state with the user data
+    if (!auth.user) {
+      stopPing();
+      if (socket.connected) {
+        socket.disconnect();
+      }
     }
-  }, [user, dispatch]);
+  }, [auth.user]);
+  
+//   useEffect(() => {
+//     if (user) {
+//       dispatch(setUser(user)); // Update Redux state with the user data
+//     }
+  // }, [user, dispatch]);
+useEffect(() => {
+  const handleUserOnline = ({ userId }) => {
+    dispatch(setUserOnline(userId));
+  };
 
-  useEffect(() => {
-    socket.on("userOnline", ({ userId }) => {
-      dispatch(setUserOnline(userId));
-    });
+  const handleUserOffline = ({ userId }) => {
+    dispatch(setUserOffline(userId));
+  };
 
-    socket.on("userOffline", ({ userId }) => {
-      dispatch(setUserOffline(userId));
-    });
+  const handleInitialOnlineUsers = (userIds) => {
+    dispatch(setOnlineUsers(userIds));
+  };
 
-    socket.on("initialOnlineUsers", (userIds) => {
-      dispatch(setOnlineUsers(userIds)); // replace entire list
+  const handleStartPing = () => {
+    startPing();
+  };
 
-    });
-socket.on("startPing", () => {
-  startPing();
-});
- 
-  }, [dispatch]);
+  socket.on("userOnline", handleUserOnline);
+  socket.on("userOffline", handleUserOffline);
+  socket.on("initialOnlineUsers", handleInitialOnlineUsers);
+  socket.on("startPing", handleStartPing);
+
+  return () => {
+    socket.off("userOnline", handleUserOnline);
+    socket.off("userOffline", handleUserOffline);
+    socket.off("initialOnlineUsers", handleInitialOnlineUsers);
+    socket.off("startPing", handleStartPing);
+  };
+}, [dispatch]);
 
   useEffect(() => {
     if (user) {

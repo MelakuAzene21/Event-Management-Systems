@@ -3,9 +3,9 @@ const { register, login, logout, getProfile, updateProfile,
     getAllUsers, googleCallback, logoutGoogle, deleteUser,
     forgotPassword, resetPassword, updateUser, followedOrganizers,
     totalFollowerOfOrganizer, uploadAvatar, getAllVendors, getVendorById, 
-    getOrganizerDetails,
-    getOrganizerDEtails,verifyAdminOtp,
-    getAllOrganizers} = require('../controllers/authController');
+    getOrganizerDetails,addPortfolioItem,
+    getOrganizerDEtails,verifyAdminOtp,changePassword ,
+    getAllOrganizers,updateUserProfile} = require('../controllers/authController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const router = express.Router();
@@ -28,7 +28,7 @@ router.get('/vendors', getAllVendors)
 router.get('/vendor/:id', getVendorById);
 router.get('/organizers',getAllOrganizers)
 //add for otp
-const { initiateRegistration,registercontroller } = require('../controllers/authController');
+const { initiateRegistration,registercontroller} = require('../controllers/authController');
 router.post('/register/initiate', initiateRegistration);
 //for verify otp
 router.post('/register/verify-otp', otpVerificationMiddleware);
@@ -36,6 +36,9 @@ router.post('/register/verify-otp', otpVerificationMiddleware);
  router.post('/register',verifyTokenMiddleware,uploadMiddleware, registercontroller);
 router.post('/login/verify-admin-otp', verifyAdminOtp);
 
+router.put('/update-profile', uploadMiddleware,verifyToken, updateUserProfile);
+router.put('/change-password',verifyToken, changePassword);
+router.put('/add-portifolio',verifyToken,uploadMiddleware, addPortfolioItem );
 
 
 // // Google OAuth Login

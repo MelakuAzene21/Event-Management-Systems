@@ -30,17 +30,15 @@ const MyEvents = () => {
       </div>
 
       {/* Content */}
-      <div>
+      <div className="text-gray-700 text-center">
         {activeTab === "upcoming" ? (
-          <div className="text-gray-700 text-center">
-            <h2 className="text-xl font-bold mb-4">Upcoming Events</h2>
-            <p>List of events where you will provide service.</p>
-          </div>
+          <>
+            <p>No upcoming events yet.</p>
+          </>
         ) : (
-          <div className="text-gray-700 text-center">
-            <h2 className="text-xl font-bold mb-4">Past Events</h2>
-            <p>List of past events where you provided service.</p>
-          </div>
+          <>
+            <p>No past events you provided service for.</p>
+          </>
         )}
       </div>
     </div>

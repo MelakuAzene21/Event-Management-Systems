@@ -49,6 +49,129 @@ const Notification =require('../models/Notification')
 // };
 
 //added controller 1
+exports.updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id; // From auth middleware
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // STEP 1: Apply allowed text fields from body
+    const allowedFields = [
+      'serviceProvided',
+      'availability',
+      'price',
+      'description',
+      'location' // as a string like 'Bahirdar'
+    ];
+
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        user[field] = req.body[field];
+      }
+    });
+
+    // STEP 2: Handle avatar (optional)
+    if (req.files && req.files.avatar && req.files.avatar.length > 0) {
+      const avatarUrl = req.files.avatar[0].path; // From Cloudinary
+      user.avatar = avatarUrl;
+    }
+
+    // STEP 3: Handle uploaded docs (optional)
+    if (req.files && req.files.docs && req.files.docs.length > 0) {
+      const newDocs = req.files.docs.map(doc => ({
+        url: doc.path,
+        type: doc.mimetype.includes('pdf') ? 'pdf' : 'image',
+        previewUrl: doc.path
+      }));
+
+      user.docs.push(...newDocs); // Append, not replace
+    }
+
+    // STEP 4: Save user
+    await user.save();
+
+    // STEP 5: Return updated user
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      user,
+    });
+
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+
+
+
+exports.changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id; // from auth middleware (e.g., JWT)
+    const { currentPassword, newPassword } = req.body;
+
+    // Check required fields
+    if (!currentPassword || !newPassword ) {
+      return res.status(400).json({ message: 'All password fields are required.' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+
+    // Compare current password
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Current password is incorrect.' });
+    }
+
+    // Update password and save
+    user.password = newPassword; // Will be hashed in pre-save hook
+    await user.save();
+
+    return res.status(200).json({ message: 'Password updated successfully.' });
+  } catch (err) {
+    console.error('Change password error:', err);
+    return res.status(500).json({ message: 'Server error.', error: err.message });
+  }
+};
+
+
+exports.addPortfolioItem = async (req, res) => {
+  try {
+    console.log("gera");
+    const userId = req.user._id;
+
+    const { title, description } = req.body;
+    const image = req.files?.avatar?.[0]?.path || null;
+
+    if (!title || !description || !image) {
+      return res.status(400).json({ message: 'Title, description, and image are required' });
+    }
+
+    const portfolioItem = {
+      title,
+      description,
+      image,
+    };
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Assuming `portfolio` is an array inside the user schema
+    user.portfolio.push(portfolioItem);
+    await user.save();
+
+    res.status(200).json({ message: 'Portfolio item added', portfolio: user.portfolio });
+  } catch (error) {
+    console.error('Error adding portfolio:', error.message);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 
 exports.initiateRegistration = async (req, res) => {
   try {

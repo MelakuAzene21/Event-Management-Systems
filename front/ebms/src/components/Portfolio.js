@@ -11,7 +11,7 @@ import {
 const Portfolio = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const portfolioItems = user.portfolio || [];
+  const portfolioItems = user?.portfolio || [];
 
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);

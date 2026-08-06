@@ -17,13 +17,14 @@ export default function Logout() {
     const notifications = useSelector((state) => state.notifications.notifications);
     const [logouting] = useLogoutMutation();
 
+
     const handleLogout = async () => {
         try {
             await logouting().unwrap(); 
             dispatch(logoutAction());
-            toast.success('Logged out successfully');
+            toast.success('Logged out successfully');        
+             stopPing();
             socket.disconnect();
-            stopPing();
             navigate('/login');
         } catch (err) {
             console.error('Failed to log out:', err);

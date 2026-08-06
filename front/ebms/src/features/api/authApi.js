@@ -49,13 +49,38 @@ export const authApi = createApi({
             }),
             invalidatesTags: ['User'],
         }),
-
+        // change the pass for vendor 
+    changePassword: builder.mutation({
+     query: ({ currentPassword, newPassword }) => ({
+       url: `/auth/change-password`,
+          method: 'PUT',
+        body: { currentPassword, newPassword },
+       }),
+       invalidatesTags: ['User'],
+    }),
+ 
+// update vender profile 
+      updateUserProfile: builder.mutation({
+        query: (formData) => ({
+          url: '/auth/update-profile', 
+          method: 'PUT', // or 'POST' depending on your backend
+          body: formData, // FormData instance
+        }),
+      }),
+      // update vender profile 
+     addportifollio: builder.mutation({
+  query: (formData) => ({
+    url: '/auth/add-portifolio',
+    method: 'PUT',
+    body: formData,
+  }),
+})
+,
         // Get Current User Profile
         getCurrentUser: builder.query({
             query: () => '/auth/profile', // Profile endpoint
             providesTags: ['User'],
-            skip: (state) => !state.auth.user,  // Skip if no user exists in the state
-
+            // skip: (state) => !state.auth.user,  // Skip if no user exists in the state
         }),
 
         // Logout Endpoint
@@ -147,5 +172,7 @@ export const {
     useGetOrganizerQuery,
     useGetOrganizersQuery,
     useInitiateRegisterMutation,
+    useChangePasswordMutation,
     useVerifyOtpAndRegisterMutation,
+    useAddportifollioMutation,
 } = authApi;

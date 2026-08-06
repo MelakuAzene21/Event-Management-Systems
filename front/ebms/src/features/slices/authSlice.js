@@ -38,12 +38,14 @@ const authSlice = createSlice({
       state.error = null;
     },
     // Portfolio-related actions
-    addPortfolioItem(state, action) {
+ addPortfolioItem: (state, action) => {
       if (state.user) {
-        state.user = {
-          ...state.user,
-          portfolio: [...(state.user.portfolio || []), action.payload]
+        const newPortfolioItem = {
+          ...action.payload,
+          _id: action.payload._id || Date.now().toString(), // Temporary ID if not provided
+          showMenu: action.payload.showMenu || false, // Default to false if not provided
         };
+        state.user.portfolio = [...(state.user.portfolio || []), newPortfolioItem];
       }
     },
     togglePortfolioMenu(state, action) {
@@ -65,12 +67,20 @@ const authSlice = createSlice({
         }
       }
     },
-    deletePortfolioItem(state, action) {
+    deletePortfolioItem: (state, action) => {
       if (state.user && state.user.portfolio) {
-        state.user = {
-          ...state.user,
-          portfolio: state.user.portfolio.filter(item => item._id !== action.payload)
-        };
+        state.user.portfolio = state.user.portfolio.filter(
+          item => item._id !== action.payload
+        );
+      }
+    },
+    editPortfolioItem: (state, action) => {
+      if (state.user && state.user.portfolio) {
+        state.user.portfolio = state.user.portfolio.map(item =>
+          item._id === action.payload._id
+            ? { ...item, ...action.payload }
+            : item
+        );
       }
     },
     setPortfolio(state, action) {
@@ -160,6 +170,7 @@ export const {
   setFollowedOrganizers,
   setProfilePhoto,
   addPortfolioItem,
+  editPortfolioItem,
   updatePortfolioItem,
   deletePortfolioItem,
   togglePortfolioMenu,

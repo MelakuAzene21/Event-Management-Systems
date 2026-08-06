@@ -129,7 +129,7 @@ const VendorDetail = () => {
                 </div>
                 <div className="flex-grow">
                     <div className="flex items-center justify-between">
-                        <h1 className="text-3xl font-bold text-gray-900">{vendor.name}</h1>
+                        <h1 className="text-3xl font-bold text-gray-900">{vendor?.name}</h1>
                         <span className="bg-indigo-100 text-indigo-700 text-sm font-medium px-3 py-1 rounded-full">
                             {vendor.status || 'Active'}
                         </span>
@@ -137,7 +137,7 @@ const VendorDetail = () => {
                     <div className="flex items-center gap-6 mt-3">
                         <div className="flex items-center">
                             <FiMapPin className="text-gray-500 mr-2" />
-                            <span className="text-gray-600">{vendor.location.name || 'No location specified'}</span>
+                            <span className="text-gray-600">{vendor?.location?.name || 'No location specified'}</span>
                         </div>
                         <div className="flex items-center">
                             <FiCalendar className="text-gray-500 mr-2" />
@@ -245,7 +245,7 @@ const VendorDetail = () => {
                 <div className="md:w-1/3">
                     <div className="bg-indigo-600 text-white rounded-xl p-6">
                         <h3 className="text-xl font-semibold">Contact Vendor</h3>
-                        <p className="text-gray-200 my-4">Message {vendor.name} directly for more details.</p>
+                        <p className="text-gray-200 my-4">Message {vendor?.name} directly for more details.</p>
                         <button
                             onClick={handleContactVendor}
                             className="bg-indigo-700 hover:bg-indigo-800 text-white font-semibold py-2 px-4 rounded-full w-full"
